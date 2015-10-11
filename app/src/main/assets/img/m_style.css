@@ -1,0 +1,153 @@
+/** 网站预设 **/
+body{background:#f8f8f8;}
+textarea,input{-webkit-appearance: none;}
+.fl{float:left;}
+.fr{float:right;}
+.bgGrey{background:#c5c5c5;}
+.bgBlue{background:#69a4db;}
+.bgRed{background:#ca0808;}
+.bgOrange{background:#f07727;}
+.bgYellow{background:#e3b600;}
+.bgGreen{background:#94d200;}
+.bgFGreen{background:#12b89b;}
+.fontGreen{color:#94d200;}
+
+.task_h10{width:100%;height:10px;}
+.task_h20{width:100%;height:20px;}
+.task_h30{width:100%;height:30px;}
+.task_h40{width:100%;height:40px;}
+.task_h50{width:100%;height:50px;}
+.task_h60{width:100%;height:60px;}
+.task_h70{width:100%;height:70px;}
+
+@font-face{
+    font-family:"taskRing-icon";
+    src:url("../fonts/icomoon.eot") ; /** 兼容IE9**/
+    src:url("../fonts/icomoon.eot?#iefix") format("embedded-opentype"),/* IE6-IE8 */
+    url("../fonts/icomoon.woff") format("woff"), /* chrome、firefox */
+    url("../fonts/icomoon.ttf") format("truetype"),/* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url("../fonts/icomoon.svg") format("svg"); /* iOS 4.1- */
+    font-weight:normal;
+    font-style:normal;
+}
+
+/** index.php **/
+/** 头部背景图片以及头像 **/
+.taskRing_header_img{width:100%;position:relative;}
+.taskRing_header_img form{position:relative;width:100%;margin-bottom:40px;}
+.taskRing_header_img form img{width:100%;}
+.taskRing_header_img form input{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;}
+.taskRing_header_img .taskRing_header_username{font-size:1.6rem;color:#fff;position:absolute;bottom:10px;right:105px;font-weight:bold;height:20px;line-height:20px;text-shadow:1px 2px 2px #555;}
+.taskRing_header_img .taskRing_header_userImg{width:80px;position:absolute;bottom:-40px;right:15px;}
+.taskRing_header_img .taskRing_header_userImg a{display:inline-block;width:80px;}
+.taskRing_header_img .taskRing_header_userImg a img{width:80px;height:80px;border:3px solid #fff;box-sizing:border-box;}
+/** 消息提示框 **/
+.taskRing_box{width:94%;margin:0 auto;}
+.taskRing_task_news{width:100%;text-align:center;padding-top:3%;}
+.taskRing_task_news a{display:inline-block;background:#505050;border-radius:5px;height:38px;line-height:38px;padding:0 25px;font-size:1.5rem;color:#fff;}
+/** 任务列表 **/
+.taskRing_list_box{width:100%;}
+.taskRing_list_detail{width:94%;padding:5% 3%;border-bottom:1px solid #cfcfcf;}
+.taskRing_list_detail_img{width:15%;}
+.taskRing_list_detail_img a{display:inline-block;width:100%}
+.taskRing_list_detail_img img{width:100%;}
+.taskRing_list_detail_info{width:82%;margin-left:3%;}
+.taskRing_list_detail_info_title{width:100%;margin-bottom:1%;}
+.taskRing_list_detail_info_title a{color:#124e87;font-size:1.5rem;font-weight:bold;}
+.taskRing_list_detail_info_title span{font-size:1.5rem;color:#848484;margin-left:10px;}
+.taskRing_list_detail_info_title span em{margin:0 2px;font-weight:bold;}
+.taskRing_list_detail_info_font{width:100%;font-size:1.4rem;color:#383838;}
+.taskRing_list_detail_info_img{width:100%;margin-top:3%;}
+.taskRing_list_detail_info_img .picture{float:left;width:30%;margin-right:2%;margin-bottom:2%;background:#eee;}
+.taskRing_list_detail_info_img .picture img{width:100%;}
+.taskRing_list_detail_info_operation{width:100%;height:30px;line-height:30px;margin-top:2%;}
+.taskRing_list_detail_info_operation .time{font-size:1.4rem;color:#848484;}
+.taskRing_list_detail_info_operation a.btn1{font-size:1.4rem;color:#124e87;margin-left:10px;}
+.taskRing_list_detail_info_operation a.btn2{display:inline-block;height:28px;line-height:28px;background:#f0f0f0;border-radius:5px;border:1px solid #cfcfcf;padding:0 10px;font-size:1.5rem;color:#939393;margin-left:10px;}
+.taskRing_list_detail_info_reply{width:94%;padding:5% 3%;background:#f0f0f0;position:relative;margin-top:12px;}
+.taskRing_list_detail_info_reply ul li:first-child{margin-top:0;}
+.taskRing_list_detail_info_reply ul li{display:inline-block;width:100%;vertical-align:bottom;margin-top:3%;line-height:1.5rem;}
+.taskRing_list_detail_info_reply ul li a{color:#124e87;font-size:1.3rem;}
+.taskRing_list_detail_info_reply ul li span{font-size:1.3rem;color:#383838;}
+.taskRing_list_detail_info_reply i{
+    display:inline-block;position:absolute;top:-20px;left:5%;color:#f0f0f0;font-size:2rem;width:20px;height:20px;line-height:30px;
+    font-family:"taskRing-icon";
+    font-weight:normal;
+    font-style:normal;
+    -webkit-font-smoothing:antialiased;/** 抗据齿 **/
+    -moz-osx-font-smoothing:grayscale;
+}
+
+.fixed_comment{position:fixed;bottom:-60px;left:0;width:100%;border-top:1px solid #cfcfcf;padding:8px 0;background:#fff;}
+.fixed_comment input.txt1{width:55%;border:1px solid #cfcfcf;height:34px;vertical-align:bottom;display:inline-block;font-size:1.5rem;color:#5c5c5c;border-radius:5px;padding:0 5%;margin:0 5%;}
+.fixed_comment a.btn1{display:inline-block;border:1px solid #939393;width:20%;height:34px;line-height:34px;text-align:center;font-size:1.5rem;color:#939393;border-radius:5px;}
+
+.fixed_status{position:fixed;bottom:-60px;left:0;width:100%;border-top:1px solid #cfcfcf;padding:8px 0;background:#fff;}
+.fixed_status ul{display:inline-block;width:94%;margin:0 3%;height:36px;}
+.fixed_status ul li{display:inline-block;float:left;height:36px;line-height:36px;width:25%;}
+.fixed_status ul li i{display:inline-block;width:18px;height:18px;border:1px solid #909090;background:#fff;border-radius:50%;float:left;margin-top:8px;box-sizing:border-box;}
+.fixed_status ul li.click i{border:none;background:#69a4db;box-shadow: 0 0 0 1px #69a4db;}
+.fixed_status ul li label{display:inline-block;font-size:1.2rem;color:#909090;float:left;margin:0 3px;}
+.fixed_status ul li a{display:inline-block;border:1px solid #939393;width:80%;height:34px;line-height:34px;text-align:center;font-size:1.5rem;color:#939393;border-radius:5px;margin-left:10%;}
+
+
+.picture_big_bg{width:100%;height:100%;background:#000;position:fixed;top:0;left:0;}
+.picture_num{border-radius:30px;background:rgba(255,255,255,0.15);width:20%;padding:1.5% 0;font-size:1.6rem;color:#fff;text-align:center;position:fixed;top:3%;left:40%;z-index:100}
+
+
+/** member_task.php **/
+.member_task_box{width:90%;margin:5%;background:#fff;border-radius:10px;border:1px solid #cfcfcf;box-sizing:border-box;}
+.member_task_box ul li{display:inline-block;width:94%;padding:0 3%;border-top:1px solid #cfcfcf;height:42px;line-height:42px;vertical-align:bottom;}
+.member_task_box ul li a{display:inline-block;}
+.member_task_box ul li a.title{width:80%;font-size:1.6rem;color:#5c5c5c;height:42px;overflow:hidden;}
+.member_task_box ul li a.icon{
+    text-align:right;font-size:2rem;color:#cfcfcf;width:20%;
+    font-family:"taskRing-icon";
+    font-weight:normal;
+    font-style:normal;
+    -webkit-font-smoothing:antialiased;/** 抗据齿 **/
+    -moz-osx-font-smoothing:grayscale;
+}
+.member_task_box ul li.img_name{height:auto;border-top:0;padding:3%;}
+.member_task_box ul li.img_name .head_img{width:60px;height:60px;}
+.member_task_box ul li.img_name .head_img img{width:100%;}
+.member_task_box ul li.img_name .name{font-size:1.6rem;color:#5c5c5c;height:60px;line-height:60px;margin-left:15px;font-weight:bold;}
+.member_task_btn{display:inline-block;height:42px;line-height:42px;font-size:1.6rem;color:#fff;border-radius:5px;width:50%;margin:0 25%;text-align:center;}
+
+
+/** release_task.php **/
+.release_task_box{width:90%;margin:0 auto;}
+.release_task_box ul{display:inline-block;width:100%;}
+.release_task_box ul li{display:inline-block;width:100%;vertical-align:bottom;margin-bottom:4%;}
+.release_task_box ul li:nth-child(3){margin-bottom:2%;}
+.release_task_box ul li label{display:inline-block;font-size:1.6rem;color:#848484;height:32px;line-height:32px;width:25%;text-align:center;}
+.release_task_box ul li .classification{width:72%;margin-left:3%;}
+.release_task_box ul li .classification a{float:left;display:inline-block;border-radius:5px;width:32px;height:32px;line-height:32px;text-align:center;font-size:1.8rem;color:#fff;margin-left:8px;}
+.release_task_box ul li .classification a:first-child{margin-left:0;}
+.release_task_box ul li .task_details{display:inline-block;width:70%;border:1px solid #cdcdcd;border-radius:5px;background:#fff;margin-left:3%;overflow:hidden;}
+.release_task_box ul li .task_details .txt1{display:inline-block;width:94%;border:0;height:60px;line-height:20px;resize:none;font-size:1.4rem;color:#5c5c5c;margin:3%;vertical-align:bottom;[[]]}
+.release_task_box ul li .upload_img{width:72%;margin-left:3%;}
+.release_task_box ul li .upload_img .picture{display:inline-block;width:62px;height:62px;border-radius:5px;overflow:hidden;margin:0 6px 6px 0}
+.release_task_box ul li .upload_img .picture img{width:100%;}
+.release_task_box ul li .upload_img form{display:inline-block;width:62px;height:62px;position:relative;}
+.release_task_box ul li .upload_img form a{display:inline-block;width:62px;height:62px;text-align:center;line-height:60px;font-size:5rem;color:#c5c5c5;border-radius:5px;border:1px solid #c5c5c5;background:#f0f0f0;box-sizing:border-box;}
+.release_task_box ul li .upload_img form input.txt3{display:inline-block;width:62px;height:62px;position:absolute;top:0;left:0;opacity:0;}
+.release_task_box ul li .executive{display:inline-block;width:50%;height:32px;border-radius:5px;background:#fff;border:1px solid #cfcfcf;margin-left:3%;overflow:hidden;}
+.release_task_box ul li .executive input.txt2{border:0;display:inline-block;width:80%;padding-left:5%;height:32px;vertical-align:middle;font-size:1.4rem;color:#5c5c5c;}
+.release_task_box ul li .executive i{
+    display:inline-block;font-size:2rem;color:#cfcfcf;height:32px;line-height:32px;text-align:center;width:15%;
+    font-family:"taskRing-icon";
+    font-weight:normal;
+    font-style:normal;
+    -webkit-font-smoothing:antialiased;/** 抗据齿 **/
+    -moz-osx-font-smoothing:grayscale;
+}
+.release_task_box ul li a.btn1{display:inline-block;width:100%;height:42px;line-height:42px;border-radius:5px;font-size:1.6rem;color:#fff;text-align:center;}
+.release_task_box ul li input.txt4{display:inline-block;width:44%;height:30px;vertical-align:middle;border-radius:5px;background:#fff;border:1px solid #cfcfcf;margin-left:3%;overflow:hidden;font-size:1.4rem;color:#5c5c5c;padding:0 3%;}
+
+
+
+
+
+
+

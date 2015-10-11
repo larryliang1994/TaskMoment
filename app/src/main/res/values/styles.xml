@@ -1,0 +1,24 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="actionBarSize">48dp</item>
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme"/>
+
+    <style name="dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="NavigationMenuStyle" parent="AppTheme">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+</resources>

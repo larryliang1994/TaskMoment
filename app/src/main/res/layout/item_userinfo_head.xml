@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
+
+    <com.jiubai.taskmoment.view.RippleView
+        android:id="@+id/rv_portrait_nickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:rv_color="@color/gray"
+        app:rv_rippleDuration="200"
+        app:rv_type="rectangle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/iv_portrait"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/portrait" />
+
+            <TextView
+                android:id="@+id/tv_nickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="@string/nickname"
+                android:textColor="#212121"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </com.jiubai.taskmoment.view.RippleView>
+
+    <ImageView
+        android:id="@+id/iv_divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/divider" />
+
+</LinearLayout>

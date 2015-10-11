@@ -1,0 +1,108 @@
+<html><head>
+    <title>发布任务</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0, user-scalable=0" name="viewport">
+    <link href="img/m_base.css" rel="stylesheet" type="text/css">
+    <link href="img/m_style.css" rel="stylesheet" type="text/css">
+
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/fsgallery.css" rel="stylesheet">
+    <!--<script src="js/jquery-1.8.2.js"></script>-->
+    <link href="img/common.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/fs_forse.js"></script>
+    <script src="js/date.js"></script>
+    <script src="js/iscroll.js"></script>
+    <script src="js/appjs.js"></script>
+    <script src="js/js.js"></script><script type="text/javascript">
+    $(function(){
+        $('#completeTime').date();
+        $('#releaseTime').date();
+    });
+</script></head>
+
+<body>
+<div class="task_h20"></div>
+<div class="release_task_box">
+    <ul>
+        <li>
+            <label class="fl">分级</label>
+            <div class="classification fl">
+                <a href="javascript:void(0)" class="bgGrey">S</a>
+                <a href="javascript:void(0)" class="bgGrey">A</a>
+                <a href="javascript:void(0)" class="bgGrey">B</a>
+                <a href="javascript:void(0)" class="bgGrey bgGreen">C</a>
+                <a href="javascript:void(0)" class="bgGrey">D</a>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">任务描述</label>
+            <div class="task_details fl">
+                <textarea placeholder="任务描述" class="txt1"></textarea>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">任务附图</label>
+            <div class="upload_img fl">
+                <div class="picture fl">
+                    <img src="img/img3.jpg">
+                </div>
+                <div class="picture fl">
+                    <img src="img/img4.jpg">
+                </div>
+                <form class="fl">
+                    <a href="javascript:void(0)">+</a>
+                    <input class="txt3" type="file">
+                </form>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">执行者</label>
+            <div class="executive fl">
+                <input class="txt2 fl" placeholder="杨雪琴" type="text">
+                <i class="fl"></i>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">监督者</label>
+            <div class="executive fl">
+                <input class="txt2 fl" placeholder="杨雪琴" type="text">
+                <i class="fl"></i>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">审核者</label>
+            <div class="executive fl">
+                <input class="txt2 fl" placeholder="杨雪琴" type="text">
+                <i class="fl"></i>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">完成时间</label>
+            <input id="completeTime" class="txt4 fl">
+            <div class="clear"></div>
+        </li>
+        <li>
+            <label class="fl">发布时间</label>
+            <input id="releaseTime" class="txt4 fl">
+            <div class="clear"></div>
+        </li>
+        <li>
+            <a href="javascript:void(0)" class="btn1 bgBlue" onclick="window.taskpublish.onPublish()">发布</a>
+        </li>
+    </ul>
+</div>
+<div id="datePlugin"></div>
+
+<div style="display: none;" class="fs_gallery"><div class="fs_gallery_prev"></div><div class="fs_gallery_next"></div><div class="fs_gallery_close"></div><div class="fs_gallery_shuft"></div><div class="fs_gallery_thumbs"><div class="fs_gallery_thumbs_list"></div></div></div></body></html>

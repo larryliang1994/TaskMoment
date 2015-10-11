@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.jiubai.taskmoment">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.Aty_Login"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        anz
+        <activity
+            android:name=".ui.Aty_AddCompany"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.Aty_TaskPublish"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name=".ui.Aty_Main"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".ui.Aty_Company" />
+
+        <activity android:name=".ui.Aty_CheckPicture" />
+
+        <activity android:name=".ui.Aty_PersonalInfo" />
+
+        <!--<activity-->
+        <!--android:name="me.nereo.multi_image_selector.PreviewPicturesActivity"-->
+        <!--android:configChanges="orientation|screenSize" />-->
+
+        <activity
+            android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
+            android:configChanges="orientation|screenSize" />
+
+        <receiver android:name=".receiver.Receiver_NetworkState">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".receiver.Receiver_SmsReader">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

@@ -1,0 +1,185 @@
+<html><head>
+		<title>创建公司</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0, user-scalable=0;" name="viewport">
+		<link href="css/yang_m.css" rel="stylesheet" type="text/css">
+		<script src="js/jquery172.js"></script>
+		<script src="js/jiubaierror.js"></script>
+		<script src="js/appjs.js"></script>
+	</head>
+<body>
+	<a class="yang_button_blank" href="javascript:void(0)"></a>
+	<div class="yang_special_four" style=" margin:5%; width:88%;">
+		<span class="title">请填写公司名称</span>
+		<ul>
+			<li>
+				<input type="text" name="name" class="yang_input_w9 input_orange account" placeholder="公司名称">
+			</li>
+			<li>
+				<a class="yang_button_w10 button_grey_radius5" stop="saving" onclick="CreateCompany(this)" act="" href="javascript:void(0)">创建公司</a>
+			</li>
+		</ul>
+	</div>
+	<a href="javascript:void(0)" class="yang_button_blank yang_button_blank_big"></a>
+	<style type="text/css">
+	.confirm_box1{width:80%;padding:30px 0;background:#fff;position:fixed;left:10%;top:30%;z-index:9999911;display:none;border-radius:5px;}
+	.confirm_box1 a.error_box1_close{float:right;display:inline-block;width:20px;height:20px;font-size:26px;color:#666;margin-right:10px;margin-top:5px;text-align:center;line-height:20px;font-weight:bold;}
+	.confirm_box1 a.error_box1_close:hover{color:#ff0000;}
+	.confirm_box1 span{display:block;font-size:14px;color:#221e1f;width:100%;text-align:center;margin-bottom:16px;line-height:24px;}
+	.confirm_box1_a{text-align:center;width:100%;height:32px;}
+	.confirm_box1_a a.cacle,.confirm_box1_a a.sure{margin-left:15%;border:1px solid #999;display:inline-block;width:30%;height:30px;line-height:30px;text-align:center;font-size:14px;color:#fff;background:#999;border-radius:3px;float:left;}
+	.confirm_box1_a a.cacle{background:#fff;color:#999;margin-left:10%;}
+	.confirm_box1_a a:active{position:relative;top:2px;}
+
+	.confirm_box1 a.close{font-size:25px;font-weight:bold;color:#fff;display:block;height:30px;width:30px;line-height:30px;text-align:center;background:#999999;position:absolute;top:-15px;right:-15px;border-radius:50px;}
+	.confirm_box1 a.close:hover{background:#ff0000;}
+
+</style>
+<!-- 弹出框 -->
+<div class="yang_pop_up_box_bg"></div>
+<div class="yang_pop_up_box_wan">
+	<div class="yang_pop_up_box_one alert1_box">
+		<div class="center">
+			<div class="title"></div>
+			<!-- <div class="input"><input type="text" class="yang_input_w9 input_orange"/></div>
+			<ul>
+				<li>
+					<i class="hover"></i>
+					<span>支付宝</span>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<i></i>
+					<span>微信</span>
+					<div class="clear"></div>
+				</li>
+				<li>
+					<i></i>
+					<span>现金支付（电话：<em>13814106501</em>）</span>
+					<div class="clear"></div>
+				</li>
+			</ul>
+			<div class="btn">
+				<a href="javascript:void(0)" class="button_green_radius5 yang_button_w4">充值</a>
+				<a href="javascript:void(0)" class="yang_button_blank"></a>
+				<a href="javascript:void(0)" class="button_grey_radius5 yang_button_w4">取消</a>
+			</div> -->
+			<div class="btn">
+				<a href="javascript:void(0)" onclick="error_mbox1H();" class="button_green_radius5 yang_button_w9"></a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="confirm_box1">
+	<span></span>
+	<div class="confirm_box1_a">
+		<a href="javascript:void(0)" class="sure">确定</a>
+		<a href="javascript:void(0)" class="cacle">取消</a>
+		<div class="clear"></div>
+	</div>
+	<a href="javascript:void(0)" class="close" onclick="error_box2H()">×</a>
+	<div class="clear"></div>
+</div>
+<script>
+	function error_mbox1H(){
+		$('.yang_pop_up_box_bg').css({'display':'none'});
+		$('.alert1_box').fadeOut(300);
+		$('.alert1_box .center .title').html();
+		$('.alert1_box .btn a').html();
+	}
+	function error_mbox1S(str,act,ht,url){
+		$('.yang_pop_up_box_bg').css({'display':'block'});
+		$('.alert1_box').fadeIn(300);
+		if(str.length>12){
+			$('.alert1_box .center .title').html(str);
+			$('.alert1_box .center .btn a').html('确定');
+		}else{
+			$('.alert1_box .center .btn a').html(str);
+		}
+	    switch(act){
+			case 'reload'://点击刷新页面ok
+				$('.alert1_box .center .btn a').unbind('click');
+				$('.alert1_box .center .btn a').bind('click',function(){
+					window.location.href = window.location.href;
+				});
+			break;
+			case 'auto_reload'://自动刷新页面ok
+				$('.alert1_box .center .btn a').unbind('click');
+				$('.alert1_box .center .btn a').bind('click',function(){
+					window.location.href = window.location.href;
+				});
+				if(ht){//多少毫秒之后自动隐藏
+					vart = setTimeout(function(){
+						window.location.href = window.location.href;
+					},ht);
+				}
+			break;
+			case 'go_url'://点击跳转
+				$('.alert1_box .center .btn a').unbind('click');
+				$('.alert1_box .center .btn a').attr('href',url);
+			break;
+			case 'auto_go_url'://自动跳转
+				$('.alert1_box .center .btn a').unbind('click');
+				$('.alert1_box .center .btn a').attr('href',url);
+				if(ht){//多少毫秒之后自动跳转
+					vart = setTimeout(function(){
+						window.location.href = url;
+					},ht);
+				}
+			break;
+			default:
+				if(ht){//多少毫秒之后自动隐藏
+					vart = setTimeout("error_mbox1H()",ht);
+				}
+			break;
+	    }
+	}
+
+	// 自定义confirm
+	function confirm_box1(msg, callback)
+	{
+		$('.yang_pop_up_box_bg').css({'display':'block'});
+		$('.confirm_box1').fadeIn(100);
+		$('.confirm_box1 span').html(msg);
+
+		var that = this;
+		$(".confirm_box1").find("a:eq(0)").unbind("click").bind("click", function () {
+			that.ok();
+		});
+
+		$(".confirm_box1").find("a:eq(1)").click(function () {
+			that.cancel();
+		});
+
+		this.ok = function () {
+			$('.yang_pop_up_box_bg').css({'display':'none'});
+			$('.confirm_box1').fadeOut(200);
+
+			callback();
+			return true;
+		}
+		this.cancel = function () {
+			$('.yang_pop_up_box_bg').css({'display':'none'});
+			$('.confirm_box1').fadeOut(200);
+			return false;
+		}
+	}
+
+</script><script type="text/javascript">
+	$inputName = $('input[name=name]');
+	$yang_button_w10 = $('.yang_button_w10 ');
+
+	$inputName.bind('click input propertychange', changeColor);
+
+	function changeColor(){
+		if($(this).val()){
+			$yang_button_w10.removeClass('button_grey_radius5').addClass('button_green_radius5').attr("stop","");
+		}else{
+			$yang_button_w10.removeClass('button_green_radius5').addClass('button_grey_radius5').attr("stop","saving");
+		}
+	}
+</script>
+
+
+</body></html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_login_picture"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:contentDescription="@null"
+            android:scaleType="fitStart"
+            android:src="@drawable/login_picture" />
+
+        <LinearLayout
+            android:id="@+id/ll_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_login_picture"
+            android:layout_margin="16dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edt_telephone"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/round_edittext"
+                    android:ems="11"
+                    android:hint="@string/telephone"
+                    android:inputType="phone"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:textSize="16sp"
+                    tools:ignore="RtlHardcoded" />
+
+                <com.jiubai.taskmoment.view.RippleView
+                    android:id="@+id/rv_btn_getVerifyCode"
+                    android:layout_width="60dp"
+                    android:layout_height="40dp"
+                    app:rv_rippleDuration="200"
+                    app:rv_type="rectangle">
+
+                    <Button
+                        android:id="@+id/btn_getVerifyCode"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/round_button_login"
+                        android:text="@string/getVerify"
+                        android:textColor="#ffffff"
+                        android:textSize="16sp" />
+                </com.jiubai.taskmoment.view.RippleView>
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/edt_verifyCode"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/round_edittext"
+                android:ems="6"
+                android:hint="@string/verifyCode"
+                android:inputType="number"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textSize="16sp" />
+
+            <com.jiubai.taskmoment.view.RippleView
+                android:id="@+id/rv_btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="16dp"
+                app:rv_rippleDuration="200"
+                app:rv_type="rectangle">
+
+                <Button
+                    android:id="@+id/btn_submit"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@drawable/round_button_login"
+                    android:text="@string/login"
+                    android:textColor="#ffffff"
+                    android:textSize="16sp" />
+            </com.jiubai.taskmoment.view.RippleView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_info"
+                    android:textColor="#767676"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_agreement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/agreement"
+                    android:textColor="@color/primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>

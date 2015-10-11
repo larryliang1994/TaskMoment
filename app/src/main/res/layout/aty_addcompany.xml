@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:text="@string/input_company_name"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/edt_companyName"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/round_edittext"
+        android:hint="@string/company_name"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textSize="16sp" />
+
+    <com.jiubai.taskmoment.view.RippleView
+        android:id="@+id/rv_btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        app:rv_rippleDuration="200"
+        app:rv_type="rectangle">
+
+        <Button
+            android:id="@+id/btn_submit"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/round_button_login"
+            android:clickable="false"
+            android:text="@string/addCompany"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+    </com.jiubai.taskmoment.view.RippleView>
+
+</LinearLayout>

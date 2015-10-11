@@ -1,0 +1,144 @@
+<html><head>
+    <title>首页</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0, user-scalable=0" name="viewport">
+    <link href="img/m_base.css" rel="stylesheet" type="text/css">
+    <link href="img/m_style.css" rel="stylesheet" type="text/css">
+
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/fsgallery.css" rel="stylesheet">
+    <!--<script src="js/jquery-1.8.2.js"></script>-->
+    <link href="img/common.css" rel="stylesheet" type="text/css">
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/fs_forse.js"></script>
+    <script src="js/date.js"></script>
+    <script src="js/iscroll.js"></script>
+    <script src="js/js.js"></script>
+    <script src="js/appjs.js"></script></head>
+<body>
+<div class="taskRing_header_img">
+    <form>
+        <img src="img/img1.jpg">
+        <input type="file">
+    </form>
+    <div class="taskRing_header_username">杨雪琴</div>
+    <div class="taskRing_header_userImg">
+        <a href="member_task.php">
+            <img src="img/img2.jpg">
+        </a>
+    </div>
+</div>
+
+<div class="taskRing_box">
+    <div class="taskRing_task_news">
+        <a href="javascript:void(0)">1条新消息</a>
+    </div>
+</div>
+
+<div class="taskRing_list_box">
+    <div class="taskRing_list_detail">
+        <div class="taskRing_list_detail_img fl">
+            <a href="javascript:void(0)">
+                <img src="img/img2.jpg">
+            </a>
+        </div>
+
+        <div class="taskRing_list_detail_info fl">
+            <div class="taskRing_list_detail_info_title">
+                <a href="javascript:void(0)">蓝添</a>
+                <span>发布了<em class="fontGreen">C</em>级任务：</span>
+            </div>
+            <div class="taskRing_list_detail_info_font">
+                详情详情详情详情详情详情详情详情详情详情详情详情详情详情。
+            </div>
+            <div class="taskRing_list_detail_info_img thumbnails" id="gallery">
+                <div style="height: 148px;" class="picture span3">
+                    <a href="img/1.jpg">
+                        <img style="width: auto; height: 148px; margin-left: 0px;" src="img/img3.jpg" alt="">
+                    </a>
+                </div>
+                <div style="height: 148px;" class="picture span3">
+                    <a href="img/2.jpg">
+                        <img style="margin-top: 27.5px;" src="img/img5.jpg" alt="">
+                    </a>
+                </div>
+                <div style="height: 148px;" class="picture span3">
+                    <a href="img/3.jpg">
+                        <img style="width: auto; height: 148px; margin-left: 27.5px;" src="img/img6.jpg" alt="">
+                    </a>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <script>imgCenter();</script>
+            <div class="taskRing_list_detail_info_operation">
+                <div class="time fl">8:50</div>
+                <a href="javascript:void(0)" class="btn1 fl">删除</a>
+                <a href="javascript:void(0)" class="btn2 fr" onclick="PopShow('fixed_comment')">评论</a>
+                <a href="javascript:void(0)" class="btn2 fr" onclick="PopShow('fixed_status')">审核</a>
+                <div class="clear"></div>
+            </div>
+            <div class="taskRing_list_detail_info_reply">
+                <i></i>
+                <ul>
+                    <li>
+                        <a href="javascript:void(0)">杨雪琴：</a>
+                            <span>
+                               执行者反馈执行者反馈执行者反馈执行者反馈执行者反馈。
+                            </span>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">杨雪琴：</a>
+                            <span>
+                               执行者反馈执行者反馈执行者反馈执行者反馈执行者反馈。
+                            </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+
+<div class="task_h60"></div>
+<!-- 浮动的评论框 -->
+<div class="fixed_comment">
+    <input placeholder="评论" class="txt1 fl" type="text">
+    <a href="javascript:void(0)" class="btn1 fl" onclick="PopHide('fixed_comment')">发送</a>
+    <div class="clear"></div>
+</div>
+
+<!-- 浮动的解决状态 -->
+<div class="fixed_status">
+    <ul>
+        <li class="click">
+            <i></i>
+            <label>完美解决</label>
+        </li>
+        <li>
+            <i></i>
+            <label>普通完成</label>
+        </li>
+        <li>
+            <i></i>
+            <label>任务失败</label>
+        </li>
+        <li id="lastBtn">
+            <a href="javascript:void(0)" onclick="PopHide('fixed_status')">确定</a>
+        </li>
+    </ul>
+    <div class="clear"></div>
+</div>
+<script>statusSelect();</script>
+
+
+<!-- 图片放大 -->
+<!--<div class="picture_big_bg"></div>
+<div class="picture_big_box">
+    <div class="picture_num">4/9</div>
+
+</div>-->
+
+
+
+
+<div style="display: none;" class="fs_gallery"><div class="fs_gallery_prev"></div><div class="fs_gallery_next"></div><div class="fs_gallery_close"></div><div class="fs_gallery_shuft"><div style="width: 1366px; height: 385px;" class="fs_gallery_shuft_item"></div><div style="width: 1366px; height: 385px;" class="fs_gallery_shuft_item"></div><div style="width: 1366px; height: 385px;" class="fs_gallery_shuft_item"></div></div><div class="fs_gallery_thumbs"><div class="fs_gallery_thumbs_list"></div></div></div></body></html>
