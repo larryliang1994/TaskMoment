@@ -31,6 +31,16 @@
                     android:scaleType="centerCrop"
                     android:src="@drawable/background" />
 
+                <TextView
+                    android:id="@+id/tv_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/iv_companyBackground"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/loading"
+                    android:textSize="14sp" />
+
                 <ImageView
                     android:id="@+id/iv_portrait"
                     android:layout_width="80dp"

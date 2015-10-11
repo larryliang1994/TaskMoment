@@ -39,6 +39,12 @@ public class Aty_PersonalInfo extends AppCompatActivity {
     @Bind(R.id.iv_portrait)
     ImageView iv_portrait;
 
+    @Bind(R.id.tv_loading)
+    TextView tv_loading;
+
+    @Bind(R.id.tv_timeline_nickname)
+    TextView tv_nickname;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +61,8 @@ public class Aty_PersonalInfo extends AppCompatActivity {
      */
     private void initView() {
         tv_title.setText(getIntent().getStringExtra("name"));
+
+        tv_nickname.setText(getIntent().getStringExtra("name"));
 
         iv_portrait.setFocusable(true);
         iv_portrait.setFocusableInTouchMode(true);
@@ -114,6 +122,8 @@ public class Aty_PersonalInfo extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                tv_loading.setVisibility(View.GONE);
+
                                 lv.setAdapter(new Adpt_Timeline(Aty_PersonalInfo.this, taskList));
                                 UtilBox.setListViewHeightBasedOnChildren(lv);
                             }

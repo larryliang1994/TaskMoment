@@ -3,6 +3,7 @@ package com.jiubai.taskmoment.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -14,13 +15,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.style.ClickableText;
 import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
+import com.jiubai.taskmoment.ui.Frag_Timeline;
 
 import java.util.List;
 
@@ -52,8 +53,8 @@ public class Adpt_Comment extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_comment, null);
 
@@ -106,15 +107,34 @@ public class Adpt_Comment extends BaseAdapter {
         holder.tv_comment.append(comment.getContent());
         holder.tv_comment.setMovementMethod(LinkMovementMethod.getInstance());
 
+        holder.tv_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Frag_Timeline.showCommentWindow(context, -1, comment.getSender());
+
+                holder.tv_comment.setBackgroundColor(context.getResources().getColor(R.color.gray));
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.tv_comment.setBackgroundColor(context.getResources().getColor(R.color.transparent));
+                    }
+                }, 100);
+
+            }
+        });
+
         // 将其宽度约束为ListView的宽度
         DisplayMetrics metric = new DisplayMetrics();
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(metric);
         holder.tv_comment.setWidth(UtilBox.dip2px(context, UtilBox.px2dip(context, metric.widthPixels) - 81));
 
+       // holder.tv_comment.setHighlightColor(context.getResources().getColor(R.color.S));
+
         // 最后一项离底部为5dp
         if (position == getCount() - 1){
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)holder.tv_comment.getLayoutParams();
-            params.setMargins(15, 5, 5, 5);
+            params.setMargins(15, 15, 5, 5);
             holder.tv_comment.setLayoutParams(params);
         }
 

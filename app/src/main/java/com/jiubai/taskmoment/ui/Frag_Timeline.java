@@ -3,6 +3,7 @@ package com.jiubai.taskmoment.ui;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +46,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     private SwipeRefreshLayout srl;
-    private ListView lv;
+    private static ListView lv;
     private ImageView iv_background;
     private static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
@@ -90,6 +92,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 if (commentWindowIsShow) {
                     ll_comment.setVisibility(View.GONE);
                     commentWindowIsShow = false;
+
+                    // 关闭键盘
+                    //UtilBox.toggleSoftInput(ll_comment, false);
                 }
 
                 if (auditWindowIsShow) {
@@ -184,7 +189,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     }
 
-    public static void showCommentWindow() {
+    public static void showCommentWindow(Context context, int position, String receiver) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -197,6 +202,19 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
+        // 弹出键盘
+        //UtilBox.toggleSoftInput(ll_comment, true);
+
+        if (position != -1) {
+            lv.setSelection(position);
+        }
+
+        if (receiver != null) {
+            edt_content.setHint("回复" + receiver + ":");
+        } else {
+            edt_content.setHint("评论");
+        }
+
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,7 +224,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         });
     }
 
-    public static void showAuditWindow() {
+    public static void showAuditWindow(Context context) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {

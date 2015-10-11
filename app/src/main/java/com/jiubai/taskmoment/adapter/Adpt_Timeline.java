@@ -55,7 +55,7 @@ public class Adpt_Timeline extends BaseAdapter {
 
     @SuppressLint("InflateParams")
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);
@@ -95,14 +95,14 @@ public class Adpt_Timeline extends BaseAdapter {
         holder.btn_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow();
+                Frag_Timeline.showCommentWindow(context, position, null);
             }
         });
 
         holder.btn_audit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showAuditWindow();
+                Frag_Timeline.showAuditWindow(context);
             }
         });
 

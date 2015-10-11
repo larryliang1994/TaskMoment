@@ -8,6 +8,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -260,4 +261,24 @@ public class UtilBox {
 
         return dm.heightPixels;
     }
+
+    /**
+     * 弹出键盘
+     *
+     * @param view 焦点
+     */
+    public static void toggleSoftInput(View view, boolean show){
+        InputMethodManager inputManager = (InputMethodManager)view.
+                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if(show) {
+            inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+                    InputMethodManager.SHOW_IMPLICIT);
+        } else {
+            inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+        //inputManager.showSoftInput(view, 0);
+    }
+
+    //public static void
 }

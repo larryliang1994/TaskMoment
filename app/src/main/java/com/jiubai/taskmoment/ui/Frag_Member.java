@@ -140,6 +140,8 @@ public class Frag_Member extends Fragment {
                     dialog.setContentView(contentView)
                             .setCanceledOnTouchOutside(true)
                             .show();
+
+                    UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_addMember), true);
                 } else if (!adpt_member.isEmpty && position != 0) {
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());

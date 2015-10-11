@@ -9,6 +9,8 @@
     <color name="primary">#e51c23</color>
     <color name="gray">#bdbdbd</color>
 
+    <color name="transparent">#00ffffff</color>
+
     <color name="divider">#55767676</color>
 
     <drawable name="clicked">#616161</drawable>
