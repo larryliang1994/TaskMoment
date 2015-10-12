@@ -56,7 +56,7 @@ public class Adpt_Timeline extends BaseAdapter {
     @SuppressLint("InflateParams")
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+        final ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);
             holder = new ViewHolder(convertView);
@@ -76,6 +76,17 @@ public class Adpt_Timeline extends BaseAdapter {
         loader.displayImage(task.getPortraitUrl(), holder.iv_portrait);
 
         holder.iv_portrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Aty_PersonalInfo.class);
+                intent.putExtra("name", "Leung_Howell");
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+
+        holder.tv_nickname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_PersonalInfo.class);

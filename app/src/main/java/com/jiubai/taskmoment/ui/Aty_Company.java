@@ -30,6 +30,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 
 import org.json.JSONException;
@@ -90,7 +91,7 @@ public class Aty_Company extends AppCompatActivity {
             iv_divider.setVisibility(View.GONE);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(25, 0, 0, 0);
+            lp.setMargins(UtilBox.dip2px(this, 16), 0, 0, 0);
             lp.gravity = Gravity.CENTER_VERTICAL;
 
             tv_title.setLayoutParams(lp);
@@ -205,7 +206,7 @@ public class Aty_Company extends AppCompatActivity {
 
         srl.setRefreshing(true);
 
-        VolleyUtil.requestWithCookie("my_company", null, null,
+        VolleyUtil.requestWithCookie(Urls.MY_COMPANY, null, null,
                 new Response.Listener<String>() {
 
                     @Override
@@ -224,7 +225,7 @@ public class Aty_Company extends AppCompatActivity {
                     }
                 });
 
-        VolleyUtil.requestWithCookie("my_join_company", null, null,
+        VolleyUtil.requestWithCookie(Urls.MY_JOIN_COMPANY, null, null,
                 new Response.Listener<String>() {
 
                     @Override

@@ -1,7 +1,7 @@
 package com.jiubai.taskmoment;
 
 /**
- * 记录可能存在的bug
+ * 记录存在的bug
  */
 
 /**

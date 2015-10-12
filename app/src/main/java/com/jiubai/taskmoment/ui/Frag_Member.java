@@ -23,6 +23,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 
 import org.json.JSONException;
@@ -69,7 +70,6 @@ public class Frag_Member extends Fragment {
         lv_member.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
-
                 if (position == adpt_member.getCount() - 1) {
                     @SuppressLint("InflateParams")
                     final View contentView = getActivity().getLayoutInflater().inflate(R.layout.dialog_add_member, null);
@@ -141,7 +141,7 @@ public class Frag_Member extends Fragment {
                             .setCanceledOnTouchOutside(true)
                             .show();
 
-                    UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_addMember), true);
+                    //UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_addMember), true);
                 } else if (!adpt_member.isEmpty && position != 0) {
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());
@@ -162,7 +162,7 @@ public class Frag_Member extends Fragment {
                                     String[] key = {"id", "mid"};
                                     String[] value = {member.getId(), member.getMid()};
 
-                                    VolleyUtil.requestWithCookie("delChengyuan", key, value,
+                                    VolleyUtil.requestWithCookie(Urls.DELETE_MEMBER, key, value,
                                             new Response.Listener<String>() {
                                                 @Override
                                                 public void onResponse(String response) {
@@ -186,8 +186,8 @@ public class Frag_Member extends Fragment {
                             })
                             .setCanceledOnTouchOutside(true)
                             .show();
-
                 }
+
             }
         });
 
@@ -250,7 +250,7 @@ public class Frag_Member extends Fragment {
 
         srl.setRefreshing(true);
 
-        VolleyUtil.requestWithCookie("get_chengyuan&t_active_cid=" + Config.CID, null, null,
+        VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -131,6 +131,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                 }
 
                 finish();
+                overridePendingTransition(R.anim.scale_stay, R.anim.zoom_out_quick);
                 break;
         }
     }
@@ -148,6 +149,8 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
             }
 
             finish();
+            overridePendingTransition(R.anim.scale_stay, R.anim.zoom_out_quick);
+
             return true;
         }
 
@@ -185,6 +188,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                     }
 
                     Aty_CheckPicture.this.finish();
+                    overridePendingTransition(R.anim.scale_stay, R.anim.zoom_out_quick);
                 }
             });
 

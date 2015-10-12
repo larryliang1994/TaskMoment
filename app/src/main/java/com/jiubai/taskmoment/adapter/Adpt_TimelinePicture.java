@@ -79,6 +79,9 @@ public class Adpt_TimelinePicture extends BaseAdapter {
                 intent.putExtra("fromWhere", "net");
 
                 context.startActivity(intent);
+
+                ((Activity) context).overridePendingTransition(
+                        R.anim.zoom_in_quick, R.anim.scale_stay);
             }
         });
 

@@ -19,7 +19,9 @@ import com.jiubai.taskmoment.config.Urls;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Volley框架
+ */
 public class VolleyUtil {
     public static RequestQueue requestQueue = null;
 

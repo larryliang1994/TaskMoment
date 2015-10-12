@@ -43,6 +43,7 @@ task wrapper(type: Wrapper) {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':multi-image-selector')
     compile files('libs/ksoap2-android-assembly-2.5.2-jar-with-dependencies.jar')
     compile files('libs/butterknife-7.0.1.jar')
     compile files('libs/Volley.jar')
@@ -53,7 +54,6 @@ dependencies {
     compile 'com.android.support:design:22.2.1'
     compile 'me.drakeet.materialdialog:library:1.2.2'
     compile 'com.android.support:support-v4:21.+'
-    compile 'com.android.support:recyclerview-v7:23.0.1'
     compile 'de.hdodenhof:circleimageview:2.0.0'
-    compile project(':multi-image-selector')
+    compile 'com.jiechic.library:xUtils:2.6.14'
 }

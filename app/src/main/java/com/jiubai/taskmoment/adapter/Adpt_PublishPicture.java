@@ -25,14 +25,17 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 public class Adpt_PublishPicture extends BaseAdapter {
     public ArrayList<String> pictureList;
     private Context context;
+    private int actualCount = 0;
 
     public Adpt_PublishPicture(Context context, ArrayList<String> pictureList) {
         this.context = context;
         this.pictureList = pictureList;
+        actualCount = this.pictureList.size();
 
         if (this.pictureList.size() < 9) {
             this.pictureList.add("drawable://" + R.drawable.add_picture);
         }
+
     }
 
     /**
@@ -46,6 +49,8 @@ public class Adpt_PublishPicture extends BaseAdapter {
         for (int i = 0; i < pictureList.size(); i++) {
             this.pictureList.add(pictureList.get(i));
         }
+
+        actualCount = this.pictureList.size();
 
         // 保留添加入口
         if (this.pictureList.size() < 9) {
@@ -82,7 +87,7 @@ public class Adpt_PublishPicture extends BaseAdapter {
         }
 
         // 最后一项点击可以添加照片
-        if (getCount() < 9 && position == getCount() - 1) {
+        if (actualCount < 9 && position == getCount() - 1) {
             holder.iv_picture.setImageResource(R.drawable.add_picture);
             holder.iv_picture.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -115,6 +120,8 @@ public class Adpt_PublishPicture extends BaseAdapter {
                     intent.putExtra("fromWhere", "local");
 
                     ((Activity) context).startActivityForResult(intent, Constants.CODE_CHECK_PICTURE);
+                    ((Activity) context).overridePendingTransition(
+                            R.anim.zoom_in_quick, R.anim.scale_stay);
                 }
             });
         }

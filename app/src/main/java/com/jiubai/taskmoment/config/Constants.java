@@ -11,4 +11,5 @@ public class Constants {
     public static final int CODE_MULTIPLE_PICTURE = 3;
     public static final int CODE_CHECK_PICTURE = 4;
     public static final int CODE_CHOOSE_PICTURE = 5;
+    public static final int CODE_PUBLISH_TASK = 6;
 }

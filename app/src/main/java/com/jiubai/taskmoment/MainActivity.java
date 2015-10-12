@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
                 .cacheInMemory().cacheOnDisc().build();
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
-                this).defaultDisplayImageOptions(defaultOptions)
+                getApplicationContext()).defaultDisplayImageOptions(defaultOptions)
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .discCacheFileNameGenerator(new Md5FileNameGenerator())

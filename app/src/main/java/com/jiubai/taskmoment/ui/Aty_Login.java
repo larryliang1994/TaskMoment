@@ -299,6 +299,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                             public void onResponse(final String response) {
                                                 changeLoadingState("dismiss");
 
+                                                System.out.println(response);
+
                                                 new Thread(new Runnable() {
                                                     @Override
                                                     public void run() {

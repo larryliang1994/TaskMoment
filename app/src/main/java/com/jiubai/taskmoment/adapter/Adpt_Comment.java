@@ -134,7 +134,8 @@ public class Adpt_Comment extends BaseAdapter {
         // 最后一项离底部为5dp
         if (position == getCount() - 1){
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)holder.tv_comment.getLayoutParams();
-            params.setMargins(15, 15, 5, 5);
+            params.setMargins(UtilBox.dip2px(context, 5), UtilBox.dip2px(context, 5),
+                    UtilBox.dip2px(context, 5), UtilBox.dip2px(context, 5));
             holder.tv_comment.setLayoutParams(params);
         }
 

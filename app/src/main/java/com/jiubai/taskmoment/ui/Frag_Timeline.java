@@ -1,17 +1,25 @@
 package com.jiubai.taskmoment.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +34,8 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
@@ -34,11 +44,19 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.SoapUtil;
+import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.net.XUtils;
+import com.lidroid.xutils.exception.HttpException;
+import com.lidroid.xutils.http.ResponseInfo;
+import com.lidroid.xutils.http.callback.RequestCallBack;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
+import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 /**
  * 时间线（任务圈）
@@ -48,10 +66,10 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     private SwipeRefreshLayout srl;
     private static ListView lv;
     private ImageView iv_background;
-    private static LinearLayout ll_comment;
+    public static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
 
-    private static boolean commentWindowIsShow = false, auditWindowIsShow = false;
+    public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
     @Nullable
     @Override
@@ -94,7 +112,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     commentWindowIsShow = false;
 
                     // 关闭键盘
-                    //UtilBox.toggleSoftInput(ll_comment, false);
+                    UtilBox.toggleSoftInput(ll_comment, false);
                 }
 
                 if (auditWindowIsShow) {
@@ -203,23 +221,41 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         edt_content.requestFocus();
 
         // 弹出键盘
-        //UtilBox.toggleSoftInput(ll_comment, true);
+        UtilBox.toggleSoftInput(ll_comment, true);
 
-        if (position != -1) {
-            lv.setSelection(position);
-        }
+//        if (position != -1) {
+//            lv.setSelection(position);
+//        }
 
         if (receiver != null) {
             edt_content.setHint("回复" + receiver + ":");
         } else {
             edt_content.setHint("评论");
         }
+        edt_content.setText(null);
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ll_comment.setVisibility(View.GONE);
+
+                String[] key = {};
+                String[] value = {};
+
+                VolleyUtil.requestWithCookie(Urls.SEND_COMMENT, key, value,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String s) {
+
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+
+                            }
+                        });
             }
         });
     }
@@ -255,11 +291,20 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        Intent intent = new Intent(getActivity(), MultiImageSelectorActivity.class);
+
+                        // 是否显示调用相机拍照
+                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
+
+                        // 最大图片选择数量
+                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 1);
+
+                        // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者 多选/MultiImageSelectorActivity.MODE_MULTI)
+                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_SINGLE);
 
                         startActivityForResult(intent, Constants.CODE_CHOOSE_PICTURE);
+
+                        getActivity().overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
                     }
                 })
                         .setCancelable(true);
@@ -285,7 +330,46 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         switch (requestCode) {
             case Constants.CODE_CHOOSE_PICTURE:
 
+                if (resultCode == Activity.RESULT_OK) {
+                    final ArrayList<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+
+                    if (path != null && path.size() != 0) {
+                        if (!Config.IS_CONNECTED) {
+                            Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String[] encodeKey = {"string", "operation", "p1", "p2"};
+                                String[] encodeValue = {"{\"id\":\"" + Config.CID + "\"}", "ENCODE", "jbw", "40000000"};
+
+                                String memberCookie = SoapUtil.getUrlBySoap("authcode", encodeKey, encodeValue);
+
+                                System.out.println(memberCookie);
+                                XUtils.uploadImage(Urls.UPLOAD_IMAGE, memberCookie, "filedata", path.get(0),
+                                        new RequestCallBack<String>() {
+                                            @Override
+                                            public void onSuccess(ResponseInfo<String> responseInfo) {
+                                                System.out.println(responseInfo.result);
+                                            }
+
+                                            @Override
+                                            public void onFailure(HttpException error, String msg) {
+                                                System.out.println(error.toString());
+                                                System.out.println(msg);
+                                            }
+                                        });
+                            }
+                        }).start();
+
+                    }
+                }
                 break;
         }
     }
+
+
 }

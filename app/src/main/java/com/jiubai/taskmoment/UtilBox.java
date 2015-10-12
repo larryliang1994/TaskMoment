@@ -14,6 +14,10 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -270,15 +274,40 @@ public class UtilBox {
     public static void toggleSoftInput(View view, boolean show){
         InputMethodManager inputManager = (InputMethodManager)view.
                 getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(show) {
+        if(show && !inputManager.isActive(view)) {
             inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
                     InputMethodManager.SHOW_IMPLICIT);
         } else {
-            inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
-                    InputMethodManager.HIDE_NOT_ALWAYS);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        //inputManager.showSoftInput(view, 0);
     }
 
-    //public static void
+    /**
+     * 时间戳转换成字符串
+     *
+     * @param time 时间戳
+     * @return 日期字符串
+     */
+    public static String getDateToString(long time) {
+        Date d = new Date(time);
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        return sf.format(d);
+    }
+
+    /**
+     * 将字符串转为时间戳
+     *
+     * @param time 日期字符串
+     * @return 时间戳
+     */
+    public static long getStringToDate(String time) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        Date date = new Date();
+        try{
+            date = sdf.parse(time);
+        } catch(ParseException e) {
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
 }

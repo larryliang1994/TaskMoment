@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -75,7 +77,7 @@ public class Aty_Main extends AppCompatActivity {
      * 初始化界面
      */
     private void initView() {
-        tv_title.setText(R.string.timeline);
+        tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
 
         tv_nickname.setText("Leung_Howell");
 
@@ -102,7 +104,7 @@ public class Aty_Main extends AppCompatActivity {
                             break;
                         }
                         nv.getMenu().getItem(0).setChecked(true);
-                        tv_title.setText(R.string.timeline);
+                        tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
                         fragmentTransaction = fragmentManager.beginTransaction();
@@ -197,7 +199,7 @@ public class Aty_Main extends AppCompatActivity {
                 break;
 
             case R.id.iBtn_publish:
-                startActivity(new Intent(this, Aty_TaskPublish.class));
+                startActivityForResult(new Intent(this, Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
                 overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
                 break;
         }
@@ -213,6 +215,12 @@ public class Aty_Main extends AppCompatActivity {
                     recreate();
                 }
                 break;
+
+            case Constants.CODE_PUBLISH_TASK:
+                if (resultCode == RESULT_OK) {
+
+                }
+                break;
         }
     }
 
@@ -224,7 +232,12 @@ public class Aty_Main extends AppCompatActivity {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (dw.isDrawerOpen(GravityCompat.START)) {
                 dw.closeDrawer(GravityCompat.START);
-            } else {
+            } else if(currentItem == 0 && Frag_Timeline.commentWindowIsShow){
+                Frag_Timeline.ll_comment.setVisibility(View.GONE);
+                Frag_Timeline.commentWindowIsShow = false;
+                UtilBox.toggleSoftInput(Frag_Timeline.ll_comment, false);
+            }
+            else {
                 Intent MyIntent = new Intent(Intent.ACTION_MAIN);
                 MyIntent.addCategory(Intent.CATEGORY_HOME);
                 startActivity(MyIntent);
