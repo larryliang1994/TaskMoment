@@ -13,9 +13,15 @@ import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -88,7 +94,7 @@ public class UtilBox {
     /**
      * 重新计算ListView的高度
      *
-     * @param gridView 需要计算的ListView
+     * @param gridView     需要计算的ListView
      * @param measureWidth 是否需要重新计算宽度
      */
     public static void setGridViewHeightBasedOnChildren(GridView gridView, boolean measureWidth) {
@@ -106,13 +112,13 @@ public class UtilBox {
             // 计算子项View 的宽高
             listItem.measure(0, 0);
             // 统计所有子项的总高度
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 totalHeight += listItem.getMeasuredHeight() + gridView.getVerticalSpacing();
             } else {
                 totalHeight += listItem.getMeasuredHeight();
             }
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 width = listItem.getMeasuredWidth() * 3 + gridView.getHorizontalSpacing() * 2;
             } else {
                 width = listItem.getMeasuredWidth() * 3;
@@ -121,7 +127,7 @@ public class UtilBox {
 
         ViewGroup.LayoutParams params = gridView.getLayoutParams();
         params.height = totalHeight + ((listAdapter.getCount() - 1));
-        if(measureWidth) {
+        if (measureWidth) {
             params.width = width;
         }
         // listView.getDividerHeight()获取子项间分隔符占用的高度
@@ -199,7 +205,7 @@ public class UtilBox {
     }
 
     private static int computeSampleSize(BitmapFactory.Options options,
-                                        int minSideLength, int maxNumOfPixels) {
+                                         int minSideLength, int maxNumOfPixels) {
         int initialSize = computeInitialSampleSize(options, minSideLength,
                 maxNumOfPixels);
 
@@ -246,9 +252,9 @@ public class UtilBox {
      * @param context 上下文
      * @return 屏幕宽度
      */
-    public static int getWidthPixels(Context context){
+    public static int getWidthPixels(Context context) {
         DisplayMetrics dm = new DisplayMetrics();
-        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
 
         return dm.widthPixels;
     }
@@ -259,9 +265,9 @@ public class UtilBox {
      * @param context 上下文
      * @return 屏幕高度
      */
-    public static int getHeightPixels(Context context){
+    public static int getHeightPixels(Context context) {
         DisplayMetrics dm = new DisplayMetrics();
-        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(dm);
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(dm);
 
         return dm.heightPixels;
     }
@@ -271,10 +277,10 @@ public class UtilBox {
      *
      * @param view 焦点
      */
-    public static void toggleSoftInput(View view, boolean show){
-        InputMethodManager inputManager = (InputMethodManager)view.
+    public static void toggleSoftInput(View view, boolean show) {
+        InputMethodManager inputManager = (InputMethodManager) view.
                 getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if(show && !inputManager.isActive(view)) {
+        if (show && !inputManager.isActive(view)) {
             inputManager.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
                     InputMethodManager.SHOW_IMPLICIT);
         } else {
@@ -303,11 +309,102 @@ public class UtilBox {
     public static long getStringToDate(String time) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
         Date date = new Date();
-        try{
+        try {
             date = sdf.parse(time);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         return date.getTime();
+    }
+
+    /**
+     * Bitmap转Bytes
+     *
+     * @param bm bitmap
+     * @return bytes
+     */
+    public static byte[] bitmap2Bytes(Bitmap bm) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
+    }
+
+    /**
+     * 对字符串进行md5加密
+     *
+     * @param str 需要加密的字符串
+     * @return 加密完成的字符串
+     */
+    private static String getMD5Str(String str) {
+        MessageDigest messageDigest = null;
+
+        try {
+            messageDigest = MessageDigest.getInstance("MD5");
+
+            messageDigest.reset();
+
+            messageDigest.update(str.getBytes("UTF-8"));
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("NoSuchAlgorithmException caught!");
+            System.exit(-1);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        byte[] byteArray = messageDigest.digest();
+
+        StringBuilder md5StrBuff = new StringBuilder();
+
+        for (byte aByteArray : byteArray) {
+            if (Integer.toHexString(0xFF & aByteArray).length() == 1)
+                md5StrBuff.append("0").append(Integer.toHexString(0xFF & aByteArray));
+            else
+                md5StrBuff.append(Integer.toHexString(0xFF & aByteArray));
+        }
+
+        // 16位加密，从第9位到25位
+        return md5StrBuff.substring(8, 24).toUpperCase();
+    }
+
+    /**
+     * 获取一个唯一的文件名
+     *
+     * @return 唯一的文件名
+     */
+    public static String getObjectName() {
+        return "task_moment/" + getMD5Str(Calendar.getInstance().getTimeInMillis() + "") + ".jpg";
+    }
+
+    /**
+     * 压缩一张图片至指定大小
+     *
+     * @param image 需要压缩的图片
+     * @param size  压缩后的最大值(kb)
+     * @return 压缩后的图片
+     */
+    public static Bitmap compressImage(Bitmap image, int size) {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+        int options = 100;
+
+        // 循环判断如果压缩后图片是否大于指定的kb数,大于继续压缩
+        while (baos.toByteArray().length / 1024 > size) {
+            baos.reset();
+
+            // 这里压缩options%，把压缩后的数据存放到baos中
+            image.compress(Bitmap.CompressFormat.JPEG, options, baos);
+
+            // 每次都减少10
+            options -= 10;
+        }
+
+        //把压缩后的数据baos存放到ByteArrayInputStream中
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+
+        return BitmapFactory.decodeStream(isBm, null, null);
     }
 }

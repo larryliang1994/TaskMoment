@@ -16,7 +16,8 @@ public class Receiver_NetworkState extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)){
             // 获取网络连接管理器对象（系统服务对象）
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
             System.out.println("网络状态已改变");
 
             // 获取网络状态

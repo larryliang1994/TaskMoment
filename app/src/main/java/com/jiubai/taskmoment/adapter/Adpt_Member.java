@@ -101,10 +101,8 @@ public class Adpt_Member extends BaseAdapter {
             if (!"null".equals(memberList.get(position).getName())
                     && !"".equals(memberList.get(position).getName())) {
                 holder.tv.setText(memberList.get(position).getName());
-                System.out.println("name:" + memberList.get(position).getName() + "!");
             } else {
                 holder.tv.setText(memberList.get(position).getMobile());
-                System.out.println("mobile:" + memberList.get(position).getMobile() + "!");
             }
 
             if (isEmpty) {

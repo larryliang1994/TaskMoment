@@ -21,7 +21,8 @@ public class Comment {
         this.time = time;
     }
 
-    public Comment(String sender, String senderId, String receiver, String receiverId, String content, String time) {
+    public Comment(String sender, String senderId, String receiver,
+                   String receiverId, String content, String time) {
         this.sender = sender;
         this.senderId = senderId;
         this.receiver = receiver;

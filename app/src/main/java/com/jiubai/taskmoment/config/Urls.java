@@ -6,12 +6,12 @@ package com.jiubai.taskmoment.config;
 public class Urls {
     public static final String SOAP_TARGET = "http://soap.adm.jiubaiwang.cn" + "/index.php?jbbh=20043";
     public static final String SERVER_URL = "http://20045.jiubai.cc";
+    public static final String HOST_ID = "oss-cn-hangzhou.aliyuncs.com";
 
     public static final String MY_COMPANY = "my_company";
     public static final String MY_JOIN_COMPANY = "my_join_company";
     public static final String GET_MEMBER = "get_chengyuan&t_active_cid=";
     public static final String DELETE_MEMBER = "delChengyuan";
-    public static final String UPLOAD_IMAGE = "/act/swfupload.php";
     public static final String SEND_COMMENT = "sendcomment";
 
     public static final String LOCAL_LOGIN = "file:///android_asset/login.html";

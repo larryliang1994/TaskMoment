@@ -19,6 +19,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.RippleView;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -181,5 +182,17 @@ public class Aty_AddCompany extends AppCompatActivity
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

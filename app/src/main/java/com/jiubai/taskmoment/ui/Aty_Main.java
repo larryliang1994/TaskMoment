@@ -23,6 +23,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.umeng.analytics.MobclickAgent;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -199,7 +200,8 @@ public class Aty_Main extends AppCompatActivity {
                 break;
 
             case R.id.iBtn_publish:
-                startActivityForResult(new Intent(this, Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
+                startActivityForResult(
+                        new Intent(this, Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
                 overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
                 break;
         }
@@ -252,5 +254,17 @@ public class Aty_Main extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

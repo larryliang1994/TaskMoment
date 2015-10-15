@@ -4,28 +4,21 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,6 +27,8 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.aliyun.mbaas.oss.callback.SaveCallback;
+import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
@@ -44,30 +39,27 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.SoapUtil;
+import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.net.XUtils;
-import com.lidroid.xutils.exception.HttpException;
-import com.lidroid.xutils.http.ResponseInfo;
-import com.lidroid.xutils.http.callback.RequestCallBack;
+import com.jiubai.taskmoment.view.BorderScrollView;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.drakeet.materialdialog.MaterialDialog;
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 /**
  * 时间线（任务圈）
  */
-public class Frag_Timeline extends Fragment implements View.OnClickListener {
+public class Frag_Timeline extends Fragment
+        implements View.OnClickListener {
 
     private SwipeRefreshLayout srl;
     private static ListView lv;
-    private ImageView iv_background;
     public static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
+    private Adpt_Timeline adapter;
+    private ImageView iv_companyBackground;
 
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
@@ -104,6 +96,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
 
+        View footView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
+        lv.addFooterView(footView);
         lv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -124,11 +118,29 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
             }
         });
 
+        BorderScrollView sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
+        sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
+
+            @Override
+            public void onTop() {
+                // may be done multi times, u should control it
+                //Toast.makeText(getActivity(), "has reached top", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onBottom() {
+                // may be done multi times, u should control it
+                //Toast.makeText(getActivity(), "has reached bottom", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
 
-        iv_background = (ImageView) view.findViewById(R.id.iv_companyBackground);
-        iv_background.setOnClickListener(this);
+        iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
+        iv_companyBackground.setOnClickListener(this);
+//        ImageLoader.getInstance().displayImage(
+//                Constants.HOST_ID + Config.COMPANY_BACKGROUND, iv_companyBackground);
 
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
@@ -139,6 +151,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }, 500);
     }
 
+    /**
+     * 刷新时间线
+     */
     private void refreshTimeline() {
         if (!Config.IS_CONNECTED) {
             Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
@@ -185,6 +200,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 taskList.add(new Task(Urls.PICTURE_7,
                         "Peter", "A", "这是第七个任务", pictureList, "9:10", commentList));
 
+                adapter = new Adpt_Timeline(getActivity(), taskList);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -192,7 +208,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                lv.setAdapter(new Adpt_Timeline(getActivity(), taskList));
+                                lv.setAdapter(adapter);
                                 UtilBox.setListViewHeightBasedOnChildren(lv);
                                 srl.setRefreshing(false);
                             }
@@ -207,6 +223,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     }
 
+    @SuppressWarnings("unused")
     public static void showCommentWindow(Context context, int position, String receiver) {
         commentWindowIsShow = true;
 
@@ -260,6 +277,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         });
     }
 
+    @SuppressWarnings("unused")
     public static void showAuditWindow(Context context) {
         auditWindowIsShow = true;
 
@@ -291,7 +309,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(getActivity(), MultiImageSelectorActivity.class);
+                        Intent intent = new Intent(
+                                getActivity(), MultiImageSelectorActivity.class);
 
                         // 是否显示调用相机拍照
                         intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
@@ -299,12 +318,15 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         // 最大图片选择数量
                         intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 1);
 
-                        // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者 多选/MultiImageSelectorActivity.MODE_MULTI)
-                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_SINGLE);
+                        // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者
+                        // 多选/MultiImageSelectorActivity.MODE_MULTI)
+                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE,
+                                MultiImageSelectorActivity.MODE_SINGLE);
 
                         startActivityForResult(intent, Constants.CODE_CHOOSE_PICTURE);
 
-                        getActivity().overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                        getActivity().overridePendingTransition(
+                                R.anim.in_right_left, R.anim.out_right_left);
                     }
                 })
                         .setCancelable(true);
@@ -318,7 +340,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 Intent intent = new Intent(getActivity(), Aty_PersonalInfo.class);
                 intent.putExtra("name", "Leung_Howell");
                 startActivity(intent);
-                getActivity().overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                getActivity().overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
                 break;
         }
     }
@@ -331,7 +354,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
             case Constants.CODE_CHOOSE_PICTURE:
 
                 if (resultCode == Activity.RESULT_OK) {
-                    final ArrayList<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+                    final ArrayList<String> path = data.getStringArrayListExtra(
+                            MultiImageSelectorActivity.EXTRA_RESULT);
 
                     if (path != null && path.size() != 0) {
                         if (!Config.IS_CONNECTED) {
@@ -340,36 +364,38 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             return;
                         }
 
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                String[] encodeKey = {"string", "operation", "p1", "p2"};
-                                String[] encodeValue = {"{\"id\":\"" + Config.CID + "\"}", "ENCODE", "jbw", "40000000"};
+                        Bitmap bitmap = BitmapFactory.decodeFile(path.get(0));
 
-                                String memberCookie = SoapUtil.getUrlBySoap("authcode", encodeKey, encodeValue);
+                        iv_companyBackground.setImageBitmap(bitmap);
 
-                                System.out.println(memberCookie);
-                                XUtils.uploadImage(Urls.UPLOAD_IMAGE, memberCookie, "filedata", path.get(0),
-                                        new RequestCallBack<String>() {
-                                            @Override
-                                            public void onSuccess(ResponseInfo<String> responseInfo) {
-                                                System.out.println(responseInfo.result);
-                                            }
+                        final String objectName = UtilBox.getObjectName();
 
-                                            @Override
-                                            public void onFailure(HttpException error, String msg) {
-                                                System.out.println(error.toString());
-                                                System.out.println(msg);
-                                            }
-                                        });
-                            }
-                        }).start();
+                        OssUtil.uploadImage(UtilBox.compressImage(bitmap, 500), objectName,
+                                new SaveCallback() {
+                                    @Override
+                                    public void onSuccess(String s) {
+                                        System.out.println("upload success! trying to set..");
+                                    }
+
+                                    @Override
+                                    public void onProgress(String s, int i, int i1) {
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(String s, OSSException e) {
+                                        System.out.println("failed..");
+                                        e.printStackTrace();
+
+                                        Toast.makeText(getActivity(), "Oops..好像出错了，再试一次？",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
 
                     }
                 }
                 break;
         }
     }
-
-
 }

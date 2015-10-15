@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Company;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.ui.Aty_Main;
 import com.jiubai.taskmoment.view.RippleView;
 
@@ -95,12 +97,18 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                 rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                     @Override
                     public void onComplete(RippleView rippleView) {
-                        Intent intent = new Intent(context,
-                                Aty_Main.class);
-
                         Config.COMPANY_NAME = companyList.get(position).getName();
                         Config.CID = companyList.get(position).getCid();
 
+                        // 保存公司信息
+                        SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
+                                Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
+                        editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
+                        editor.apply();
+
+                        Intent intent = new Intent(context, Aty_Main.class);
                         context.startActivity(intent);
                         ((Activity) context).finish();
                         ((Activity) context).overridePendingTransition(

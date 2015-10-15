@@ -56,16 +56,18 @@ public class Adpt_UserInfo extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_userinfo_head, null);
             ((TextView) convertView.findViewById(R.id.tv_nickname)).setText(itemList.get(position));
 
-            ((RippleView) convertView.findViewById(R.id.rv_portrait_nickname)).setOnRippleCompleteListener(
-                    new RippleView.OnRippleCompleteListener() {
-                        @Override
-                        public void onComplete(RippleView rippleView) {
+            ((RippleView) convertView.findViewById(R.id.rv_portrait_nickname))
+                    .setOnRippleCompleteListener(
+                            new RippleView.OnRippleCompleteListener() {
+                                @Override
+                                public void onComplete(RippleView rippleView) {
 
-                        }
-                    });
+                                }
+                            });
         } else {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_body, null);
-            ((TextView) convertView.findViewById(R.id.tv_item_body)).setText(itemList.get(position));
+            ((TextView) convertView.findViewById(R.id.tv_item_body))
+                    .setText(itemList.get(position));
 
             ((RippleView) convertView.findViewById(R.id.rv_item_body)).setOnRippleCompleteListener(
                     new RippleView.OnRippleCompleteListener() {

@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
@@ -27,6 +29,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
 
 public class MainActivity extends Activity {
 
@@ -40,17 +43,17 @@ public class MainActivity extends Activity {
         // 初始化网络状态
         getNetworkState();
 
-        // 读取cookie
-        loadCookie();
-
-        // 读取上次进入的公司
-        loadCompanyInfo();
+        // 读取存储好的数据——cookie,公司信息
+        loadStorageData();
 
         // 获取五位随机数
         getRandom();
 
         // 初始化图片加载框架
         initImageLoader();
+
+        // 初始化图片上传下载OSS
+        OssUtil.init(getApplicationContext());
 
         if (Config.COOKIE == null) {
             startActivity(new Intent(this, Aty_Login.class));
@@ -63,15 +66,11 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    private void loadCookie() {
-        SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
-        Config.COOKIE = sp.getString("cookie", null);
-    }
-
-    private void loadCompanyInfo() {
-        SharedPreferences sp = getSharedPreferences("config", MODE_PRIVATE);
-        Config.COMPANY_NAME = sp.getString("companyName", null);
-        Config.CID = sp.getString("companyId", null);
+    private void loadStorageData(){
+        SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
+        Config.COOKIE = sp.getString(Constants.SP_KEY_COOKIE, null);
+        Config.COMPANY_NAME = sp.getString(Constants.SP_KEY_COMPANY_NAME, null);
+        Config.CID = sp.getString(Constants.SP_KEY_COMPANY_ID, null);
     }
 
     @SuppressWarnings("deprecation")
@@ -90,7 +89,8 @@ public class MainActivity extends Activity {
 
     private void getNetworkState() {
         // 获取网络连接管理器对象（系统服务对象）
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // 获取网络状态
         NetworkInfo info = cm.getActiveNetworkInfo();
@@ -103,36 +103,6 @@ public class MainActivity extends Activity {
         if (number < 90000) {
             number += 10000;
         }
-        Config.RAMDOM = String.valueOf(number);
-    }
-
-    /**
-     * 开一个线程把assert目录下的图片复制到SD卡目录下
-     * @param testImageOnSdCard 图片文件
-     */
-    private void copyTestImageToSdCard(final File testImageOnSdCard) {
-        new Thread(new Runnable() {
-            @SuppressLint("LongLogTag")
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            @Override
-            public void run() {
-                try {
-                    FileOutputStream fos = new FileOutputStream(testImageOnSdCard);
-                    byte[] buffer = new byte[8192];
-                    int read;
-                    try (InputStream is = getAssets().open("")) {
-                        while ((read = is.read(buffer)) != -1) {
-                            fos.write(buffer, 0, read); // 写入输出流
-                        }
-                    } finally {
-                        fos.flush();        // 写入SD卡
-                        fos.close();        // 关闭输出流
-
-                    }
-                } catch (IOException e) {
-                    Log.i("Can't copy test image onto SD card", "");
-                }
-            }
-        }).start();     // 启动线程
+        Config.RANDOM = String.valueOf(number);
     }
 }

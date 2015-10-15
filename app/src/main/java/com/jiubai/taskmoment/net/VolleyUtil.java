@@ -1,18 +1,13 @@
 package com.jiubai.taskmoment.net;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
 
@@ -111,41 +106,5 @@ public class VolleyUtil {
 
         // 加入请求队列
         requestQueue.add(stringRequest);
-    }
-
-    /**
-     * 请求图片资源
-     *
-     * @param url             图片的url
-     * @param successCallback 获取成功回调
-     * @param maxWidth        最大宽度
-     * @param maxHeight       最大高度
-     * @param errorCallback   获取失败回调
-     */
-    public static void imageRequest(final String url, Response.Listener<Bitmap> successCallback,
-                                    int maxWidth, int maxHeight, Response.ErrorListener errorCallback) {
-        ImageRequest imageRequest = new ImageRequest(url, successCallback,
-                maxWidth, maxHeight, Bitmap.Config.ALPHA_8, errorCallback);
-
-        requestQueue.add(imageRequest);
-    }
-
-    /**
-     * 设置网络图片
-     *
-     * @param niv               需要设置的图片控件
-     * @param url               图片的url
-     * @param defaultImageResId 未加载完成的图片
-     * @param errorImageResId   加载失败的图片
-     */
-    public static void setNetWorkImageWithCache(NetworkImageView niv, final String url,
-                                                int defaultImageResId, int errorImageResId) {
-        LruImageCache lruImageCache = LruImageCache.instance();
-
-        ImageLoader imageLoader = new ImageLoader(requestQueue, lruImageCache);
-
-        niv.setDefaultImageResId(defaultImageResId);
-        niv.setErrorImageResId(errorImageResId);
-        niv.setImageUrl(url, imageLoader);
     }
 }

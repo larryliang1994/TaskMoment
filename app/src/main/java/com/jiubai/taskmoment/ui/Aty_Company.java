@@ -32,6 +32,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +91,8 @@ public class Aty_Company extends AppCompatActivity {
             iBtn_back.setVisibility(View.GONE);
             iv_divider.setVisibility(View.GONE);
 
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(UtilBox.dip2px(this, 16), 0, 0, 0);
             lp.gravity = Gravity.CENTER_VERTICAL;
 
@@ -115,11 +117,13 @@ public class Aty_Company extends AppCompatActivity {
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem == 0)
+            public void onScroll(AbsListView absListView, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem == 0) {
                     srl.setEnabled(true);
-                else
+                } else {
                     srl.setEnabled(false);
+                }
             }
         });
 
@@ -148,7 +152,8 @@ public class Aty_Company extends AppCompatActivity {
                         R.layout.popup_logout, null);
 
                 final PopupWindow popupWindow = new PopupWindow(contentView,
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
                 contentView.findViewById(R.id.tv_popupWindow).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -162,17 +167,18 @@ public class Aty_Company extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         dialog.dismiss();
-                                        SharedPreferences sp = getSharedPreferences("config",
-                                                Activity.MODE_PRIVATE);
+                                        SharedPreferences sp = getSharedPreferences(
+                                                Constants.SP_FILENAME, Activity.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = sp.edit();
-                                        editor.remove("cookie");
+                                        editor.remove(Constants.SP_KEY_COOKIE);
                                         editor.apply();
 
                                         Config.COOKIE = null;
 
                                         startActivity(new Intent(Aty_Company.this, Aty_Login.class));
                                         finish();
-                                        overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                                        overridePendingTransition(
+                                                R.anim.in_left_right, R.anim.out_left_right);
                                     }
                                 })
                                 .setNegativeButton("假的", new View.OnClickListener() {
@@ -268,10 +274,10 @@ public class Aty_Company extends AppCompatActivity {
 
             } else {
                 // cookie有误，清空cookie
-                SharedPreferences sp = getSharedPreferences("config",
+                SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME,
                         Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
-                editor.remove("cookie");
+                editor.remove(Constants.SP_KEY_COOKIE);
                 editor.apply();
 
                 Config.COOKIE = null;
@@ -330,5 +336,17 @@ public class Aty_Company extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

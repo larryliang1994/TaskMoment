@@ -18,6 +18,7 @@ import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,5 +161,17 @@ public class Aty_PersonalInfo extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

@@ -75,7 +75,8 @@ public class Adpt_Comment extends BaseAdapter {
                 Intent intent = new Intent(context, Aty_PersonalInfo.class);
                 intent.putExtra("name", comment.getSender());
                 context.startActivity(intent);
-                ((Activity) context).overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
             }
         };
         senderSpan.setSpan(senderClickableSpan, 0, comment.getSender().length(),
@@ -92,7 +93,8 @@ public class Adpt_Comment extends BaseAdapter {
                     Intent intent = new Intent(context, Aty_PersonalInfo.class);
                     intent.putExtra("name", comment.getReceiver());
                     context.startActivity(intent);
-                    ((Activity) context).overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                    ((Activity) context).overridePendingTransition(
+                            R.anim.in_right_left, R.anim.out_right_left);
                 }
             };
             receiverSpan.setSpan(receiverClickableSpan, 0, comment.getReceiver().length(),
@@ -112,12 +114,14 @@ public class Adpt_Comment extends BaseAdapter {
             public void onClick(View v) {
                 Frag_Timeline.showCommentWindow(context, -1, comment.getSender());
 
-                holder.tv_comment.setBackgroundColor(context.getResources().getColor(R.color.gray));
+                holder.tv_comment.setBackgroundColor(
+                        context.getResources().getColor(R.color.gray));
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        holder.tv_comment.setBackgroundColor(context.getResources().getColor(R.color.transparent));
+                        holder.tv_comment.setBackgroundColor(
+                                context.getResources().getColor(R.color.transparent));
                     }
                 }, 100);
 
@@ -126,14 +130,14 @@ public class Adpt_Comment extends BaseAdapter {
 
         // 将其宽度约束为ListView的宽度
         DisplayMetrics metric = new DisplayMetrics();
-        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(metric);
-        holder.tv_comment.setWidth(UtilBox.dip2px(context, UtilBox.px2dip(context, metric.widthPixels) - 81));
-
-       // holder.tv_comment.setHighlightColor(context.getResources().getColor(R.color.S));
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(metric);
+        holder.tv_comment.setWidth(UtilBox.dip2px(
+                context, UtilBox.px2dip(context, metric.widthPixels) - 81));
 
         // 最后一项离底部为5dp
-        if (position == getCount() - 1){
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)holder.tv_comment.getLayoutParams();
+        if (position == getCount() - 1) {
+            LinearLayout.LayoutParams params =
+                    (LinearLayout.LayoutParams) holder.tv_comment.getLayoutParams();
             params.setMargins(UtilBox.dip2px(context, 5), UtilBox.dip2px(context, 5),
                     UtilBox.dip2px(context, 5), UtilBox.dip2px(context, 5));
             holder.tv_comment.setLayoutParams(params);

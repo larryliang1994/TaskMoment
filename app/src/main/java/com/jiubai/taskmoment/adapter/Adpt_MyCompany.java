@@ -117,14 +117,14 @@ public class Adpt_MyCompany extends BaseAdapter {
                     Config.CID = companyList.get(position).getCid();
 
                     // 保存公司信息
-                    SharedPreferences sp = context.getSharedPreferences("config", Context.MODE_PRIVATE);
+                    SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
+                            Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
-                    editor.putString("companyName", Config.COMPANY_NAME);
-                    editor.putString("companyId", Config.CID);
+                    editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
+                    editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
                     editor.apply();
 
-                    Intent intent = new Intent(context,
-                            Aty_Main.class);
+                    Intent intent = new Intent(context, Aty_Main.class);
                     context.startActivity(intent);
                     ((Activity) context).finish();
                     ((Activity) context).overridePendingTransition(

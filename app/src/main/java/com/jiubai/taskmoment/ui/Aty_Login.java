@@ -24,11 +24,13 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.net.SoapUtil;
 import com.jiubai.taskmoment.receiver.Receiver_SmsReader;
 import com.jiubai.taskmoment.view.RippleView;
 import com.jiubai.taskmoment.view.RotateLoading;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -134,10 +136,10 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         SoapUtil.extendCookieLifeTime(cookie);
 
         // 保存cookie
-        SharedPreferences sp = getSharedPreferences("config", Context.MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         if (Config.COOKIE != null) {
-            editor.putString("cookie", Config.COOKIE);
+            editor.putString(Constants.SP_KEY_COOKIE, Config.COOKIE);
         }
 
         editor.apply();
@@ -229,7 +231,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                 changeLoadingState("show");
 
                                 String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                                String[] soapValue = {"sms_send_verifycode", Config.RAMDOM, "", "1"};
+                                String[] soapValue = {"sms_send_verifycode", Config.RANDOM, "", "1"};
                                 String[] httpKey = {"mobile"};
                                 String[] httpValue = {tele};
                                 VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
@@ -240,7 +242,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
                                                 try {
                                                     JSONObject obj = new JSONObject(response);
-                                                    Toast.makeText(Aty_Login.this, obj.getString("info"),
+                                                    Toast.makeText(Aty_Login.this,
+                                                            obj.getString("info"),
                                                             Toast.LENGTH_SHORT).show();
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
@@ -252,10 +255,12 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                             public void onErrorResponse(VolleyError volleyError) {
                                                 changeLoadingState("dismiss");
 
-                                                if (volleyError != null && volleyError.getMessage() != null) {
+                                                if (volleyError != null
+                                                        && volleyError.getMessage() != null) {
                                                     System.out.println(volleyError.getMessage());
                                                 }
-                                                Toast.makeText(Aty_Login.this, "Oops...好像出错了，再试一次？",
+                                                Toast.makeText(Aty_Login.this,
+                                                        "Oops...好像出错了，再试一次？",
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });
@@ -290,7 +295,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                 changeLoadingState("show");
 
                                 String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                                String[] soapValue = {"mobile_login", Config.RAMDOM, "", "1"};
+                                String[] soapValue = {"mobile_login", Config.RANDOM, "", "1"};
                                 String[] httpKey = {"mobile", "check_code"};
                                 String[] httpValue = {tele, verify};
                                 VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
@@ -394,5 +399,17 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                 }
             });
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

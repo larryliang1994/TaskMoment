@@ -33,6 +33,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.DateDialog;
 import com.jiubai.taskmoment.view.RippleView;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -166,8 +167,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                     String[] value = {String.valueOf(grade), edt_desc.getText().toString(),
                             memberList.get(executor).getId(),
                             memberList.get(supervisor).getId(), memberList.get(auditor).getId(),
-                            String.valueOf(UtilBox.getStringToDate(tv_deadline.getText().toString())),
-                            String.valueOf(UtilBox.getStringToDate(tv_publishTime.getText().toString()))};
+                            UtilBox.getStringToDate(tv_deadline.getText().toString()) + "",
+                            UtilBox.getStringToDate(tv_publishTime.getText().toString()) + ""};
 
                     //VolleyUtil.requestWithCookie(null, key, value, null, null);
 
@@ -181,7 +182,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
 
     @OnClick({R.id.iBtn_back, R.id.tv_deadline, R.id.tv_publishTime,
             R.id.tv_executor, R.id.tv_supervisor, R.id.tv_auditor,
-            R.id.btn_grade_s, R.id.btn_grade_a, R.id.btn_grade_b, R.id.btn_grade_c, R.id.btn_grade_d})
+            R.id.btn_grade_s, R.id.btn_grade_a, R.id.btn_grade_b,
+            R.id.btn_grade_c, R.id.btn_grade_d})
     public void onClick(View view) {
         MyDate myDate;
         DateDialog dateDialog;
@@ -197,7 +199,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 isDeadline = true;
 
                 myDate = getMyDate();
-                dateDialog = new DateDialog(this, this, myDate.getYear(), myDate.getMonth(), myDate.getDay());
+                dateDialog = new DateDialog(this, this,
+                        myDate.getYear(), myDate.getMonth(), myDate.getDay());
                 dateDialog.show();
                 break;
 
@@ -205,7 +208,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 isPublishTime = true;
 
                 myDate = getMyDate();
-                dateDialog = new DateDialog(this, this, myDate.getYear(), myDate.getMonth(), myDate.getDay());
+                dateDialog = new DateDialog(this, this,
+                        myDate.getYear(), myDate.getMonth(), myDate.getDay());
                 dateDialog.show();
                 break;
 
@@ -287,17 +291,21 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                         JSONArray memberArray = memberJson.getJSONArray("info");
 
                                         for (int i = 0; i < memberArray.length(); i++) {
-                                            JSONObject obj = new JSONObject(memberArray.getString(i));
+                                            JSONObject obj
+                                                    = new JSONObject(memberArray.getString(i));
                                             memberList.add(
                                                     new Member(
-                                                            obj.getString("real_name"), obj.getString("mobile"),
-                                                            obj.getString("id"), obj.getString("mid")));
+                                                            obj.getString("real_name"),
+                                                            obj.getString("mobile"),
+                                                            obj.getString("id"),
+                                                            obj.getString("mid")));
                                         }
 
                                         showMemberList(viewID, which);
                                     }
                                 } else {
-                                    Toast.makeText(Aty_TaskPublish.this, "Oops...好像出错了，再试一次吧？",
+                                    Toast.makeText(Aty_TaskPublish.this,
+                                            "Oops...好像出错了，再试一次吧？",
                                             Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
@@ -377,7 +385,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         // 全部变成灰色
         for (int i = 0; i < gradeBtnList.size(); i++) {
             if (i + 1 != grade) {
-                GradientDrawable gradeBgShape = (GradientDrawable) gradeBtnList.get(i).getBackground();
+                GradientDrawable gradeBgShape
+                        = (GradientDrawable) gradeBtnList.get(i).getBackground();
                 gradeBgShape.setColor(getResources().getColor(R.color.NONE));
             }
         }
@@ -468,7 +477,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         switch (requestCode) {
             case Constants.CODE_MULTIPLE_PICTURE:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+                    ArrayList<String> path
+                            = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
 
                     adpt_publishPicture.insertPicture(path);
                     gv.setAdapter(adpt_publishPicture);
@@ -498,5 +508,17 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

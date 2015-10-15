@@ -72,7 +72,8 @@ public class Frag_Member extends Fragment {
             public void onItemClick(final AdapterView<?> parent, View view, final int position, long id) {
                 if (position == adpt_member.getCount() - 1) {
                     @SuppressLint("InflateParams")
-                    final View contentView = getActivity().getLayoutInflater().inflate(R.layout.dialog_add_member, null);
+                    final View contentView = getActivity().getLayoutInflater()
+                            .inflate(R.layout.dialog_add_member, null);
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());
                     dialog.setPositiveButton("添加", new View.OnClickListener() {
@@ -87,12 +88,13 @@ public class Frag_Member extends Fragment {
                                         return;
                                     }
 
-                                    String mobile = ((EditText) contentView.findViewById(R.id.edt_addMember))
+                                    String mobile = ((EditText) contentView
+                                            .findViewById(R.id.edt_addMember))
                                             .getText().toString();
 
                                     if (!UtilBox.isTelephoneNumber(mobile)) {
-                                        TextView tv =
-                                                (TextView) contentView.findViewById(R.id.tv_addMember);
+                                        TextView tv = (TextView) contentView
+                                                .findViewById(R.id.tv_addMember);
                                         tv.setVisibility(View.VISIBLE);
                                         tv.setText("请输入11位手机号");
 
@@ -112,8 +114,8 @@ public class Frag_Member extends Fragment {
                                                         refreshListView();
 
                                                     } else if (result != null) {
-                                                        TextView tv =
-                                                                (TextView) contentView.findViewById(R.id.tv_addMember);
+                                                        TextView tv = (TextView) contentView
+                                                                .findViewById(R.id.tv_addMember);
                                                         tv.setVisibility(View.VISIBLE);
                                                         tv.setText(result);
                                                     }
@@ -122,7 +124,8 @@ public class Frag_Member extends Fragment {
                                             new Response.ErrorListener() {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
-                                                    Toast.makeText(getActivity(), "Oops...好像出错了，再试一次？",
+                                                    Toast.makeText(getActivity(),
+                                                            "Oops...好像出错了，再试一次？",
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -172,7 +175,8 @@ public class Frag_Member extends Fragment {
                                             new Response.ErrorListener() {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
-                                                    Toast.makeText(getActivity(), "Oops...好像出错了，再试一次？",
+                                                    Toast.makeText(getActivity(),
+                                                            "Oops...好像出错了，再试一次？",
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -198,7 +202,8 @@ public class Frag_Member extends Fragment {
             }
 
             @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            public void onScroll(AbsListView absListView, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
                 if (firstVisibleItem == 0)
                     srl.setEnabled(true);
                 else
@@ -312,7 +317,9 @@ public class Frag_Member extends Fragment {
                 refreshListView();
                 Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), "Oops...好像出错了，再试一次？", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(),
+                        "Oops...好像出错了，再试一次？",
+                        Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
             e.printStackTrace();

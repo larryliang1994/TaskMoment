@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 
@@ -192,7 +193,8 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                 }
             });
 
-            container.addView(photoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.addView(photoView,
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
             return photoView;
         }
@@ -206,5 +208,17 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

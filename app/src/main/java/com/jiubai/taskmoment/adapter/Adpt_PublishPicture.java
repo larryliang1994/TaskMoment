@@ -98,13 +98,18 @@ public class Adpt_PublishPicture extends BaseAdapter {
                     intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
 
                     // 最大图片选择数量
-                    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 9 - getCount() + 1);
+                    intent.putExtra(
+                            MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 9 - getCount() + 1);
 
-                    // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者 多选/MultiImageSelectorActivity.MODE_MULTI)
-                    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
+                    // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者
+                    // 多选/MultiImageSelectorActivity.MODE_MULTI)
+                    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE,
+                            MultiImageSelectorActivity.MODE_MULTI);
 
-                    ((Activity) context).startActivityForResult(intent, Constants.CODE_MULTIPLE_PICTURE);
-                    ((Activity) context).overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                    ((Activity) context).startActivityForResult(
+                            intent, Constants.CODE_MULTIPLE_PICTURE);
+                    ((Activity) context).overridePendingTransition(
+                            R.anim.in_right_left, R.anim.out_right_left);
                 }
             });
         } else {
@@ -119,7 +124,8 @@ public class Adpt_PublishPicture extends BaseAdapter {
                     intent.putExtra("index", position);
                     intent.putExtra("fromWhere", "local");
 
-                    ((Activity) context).startActivityForResult(intent, Constants.CODE_CHECK_PICTURE);
+                    ((Activity) context).startActivityForResult(
+                            intent, Constants.CODE_CHECK_PICTURE);
                     ((Activity) context).overridePendingTransition(
                             R.anim.zoom_in_quick, R.anim.scale_stay);
                 }

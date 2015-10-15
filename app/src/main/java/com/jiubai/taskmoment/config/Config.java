@@ -5,8 +5,9 @@ package com.jiubai.taskmoment.config;
  */
 public class Config {
     public static String COOKIE = null;
-    public static String RAMDOM = null;
+    public static String RANDOM = null;
     public static boolean IS_CONNECTED = false;
     public static String CID = null;
     public static String COMPANY_NAME = null;
+    public static String COMPANY_BACKGROUND = null;
 }
