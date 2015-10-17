@@ -14,8 +14,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.download.ImageDownloader;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -68,10 +68,10 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
      */
     private void initView() {
         // net则来自timeline，不需要toolbar
-        if("local".equals(fromWhere)) {
+        if ("local".equals(fromWhere)) {
             tv_title.setText(R.string.checkPicture);
             iBtn_delete.setVisibility(View.VISIBLE);
-        } else if ("net".equals(fromWhere)){
+        } else if ("net".equals(fromWhere)) {
             toolBar.setVisibility(View.GONE);
         }
 
@@ -98,10 +98,10 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
 
                                 pictureList.remove(vp.getCurrentItem());
 
-                                if(pictureList.size() != 1) {
+                                if (pictureList.size() != 1) {
                                     vp.setAdapter(new SamplePagerAdapter());
                                 } else {
-                                    if(hasChange) {
+                                    if (hasChange) {
                                         Intent intent = new Intent();
                                         intent.putExtra("pictureList", pictureList);
                                         setResult(RESULT_OK, intent);
@@ -123,7 +123,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                 break;
 
             case R.id.iBtn_back:
-                if(hasChange) {
+                if (hasChange) {
                     Intent intent = new Intent();
                     intent.putExtra("pictureList", pictureList);
                     setResult(RESULT_OK, intent);
@@ -141,7 +141,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if(hasChange) {
+            if (hasChange) {
                 Intent intent = new Intent();
                 intent.putExtra("pictureList", pictureList);
                 setResult(RESULT_OK, intent);
@@ -168,11 +168,10 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
         @Override
         public View instantiateItem(ViewGroup container, int position) {
             PhotoView photoView = new PhotoView(container.getContext());
-            if ("local".equals(fromWhere)) { // 本地图片
-                photoView.setImageBitmap(UtilBox.getLocalBitmap(pictureList.get(position),
-                        UtilBox.getWidthPixels(Aty_CheckPicture.this),
-                        UtilBox.getHeightPixels(Aty_CheckPicture.this)));
-            } else if ("net".equals(fromWhere)) { // 网络图片
+            if (!pictureList.get(position).contains("http")) {
+                String imgUrl = ImageDownloader.Scheme.FILE.wrap(pictureList.get(position));
+                ImageLoader.getInstance().displayImage(imgUrl, photoView);
+            } else {
                 ImageLoader.getInstance().displayImage(pictureList.get(position), photoView);
             }
 
@@ -180,7 +179,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
             photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
                 @Override
                 public void onPhotoTap(View view, float v, float v1) {
-                    if(hasChange) {
+                    if (hasChange) {
                         Intent intent = new Intent();
                         intent.putExtra("pictureList", pictureList);
                         setResult(RESULT_OK, intent);

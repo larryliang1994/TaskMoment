@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -16,6 +17,9 @@ import android.widget.ListView;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -162,7 +166,9 @@ public class UtilBox {
     /**
      * 根据路径，解析成图片
      *
-     * @param url 图片路径
+     * @param url    图片路径
+     * @param width  指定的宽度
+     * @param height 指定的宽度
      * @return 图片Bitmap
      */
     public static Bitmap getLocalBitmap(String url, int width, int height) {
@@ -384,27 +390,43 @@ public class UtilBox {
      */
     public static Bitmap compressImage(Bitmap image, int size) {
 
+        // 将bitmap放至数组中，意在bitmap的大小(与实际读取的原文件要大)
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        // 质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 
-        int options = 100;
+        byte[] b = baos.toByteArray();
+        // 将字节换成KB
+        double mid = b.length/1024;
 
-        // 循环判断如果压缩后图片是否大于指定的kb数,大于继续压缩
-        while (baos.toByteArray().length / 1024 > size) {
-            baos.reset();
-
-            // 这里压缩options%，把压缩后的数据存放到baos中
-            image.compress(Bitmap.CompressFormat.JPEG, options, baos);
-
-            // 每次都减少10
-            options -= 10;
+        // 判断bitmap占用空间是否大于允许最大空间  如果大于则压缩 小于则不压缩
+        if (mid > size) {
+            // 获取bitmap大小 是允许最大大小的多少倍
+            double i = mid / size;
+            // 开始压缩  此处用到平方根 将宽带和高度压缩掉对应的平方根倍
+            // (保持刻度和高度和原bitmap比率一致，压缩后也达到了最大大小占用空间的大小)
+            image = zoomImage(image, image.getWidth() / Math.sqrt(i),
+                    image.getHeight() / Math.sqrt(i));
         }
 
-        //把压缩后的数据baos存放到ByteArrayInputStream中
-        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());
+        return image;
+    }
 
-        return BitmapFactory.decodeStream(isBm, null, null);
+    private static Bitmap zoomImage(Bitmap image, double newWidth,
+                                   double newHeight) {
+        // 获取这个图片的宽和高
+        float width = image.getWidth();
+        float height = image.getHeight();
+
+        // 创建操作图片用的matrix对象
+        Matrix matrix = new Matrix();
+
+        // 计算宽高缩放率
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+
+        // 缩放图片动作
+        matrix.postScale(scaleWidth, scaleHeight);
+        return Bitmap.createBitmap(image, 0, 0, (int) width,
+                (int) height, matrix, true);
     }
 }

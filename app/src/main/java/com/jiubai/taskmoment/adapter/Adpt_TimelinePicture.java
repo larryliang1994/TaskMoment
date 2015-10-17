@@ -8,17 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
-import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.ui.Aty_CheckPicture;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.download.ImageDownloader;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Timeline中的Picture的适配器
@@ -85,8 +83,12 @@ public class Adpt_TimelinePicture extends BaseAdapter {
             }
         });
 
-        ImageLoader loader = ImageLoader.getInstance();
-        loader.displayImage(pictureList.get(position), holder.iv_picture);
+        if (!pictureList.get(position).contains("http")) {
+            String imgUrl = ImageDownloader.Scheme.FILE.wrap(pictureList.get(position));
+            ImageLoader.getInstance().displayImage(imgUrl, holder.iv_picture);
+        } else {
+            ImageLoader.getInstance().displayImage(pictureList.get(position), holder.iv_picture);
+        }
 
         return convertView;
     }

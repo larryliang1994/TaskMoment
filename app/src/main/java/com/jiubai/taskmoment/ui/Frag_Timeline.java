@@ -4,14 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -31,6 +32,8 @@ import com.aliyun.mbaas.oss.callback.SaveCallback;
 import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.adapter.Adpt_JoinedCompany;
+import com.jiubai.taskmoment.adapter.Adpt_MyCompany;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
@@ -43,10 +46,12 @@ import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-
-import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 /**
  * 时间线（任务圈）
@@ -60,7 +65,8 @@ public class Frag_Timeline extends Fragment
     private static LinearLayout ll_audit;
     private Adpt_Timeline adapter;
     private ImageView iv_companyBackground;
-
+    private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
+    private List<Task> taskList;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
     @Nullable
@@ -142,6 +148,8 @@ public class Frag_Timeline extends Fragment
 //        ImageLoader.getInstance().displayImage(
 //                Constants.HOST_ID + Config.COMPANY_BACKGROUND, iv_companyBackground);
 
+        Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
+
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -162,6 +170,57 @@ public class Frag_Timeline extends Fragment
         }
 
         srl.setRefreshing(true);
+
+//        String[] key = {};
+//        String[] value = {};
+//        VolleyUtil.requestWithCookie(Urls.GET_TASKLIST, key, value,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//
+//                        JSONObject responseJson;
+//                        try {
+//                            responseJson = new JSONObject(response);
+//
+//                            String responseStatus = responseJson.getString("status");
+//
+//                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
+//                                adapter = new Adpt_Timeline(getActivity(), response);
+//                                new Handler().postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//
+//                                        getActivity().runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                lv.setAdapter(adapter);
+//                                                UtilBox.setListViewHeightBasedOnChildren(lv);
+//                                                srl.setRefreshing(false);
+//                                            }
+//                                        });
+//
+//                                    }
+//                                }, 1000);
+//                            } else {
+//                                Toast.makeText(getActivity(),
+//                                        responseJson.getString("info"),
+//                                        Toast.LENGTH_SHORT).show();
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError volleyError) {
+//                        Toast.makeText(getActivity(),
+//                                "Oops...好像出错了，再试一次吧？",
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//
+//        );
 
         new Thread(new Runnable() {
             @Override
@@ -184,7 +243,7 @@ public class Frag_Timeline extends Fragment
                 pictureList.add(Urls.PICTURE_8);
                 pictureList.add(Urls.PICTURE_9);
 
-                final List<Task> taskList = new ArrayList<>();
+                taskList = new ArrayList<>();
                 taskList.add(new Task(Urls.PICTURE_1,
                         "Howell", "S", "这是第一个任务", pictureList, "8:40", commentList));
                 taskList.add(new Task(Urls.PICTURE_2,
@@ -220,11 +279,19 @@ public class Frag_Timeline extends Fragment
                 Looper.loop();
             }
         }).start();
-
     }
 
+    /**
+     * 弹出评论窗口
+     *
+     * @param sender     发送者
+     * @param senderID   发送者ID
+     * @param receiver   接收者
+     * @param receiverID 接收者ID
+     */
     @SuppressWarnings("unused")
-    public static void showCommentWindow(Context context, int position, String receiver) {
+    public static void showCommentWindow(String sender, String senderID,
+                                         String receiver, String receiverID) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -239,10 +306,6 @@ public class Frag_Timeline extends Fragment
 
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
-
-//        if (position != -1) {
-//            lv.setSelection(position);
-//        }
 
         if (receiver != null) {
             edt_content.setHint("回复" + receiver + ":");
@@ -277,8 +340,14 @@ public class Frag_Timeline extends Fragment
         });
     }
 
+    /**
+     * 弹出审核窗口
+     *
+     * @param sender   发送者
+     * @param senderID 发送者ID
+     */
     @SuppressWarnings("unused")
-    public static void showAuditWindow(Context context) {
+    public static void showAuditWindow(String sender, String senderID) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -309,21 +378,29 @@ public class Frag_Timeline extends Fragment
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(
-                                getActivity(), MultiImageSelectorActivity.class);
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
 
-                        // 是否显示调用相机拍照
-                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
+                        intent.setType("image/*");
+                        intent.putExtra("crop", "true");
+                        intent.putExtra("scale", true);
+                        intent.putExtra("return-data", false);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                        intent.putExtra("output", imageUri);
+                        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                        intent.putExtra("noFaceDetection", true);
 
-                        // 最大图片选择数量
-                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 1);
+                        int standardWidth = UtilBox.getWidthPixels(getActivity());
+                        int standardHeight = UtilBox.dip2px(getActivity(), 270);
 
-                        // 设置模式 (支持 单选/MultiImageSelectorActivity.MODE_SINGLE 或者
-                        // 多选/MultiImageSelectorActivity.MODE_MULTI)
-                        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE,
-                                MultiImageSelectorActivity.MODE_SINGLE);
+                        // 裁剪框比例
+                        intent.putExtra("aspectX", standardWidth);
+                        intent.putExtra("aspectY", standardHeight);
 
-                        startActivityForResult(intent, Constants.CODE_CHOOSE_PICTURE);
+                        // 输出值
+                        intent.putExtra("outputX", standardWidth);
+                        intent.putExtra("outputY", standardHeight);
+
+                        startActivityForResult(intent, Constants.CODE_CROP_PICTURE);
 
                         getActivity().overridePendingTransition(
                                 R.anim.in_right_left, R.anim.out_right_left);
@@ -343,6 +420,12 @@ public class Frag_Timeline extends Fragment
                 getActivity().overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
                 break;
+
+            case R.id.iBtn_publish:
+                startActivityForResult(
+                        new Intent(getActivity(), Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
+                getActivity().overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                break;
         }
     }
 
@@ -351,49 +434,65 @@ public class Frag_Timeline extends Fragment
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case Constants.CODE_CHOOSE_PICTURE:
-
+            case Constants.CODE_CROP_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    final ArrayList<String> path = data.getStringArrayListExtra(
-                            MultiImageSelectorActivity.EXTRA_RESULT);
-
-                    if (path != null && path.size() != 0) {
-                        if (!Config.IS_CONNECTED) {
-                            Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        Bitmap bitmap = BitmapFactory.decodeFile(path.get(0));
-
-                        iv_companyBackground.setImageBitmap(bitmap);
-
-                        final String objectName = UtilBox.getObjectName();
-
-                        OssUtil.uploadImage(UtilBox.compressImage(bitmap, 500), objectName,
-                                new SaveCallback() {
-                                    @Override
-                                    public void onSuccess(String s) {
-                                        System.out.println("upload success! trying to set..");
-                                    }
-
-                                    @Override
-                                    public void onProgress(String s, int i, int i1) {
-
-                                    }
-
-                                    @Override
-                                    public void onFailure(String s, OSSException e) {
-                                        System.out.println("failed..");
-                                        e.printStackTrace();
-
-                                        Toast.makeText(getActivity(), "Oops..好像出错了，再试一次？",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-
+                    if (!Config.IS_CONNECTED) {
+                        Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+                                Toast.LENGTH_SHORT).show();
+                        return;
                     }
+
+                    if (imageUri != null) {
+                        try {
+                            final Bitmap bitmap = BitmapFactory.decodeStream(
+                                    getActivity().getContentResolver().openInputStream(imageUri));
+                            iv_companyBackground.setImageBitmap(bitmap);
+
+                            final String objectName = UtilBox.getObjectName();
+
+                            OssUtil.uploadImage(
+                                    UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
+                                    objectName,
+                                    new SaveCallback() {
+                                        @Override
+                                        public void onSuccess(String objectKey) {
+                                            System.out.println("upload success!");
+                                        }
+
+                                        @Override
+                                        public void onProgress(String objectKey, int i, int i1) {
+
+                                        }
+
+                                        @Override
+                                        public void onFailure(String objectKey, OSSException e) {
+                                            System.out.println(objectKey + " failed..");
+                                            e.printStackTrace();
+
+                                            Toast.makeText(getActivity(),
+                                                    "Oops..好像出错了，再试一次？",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                break;
+
+            case Constants.CODE_PUBLISH_TASK:
+                if (resultCode == Activity.RESULT_OK) {
+                    String grade = data.getStringExtra("grade");
+                    String content = data.getStringExtra("content");
+
+                    ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
+                    pictureList.remove(pictureList.size() - 1);
+
+                    taskList.add(0, new Task(Urls.PICTURE_1,
+                            "Howell", grade, content, pictureList, "8:40", null));
+
+                    adapter.notifyDataSetChanged();
                 }
                 break;
         }

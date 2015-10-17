@@ -13,6 +13,7 @@ public class Urls {
     public static final String GET_MEMBER = "get_chengyuan&t_active_cid=";
     public static final String DELETE_MEMBER = "delChengyuan";
     public static final String SEND_COMMENT = "sendcomment";
+    public static final String GET_TASKLIST = "";
 
     public static final String LOCAL_LOGIN = "file:///android_asset/login.html";
     public static final String LOCAL_COMPANY = "file:///android_asset/company.html";

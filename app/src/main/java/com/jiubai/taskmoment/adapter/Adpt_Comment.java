@@ -23,6 +23,7 @@ import com.jiubai.taskmoment.style.ClickableText;
 import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,11 @@ public class Adpt_Comment extends BaseAdapter {
     private List<Comment> commentList;
 
     public Adpt_Comment(Context context, List<Comment> commentList) {
-        this.commentList = commentList;
+        if(commentList!=null) {
+            this.commentList = commentList;
+        } else {
+            this.commentList = new ArrayList<>();
+        }
         this.context = context;
     }
 
@@ -112,7 +117,7 @@ public class Adpt_Comment extends BaseAdapter {
         holder.tv_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow(context, -1, comment.getSender());
+                Frag_Timeline.showCommentWindow(null, null, comment.getSender(), null);
 
                 holder.tv_comment.setBackgroundColor(
                         context.getResources().getColor(R.color.gray));

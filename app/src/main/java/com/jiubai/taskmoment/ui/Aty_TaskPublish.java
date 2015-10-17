@@ -6,8 +6,11 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Looper;
 import android.renderscript.ScriptIntrinsicYuvToRGB;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -19,6 +22,8 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aliyun.mbaas.oss.callback.SaveCallback;
+import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
@@ -30,6 +35,7 @@ import com.jiubai.taskmoment.classes.MyDate;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.DateDialog;
 import com.jiubai.taskmoment.view.RippleView;
@@ -40,6 +46,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -93,7 +103,9 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     private List<Button> gradeBtnList = new ArrayList<>();
     private boolean isDeadline = false, isPublishTime = false, hasLoadedMember = false;
     private ArrayList<Member> memberList;
+    private ArrayList<String> pictureList = new ArrayList<>();
     private Adpt_PublishPicture adpt_publishPicture;
+    private int uploadedNum = 0;
     private int executor = -1, supervisor = -1, auditor = -1;
     private int year_deadline = 0, month_deadline = 0, day_deadline = 0,
             year_publishTime = 0, month_publishTime = 0, day_publishTime = 0;
@@ -130,7 +142,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         gv.setAdapter(adpt_publishPicture);
 
         GradientDrawable publishBackground = (GradientDrawable) btn_publish.getBackground();
-        publishBackground.setColor(getResources().getColor(R.color.gray));
+        publishBackground.setColor(getResources().getColor(R.color.primary));
 
         rv_btn_publish.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
@@ -148,31 +160,16 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 } else if (year_publishTime == 0) {
                     Toast.makeText(Aty_TaskPublish.this, "请填入发布时间", Toast.LENGTH_SHORT).show();
                 } else {
-                    /**
-                     *  mid：用户id
-                     * 	order_status：分级，开发者后台中配置
-                     * 	comments：任务描述
-                     * 	works：任务附图
-                     * 	ext1：执行者（用户mid）
-                     * 	ext2：监督者（用户mid）
-                     * 	ext3：审核者（用户mid）
-                     * 	time1：完成期限
-                     * 	time2：发布时间
-                     * 	ifshow：默认on
-                     * 	create_time：创建时间，使用当前时间即可
-                     * 	update_time：修改时间，使用当前时间即可
-                     * 	p1：保存任务评级
-                     */
-                    String[] key = {"p1", "comments", "ext1", "ext2", "ext3", "time1", "time2"};
-                    String[] value = {String.valueOf(grade), edt_desc.getText().toString(),
-                            memberList.get(executor).getId(),
-                            memberList.get(supervisor).getId(), memberList.get(auditor).getId(),
-                            UtilBox.getStringToDate(tv_deadline.getText().toString()) + "",
-                            UtilBox.getStringToDate(tv_publishTime.getText().toString()) + ""};
+                    // 上传图片后上传其他数据
+                    uploadImage();
 
-                    //VolleyUtil.requestWithCookie(null, key, value, null, null);
+                    // 为了能马上显示出来
+                    Intent intent = new Intent();
+                    intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
+                    intent.putExtra("content", edt_desc.getText().toString());
+                    intent.putExtra("pictureList", adpt_publishPicture.pictureList);
 
-                    Aty_TaskPublish.this.setResult(RESULT_OK);
+                    Aty_TaskPublish.this.setResult(RESULT_OK, intent);
                     Aty_TaskPublish.this.finish();
                     overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
                 }
@@ -250,6 +247,81 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 changeBtnColor("D");
                 break;
         }
+    }
+
+    /**
+     * 上传选择的图片
+     * 逐个递归上传
+     * 完成后上传其他相关信息
+     */
+    @SuppressWarnings("deprecation")
+    private void uploadImage() {
+        // 压缩图片
+        final Bitmap bitmap = UtilBox.getLocalBitmap(
+                adpt_publishPicture.pictureList.get(uploadedNum),
+                UtilBox.getWidthPixels(this), UtilBox.getHeightPixels(this));
+
+        OssUtil.uploadImage(UtilBox.compressImage(bitmap, Constants.SIZE_TASK_IMAGE),
+                UtilBox.getObjectName(),
+                new SaveCallback() {
+                    @Override
+                    public void onSuccess(String objectKey) {
+                        // 已上传的图片数加一
+                        uploadedNum++;
+
+                        // 记录已上传的图片的文件名
+                        pictureList.add(objectKey);
+
+                        System.out.println("key:" + objectKey);
+
+                        // -1是因为最后一张是本地的加号
+                        if (uploadedNum < adpt_publishPicture.pictureList.size() - 1) {
+                            // 接着上传下一张图片
+                            uploadImage();
+                        } else {
+                            /**
+                             *  mid：用户id
+                             * 	order_status：分级，开发者后台中配置
+                             * 	comments：任务描述
+                             * 	works：任务附图
+                             * 	ext1：执行者（用户mid）
+                             * 	ext2：监督者（用户mid）
+                             * 	ext3：审核者（用户mid）
+                             * 	time1：完成期限
+                             * 	time2：发布时间
+                             * 	ifshow：默认on
+                             * 	create_time：创建时间，使用当前时间即可
+                             * 	update_time：修改时间，使用当前时间即可
+                             * 	p1：保存任务评级
+                             */
+
+                            String[] key = {"p1", "comments", "ext1", "ext2", "ext3", "time1", "time2"};
+                            String[] value = {String.valueOf(grade),
+                                    edt_desc.getText().toString(),
+                                    memberList.get(executor).getId(),
+                                    memberList.get(supervisor).getId(),
+                                    memberList.get(auditor).getId(),
+                                    UtilBox.getStringToDate(tv_deadline.getText().toString()) + "",
+                                    UtilBox.getStringToDate(tv_publishTime.getText().toString()) + ""};
+
+                            //VolleyUtil.requestWithCookie(null, key, value, null, null);
+                        }
+                    }
+
+                    @Override
+                    public void onProgress(String objectKey, int i, int i1) {
+
+                    }
+
+                    @Override
+                    public void onFailure(String objectKey, OSSException e) {
+                        Looper.prepare();
+                        Toast.makeText(Aty_TaskPublish.this,
+                                "Oops...好像出错了，再试一次？", Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                        Looper.loop();
+                    }
+                });
     }
 
     /**

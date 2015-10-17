@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +63,8 @@ public class Aty_Main extends AppCompatActivity {
 
     private int currentItem = 0;
 
+    public static LinearLayout toolbar;
+
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,8 @@ public class Aty_Main extends AppCompatActivity {
      * 初始化界面
      */
     private void initView() {
+        toolbar = (LinearLayout) findViewById(R.id.toolBar);
+
         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
 
         tv_nickname.setText("Leung_Howell");
@@ -192,17 +197,11 @@ public class Aty_Main extends AppCompatActivity {
         loader.displayImage(Urls.PICTURE_3, iv_navigation);
     }
 
-    @OnClick({R.id.iBtn_back, R.id.iBtn_publish})
+    @OnClick({R.id.iBtn_back})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iBtn_back:
                 dw.openDrawer(GravityCompat.START);
-                break;
-
-            case R.id.iBtn_publish:
-                startActivityForResult(
-                        new Intent(this, Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
-                overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
                 break;
         }
     }
@@ -215,12 +214,6 @@ public class Aty_Main extends AppCompatActivity {
             case Constants.CODE_CHANGE_COMPANY:
                 if (resultCode == RESULT_OK) {
                     recreate();
-                }
-                break;
-
-            case Constants.CODE_PUBLISH_TASK:
-                if (resultCode == RESULT_OK) {
-
                 }
                 break;
         }

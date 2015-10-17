@@ -16,10 +16,15 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.classes.Company;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +41,24 @@ public class Adpt_Timeline extends BaseAdapter {
 
         this.taskList = new ArrayList<>();
         this.taskList = taskList;
+
+//        taskList = new ArrayList<>();
+//
+//        JSONObject taskJson = new JSONObject(response);
+//
+//        try {
+//            if (!"null".equals(taskJson.getString("info"))) {
+//                JSONArray taskArray = taskJson.getJSONArray("info");
+//
+//                for (int i = 0; i < taskArray.length(); i++) {
+//                    JSONObject obj = new JSONObject(taskArray.getString(i));
+//                    Task task = new Task();
+//                    taskList.add(task);
+//                }
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -106,14 +129,14 @@ public class Adpt_Timeline extends BaseAdapter {
         holder.btn_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow(context, position, null);
+                Frag_Timeline.showCommentWindow(null, null, null, null);
             }
         });
 
         holder.btn_audit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showAuditWindow(context);
+                Frag_Timeline.showAuditWindow(null, null);
             }
         });
 

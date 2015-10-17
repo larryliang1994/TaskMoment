@@ -35,7 +35,6 @@ public class Adpt_PublishPicture extends BaseAdapter {
         if (this.pictureList.size() < 9) {
             this.pictureList.add("drawable://" + R.drawable.add_picture);
         }
-
     }
 
     /**
