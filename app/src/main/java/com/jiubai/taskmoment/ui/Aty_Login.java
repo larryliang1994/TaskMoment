@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -22,12 +23,12 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.SmsContentUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.net.SoapUtil;
-import com.jiubai.taskmoment.receiver.Receiver_SmsReader;
 import com.jiubai.taskmoment.view.RippleView;
 import com.jiubai.taskmoment.view.RotateLoading;
 import com.umeng.analytics.MobclickAgent;
@@ -90,14 +91,6 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         edt_telephone.addTextChangedListener(this);
 
         edt_verifyCode.addTextChangedListener(this);
-
-        // 自动填入验证码
-        new Receiver_SmsReader().setOnReceivedMessageListener(new Receiver_SmsReader.MessageListener() {
-            @Override
-            public void OnReceived(String message) {
-                edt_verifyCode.setText(UtilBox.getDynamicPassword(message));
-            }
-        });
     }
 
     /**
@@ -176,7 +169,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         String content = edt_telephone.getText().toString();
 
         if (UtilBox.isTelephoneNumber(content)) {
-            if(!isCounting) {
+            if (!isCounting) {
                 rv_btn_getVerifyCode.setOnRippleCompleteListener(this);
                 verifyBgShape.setColor(getResources().getColor(R.color.primary));
             }
@@ -216,10 +209,16 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                         final String tele = edt_telephone.getText().toString();
 
                         if (!Config.IS_CONNECTED) {
-                            Toast.makeText(Aty_Login.this, "啊哦，网络好像抽风了~",
+                            Toast.makeText(Aty_Login.this, R.string.cant_access_network,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
+
+                        // 注册短信变化监听
+                        SmsContentUtil smsContent = new SmsContentUtil(Aty_Login.this,
+                                new Handler(), edt_verifyCode);
+                        Aty_Login.this.getContentResolver().registerContentObserver(
+                                Uri.parse("content://sms/"), true, smsContent);
 
                         new Thread(new Runnable() {
                             @Override
@@ -260,7 +259,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                                     System.out.println(volleyError.getMessage());
                                                 }
                                                 Toast.makeText(Aty_Login.this,
-                                                        "Oops...好像出错了，再试一次？",
+                                                        R.string.usual_error,
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });
@@ -282,7 +281,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                         final String verify = edt_verifyCode.getText().toString();
 
                         if (!Config.IS_CONNECTED) {
-                            Toast.makeText(Aty_Login.this, "啊哦，网络好像抽风了~",
+                            Toast.makeText(Aty_Login.this, R.string.cant_access_network,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -346,7 +345,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                             @Override
                                             public void onErrorResponse(VolleyError volleyError) {
                                                 changeLoadingState("dismiss");
-                                                Toast.makeText(Aty_Login.this, "Oops...好像出错了，再试一次？",
+                                                Toast.makeText(Aty_Login.this,
+                                                        R.string.usual_error,
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });

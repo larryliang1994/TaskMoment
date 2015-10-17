@@ -20,7 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
@@ -73,7 +73,7 @@ public class Frag_Member extends Fragment {
                 if (position == adpt_member.getCount() - 1) {
                     @SuppressLint("InflateParams")
                     final View contentView = getActivity().getLayoutInflater()
-                            .inflate(R.layout.dialog_add_member, null);
+                            .inflate(R.layout.dialog_input, null);
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());
                     dialog.setPositiveButton("添加", new View.OnClickListener() {
@@ -83,18 +83,19 @@ public class Frag_Member extends Fragment {
                                 @Override
                                 public void run() {
                                     if (!Config.IS_CONNECTED) {
-                                        Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+                                        Toast.makeText(getActivity(),
+                                                R.string.cant_access_network,
                                                 Toast.LENGTH_SHORT).show();
                                         return;
                                     }
 
                                     String mobile = ((EditText) contentView
-                                            .findViewById(R.id.edt_addMember))
+                                            .findViewById(R.id.edt_input))
                                             .getText().toString();
 
                                     if (!UtilBox.isTelephoneNumber(mobile)) {
                                         TextView tv = (TextView) contentView
-                                                .findViewById(R.id.tv_addMember);
+                                                .findViewById(R.id.tv_input);
                                         tv.setVisibility(View.VISIBLE);
                                         tv.setText("请输入11位手机号");
 
@@ -104,7 +105,7 @@ public class Frag_Member extends Fragment {
                                     String[] key = {"mobile", "cid"};
                                     String[] value = {mobile, Config.CID};
 
-                                    VolleyUtil.requestWithCookie("chengyuan_add", key, value,
+                                    VolleyUtil.requestWithCookie(Urls.ADD_MEMBER, key, value,
                                             new Response.Listener<String>() {
                                                 @Override
                                                 public void onResponse(String response) {
@@ -115,7 +116,7 @@ public class Frag_Member extends Fragment {
 
                                                     } else if (result != null) {
                                                         TextView tv = (TextView) contentView
-                                                                .findViewById(R.id.tv_addMember);
+                                                                .findViewById(R.id.tv_input);
                                                         tv.setVisibility(View.VISIBLE);
                                                         tv.setText(result);
                                                     }
@@ -125,7 +126,7 @@ public class Frag_Member extends Fragment {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
                                                     Toast.makeText(getActivity(),
-                                                            "Oops...好像出错了，再试一次？",
+                                                            R.string.usual_error,
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -154,7 +155,8 @@ public class Frag_Member extends Fragment {
                                 @Override
                                 public void onClick(View v) {
                                     if (!Config.IS_CONNECTED) {
-                                        Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+                                        Toast.makeText(getActivity(),
+                                                R.string.cant_access_network,
                                                 Toast.LENGTH_SHORT).show();
                                         return;
                                     }
@@ -176,7 +178,7 @@ public class Frag_Member extends Fragment {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
                                                     Toast.makeText(getActivity(),
-                                                            "Oops...好像出错了，再试一次？",
+                                                            R.string.usual_error,
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -248,7 +250,8 @@ public class Frag_Member extends Fragment {
      */
     private void refreshListView() {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+            Toast.makeText(getActivity(),
+                    R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -267,7 +270,8 @@ public class Frag_Member extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
-                        Toast.makeText(getActivity(), "Oops...好像出错了，下拉刷新一下吧？",
+                        Toast.makeText(getActivity(),
+                                R.string.usual_error_refresh,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -288,7 +292,8 @@ public class Frag_Member extends Fragment {
                 adpt_member = new Adpt_Member(getActivity(), response);
                 lv_member.setAdapter(adpt_member);
             } else {
-                Toast.makeText(getActivity(), "Oops...好像出错了，下拉刷新一下吧？",
+                Toast.makeText(getActivity(),
+                        R.string.usual_error_refresh,
                         Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
@@ -318,7 +323,7 @@ public class Frag_Member extends Fragment {
                 Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(),
-                        "Oops...好像出错了，再试一次？",
+                        R.string.usual_error,
                         Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {

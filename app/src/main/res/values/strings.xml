@@ -53,5 +53,8 @@
     <string name="complete">普通完成</string>
     <string name="task_failed">任务失败</string>
     <string name="ok">确定</string>
-    <string name="loading">正在加载...</string>
+    <string name="loading">正在加载…</string>
+    <string name="usual_error">Oops…好像出错了，再试一次？</string>
+    <string name="usual_error_refresh">Oops…好像出错了，下拉刷新一下吧？</string>
+    <string name="cant_access_network">啊哦，网络好像抽风了~</string>
 </resources>

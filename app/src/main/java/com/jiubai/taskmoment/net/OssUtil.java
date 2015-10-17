@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.aliyun.mbaas.oss.OSSClient;
-import com.aliyun.mbaas.oss.callback.GetBytesCallback;
 import com.aliyun.mbaas.oss.callback.SaveCallback;
 import com.aliyun.mbaas.oss.model.AccessControlList;
 import com.aliyun.mbaas.oss.model.OSSException;
@@ -13,7 +12,7 @@ import com.aliyun.mbaas.oss.model.TokenGenerator;
 import com.aliyun.mbaas.oss.storage.OSSBucket;
 import com.aliyun.mbaas.oss.storage.OSSData;
 import com.aliyun.mbaas.oss.util.OSSToolKit;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Constants;
 
 import java.security.InvalidKeyException;

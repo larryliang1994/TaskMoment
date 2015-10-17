@@ -1,11 +1,9 @@
-package com.jiubai.taskmoment.style;
+package com.jiubai.taskmoment.other;
 
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
-
-import com.jiubai.taskmoment.R;
 
 /**
  * 可点击的文字

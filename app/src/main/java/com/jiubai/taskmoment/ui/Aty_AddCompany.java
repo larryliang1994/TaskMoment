@@ -91,7 +91,7 @@ public class Aty_AddCompany extends AppCompatActivity
         switch (rippleView.getId()) {
             case R.id.rv_btn_submit:
                 if (!Config.IS_CONNECTED) {
-                    Toast.makeText(Aty_AddCompany.this, "啊哦，网络好像抽风了~",
+                    Toast.makeText(Aty_AddCompany.this, R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -115,7 +115,7 @@ public class Aty_AddCompany extends AppCompatActivity
                             public void onErrorResponse(VolleyError volleyError) {
                                 btn_submit.setText(R.string.addCompany);
                                 rv_btn_submit.setOnRippleCompleteListener(Aty_AddCompany.this);
-                                Toast.makeText(Aty_AddCompany.this, "Oops...好像出错了，再试一次？",
+                                Toast.makeText(Aty_AddCompany.this, R.string.usual_error,
                                         Toast.LENGTH_SHORT).show();
                             }
                         });

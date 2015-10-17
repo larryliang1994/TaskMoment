@@ -1,4 +1,4 @@
-package com.jiubai.taskmoment;
+package com.jiubai.taskmoment.other;
 
 /**
  * 记录存在的bug
@@ -28,6 +28,13 @@ package com.jiubai.taskmoment;
 /**
  * 发现日期：2015-10-7
  * 问题描述：无法正常读取短信，因此无法在登录时自动读取验证码
+ * 解决情况：已解决
+ * 解决方案：改为使用ContentObserver来直接读取未读信息
+ */
+
+/**
+ * 发现日期：2015-10-17
+ * 问题描述：userInfo从adapter中打开相册，fragment中的activityResult无法执行
  * 解决情况：未解决
  * 解决方案：无
  */

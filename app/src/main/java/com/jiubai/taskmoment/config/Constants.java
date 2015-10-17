@@ -21,6 +21,7 @@ public class Constants {
     public static final int CODE_CHOOSE_PICTURE = 5;
     public static final int CODE_PUBLISH_TASK = 6;
     public static final int CODE_CROP_PICTURE = 7;
+    public static final int CODE_CHOOSE_PORTRAIT = 8;
 
     public static final String SP_FILENAME = "config";
     public static final String SP_KEY_COOKIE = "cookie";
@@ -31,4 +32,5 @@ public class Constants {
             + Environment.getExternalStorageDirectory() + "/temp.jpg";
     public static final int SIZE_COMPANY_BACKGROUND = 500;
     public static final int SIZE_TASK_IMAGE = 500;
+    public static final int SIZE_PORTRAIT = 500;
 }

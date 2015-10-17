@@ -1,4 +1,4 @@
-package com.jiubai.taskmoment;
+package com.jiubai.taskmoment.other;
 
 import android.app.Activity;
 import android.content.Context;
@@ -429,4 +429,6 @@ public class UtilBox {
         return Bitmap.createBitmap(image, 0, 0, (int) width,
                 (int) height, matrix, true);
     }
+
+
 }

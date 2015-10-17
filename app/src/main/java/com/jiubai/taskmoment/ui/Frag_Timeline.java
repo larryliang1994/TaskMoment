@@ -32,11 +32,9 @@ import com.aliyun.mbaas.oss.callback.SaveCallback;
 import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.jiubai.taskmoment.adapter.Adpt_JoinedCompany;
-import com.jiubai.taskmoment.adapter.Adpt_MyCompany;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
@@ -45,9 +43,6 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -164,7 +159,8 @@ public class Frag_Timeline extends Fragment
      */
     private void refreshTimeline() {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+            Toast.makeText(getActivity(),
+                    R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -437,7 +433,8 @@ public class Frag_Timeline extends Fragment
             case Constants.CODE_CROP_PICTURE:
                 if (resultCode == Activity.RESULT_OK) {
                     if (!Config.IS_CONNECTED) {
-                        Toast.makeText(getActivity(), "啊哦，网络好像抽风了~",
+                        Toast.makeText(getActivity(),
+                                R.string.cant_access_network,
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -470,7 +467,7 @@ public class Frag_Timeline extends Fragment
                                             e.printStackTrace();
 
                                             Toast.makeText(getActivity(),
-                                                    "Oops..好像出错了，再试一次？",
+                                                    R.string.usual_error,
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     });

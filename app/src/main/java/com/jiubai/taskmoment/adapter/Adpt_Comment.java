@@ -17,9 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
-import com.jiubai.taskmoment.style.ClickableText;
+import com.jiubai.taskmoment.other.ClickableText;
 import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 

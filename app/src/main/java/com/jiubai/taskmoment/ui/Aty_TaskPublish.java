@@ -7,11 +7,9 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Looper;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,8 +25,7 @@ import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
-import com.jiubai.taskmoment.adapter.Adpt_Member;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.adapter.Adpt_PublishPicture;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.MyDate;
@@ -44,12 +41,7 @@ import com.umeng.analytics.MobclickAgent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -317,7 +309,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                     public void onFailure(String objectKey, OSSException e) {
                         Looper.prepare();
                         Toast.makeText(Aty_TaskPublish.this,
-                                "Oops...好像出错了，再试一次？", Toast.LENGTH_SHORT).show();
+                                R.string.usual_error,
+                                Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                         Looper.loop();
                     }
@@ -329,7 +322,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
      */
     private void getMember(final int viewID, final String which) {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(this, "啊哦，网络好像抽风了~",
+            Toast.makeText(this, R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -377,7 +370,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                     }
                                 } else {
                                     Toast.makeText(Aty_TaskPublish.this,
-                                            "Oops...好像出错了，再试一次吧？",
+                                            R.string.usual_error,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
@@ -389,7 +382,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
                             progressDialog.dismiss();
-                            Toast.makeText(Aty_TaskPublish.this, "Oops...好像出错了，再试一次吧？",
+                            Toast.makeText(Aty_TaskPublish.this,
+                                    R.string.usual_error,
                                     Toast.LENGTH_SHORT).show();
                         }
                     });

@@ -27,7 +27,7 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_JoinedCompany;
 import com.jiubai.taskmoment.adapter.Adpt_MyCompany;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
@@ -205,7 +205,7 @@ public class Aty_Company extends AppCompatActivity {
      */
     private void refreshListView() {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(Aty_Company.this, "啊哦，网络好像抽风了~",
+            Toast.makeText(Aty_Company.this, R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -226,7 +226,7 @@ public class Aty_Company extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, "Oops...好像出错了，下拉刷新一下吧？",
+                        Toast.makeText(Aty_Company.this, R.string.usual_error_refresh,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -245,7 +245,7 @@ public class Aty_Company extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, "Oops...好像出错了，下拉刷新一下吧？",
+                        Toast.makeText(Aty_Company.this, R.string.usual_error_refresh,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

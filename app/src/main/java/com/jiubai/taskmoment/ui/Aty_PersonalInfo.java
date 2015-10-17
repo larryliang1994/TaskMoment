@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.UtilBox;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Task;
@@ -74,7 +74,7 @@ public class Aty_PersonalInfo extends AppCompatActivity {
 
     private void refreshTimeline() {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(this, "啊哦，网络好像抽风了~",
+            Toast.makeText(this, R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }
