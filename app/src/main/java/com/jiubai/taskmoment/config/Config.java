@@ -10,4 +10,7 @@ public class Config {
     public static String CID = null;
     public static String COMPANY_NAME = null;
     public static String COMPANY_BACKGROUND = null;
+    public static String MID = null;
+    public static String PORTRAIT = null;
+    public static String NICKNAME = null;
 }

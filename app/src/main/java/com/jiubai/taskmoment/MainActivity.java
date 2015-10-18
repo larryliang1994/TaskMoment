@@ -71,6 +71,8 @@ public class MainActivity extends Activity {
         Config.COOKIE = sp.getString(Constants.SP_KEY_COOKIE, null);
         Config.COMPANY_NAME = sp.getString(Constants.SP_KEY_COMPANY_NAME, null);
         Config.CID = sp.getString(Constants.SP_KEY_COMPANY_ID, null);
+        Config.COMPANY_BACKGROUND = sp.getString(Constants.SP_KEY_COMPANY_BACKGROUND, null);
+        Config.PORTRAIT = sp.getString(Constants.SP_KEY_PORTRAIT, null);
     }
 
     @SuppressWarnings("deprecation")

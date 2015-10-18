@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.view.RippleView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -33,9 +35,9 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class Adpt_UserInfo extends BaseAdapter {
     private ArrayList<String> itemList;
     private Context context;
-    public static ImageView iv_portrait;
+    private Fragment fragment;
 
-    public Adpt_UserInfo(Context context) {
+    public Adpt_UserInfo(Context context, Fragment fragment) {
         if (itemList == null) {
             itemList = new ArrayList<>();
         }
@@ -48,6 +50,7 @@ public class Adpt_UserInfo extends BaseAdapter {
         itemList.add("我审核的任务");
 
         this.context = context;
+        this.fragment = fragment;
     }
 
     @Override
@@ -80,7 +83,14 @@ public class Adpt_UserInfo extends BaseAdapter {
                 }
             });
 
-            iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);
+            ImageView iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);
+
+            if(Config.PORTRAIT!=null) {
+                ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
+            } else {
+                iv_portrait.setImageResource(R.drawable.portrait_default);
+            }
+
             iv_portrait.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -108,7 +118,7 @@ public class Adpt_UserInfo extends BaseAdapter {
                             intent.putExtra("outputX", 255);
                             intent.putExtra("outputY", 255);
 
-                            ((Activity) context).startActivityForResult(
+                            fragment.startActivityForResult(
                                     intent, Constants.CODE_CHOOSE_PORTRAIT);
 
                             ((Activity) context).overridePendingTransition(

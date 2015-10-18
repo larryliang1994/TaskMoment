@@ -1,7 +1,9 @@
 package com.jiubai.taskmoment.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -18,7 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aliyun.mbaas.oss.callback.SaveCallback;
+import com.aliyun.mbaas.oss.model.OSSException;
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.Adpt_UserInfo;
+import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
@@ -193,8 +199,11 @@ public class Aty_Main extends AppCompatActivity {
         });
 
         // 获取抽屉的头像
-        ImageLoader loader = ImageLoader.getInstance();
-        loader.displayImage(Urls.PICTURE_3, iv_navigation);
+        if(Config.PORTRAIT!=null){
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
+        } else {
+            iv_navigation.setImageResource(R.drawable.portrait_default);
+        }
     }
 
     @OnClick({R.id.iBtn_back})

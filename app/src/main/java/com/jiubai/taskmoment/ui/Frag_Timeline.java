@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -43,6 +45,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -83,6 +86,12 @@ public class Frag_Timeline extends Fragment
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
         iv_portrait.setOnClickListener(this);
+
+        if (Config.PORTRAIT != null) {
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
+        } else {
+            iv_portrait.setImageResource(R.drawable.portrait_default);
+        }
 
         srl = (SwipeRefreshLayout) view.findViewById(R.id.swipe_timeline);
         srl.setColorSchemeResources(R.color.primary);
@@ -140,8 +149,10 @@ public class Frag_Timeline extends Fragment
 
         iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
         iv_companyBackground.setOnClickListener(this);
-//        ImageLoader.getInstance().displayImage(
-//                Constants.HOST_ID + Config.COMPANY_BACKGROUND, iv_companyBackground);
+        if (Config.COMPANY_BACKGROUND != null) {
+            ImageLoader.getInstance().displayImage(
+                    Config.COMPANY_BACKGROUND, iv_companyBackground);
+        }
 
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
 
@@ -454,6 +465,16 @@ public class Frag_Timeline extends Fragment
                                         @Override
                                         public void onSuccess(String objectKey) {
                                             System.out.println("upload success!");
+
+                                            Config.COMPANY_BACKGROUND = Constants.HOST_ID + objectKey;
+
+                                            SharedPreferences sp = getActivity()
+                                                    .getSharedPreferences("config",
+                                                            Context.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = sp.edit();
+                                            editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
+                                                    Config.COMPANY_BACKGROUND);
+                                            editor.apply();
                                         }
 
                                         @Override
