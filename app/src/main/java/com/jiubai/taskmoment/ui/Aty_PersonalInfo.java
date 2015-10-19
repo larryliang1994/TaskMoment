@@ -79,63 +79,63 @@ public class Aty_PersonalInfo extends AppCompatActivity {
             return;
         }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                ArrayList<Comment> commentList = new ArrayList<>();
-                commentList.add(new Comment("Jack", "123", "How are you?", "8:50"));
-                commentList.add(new Comment("Mike", "456", "Jack", "123", "I'm fine, what about you?", "8:50"));
-                commentList.add(new Comment("Jack", "123", "Mike", "456", "I'm fine.", "8:50"));
-
-                ArrayList<String> pictureList = new ArrayList<>();
-
-                pictureList.add(Urls.PICTURE_1);
-                pictureList.add(Urls.PICTURE_2);
-                pictureList.add(Urls.PICTURE_3);
-                pictureList.add(Urls.PICTURE_4);
-                pictureList.add(Urls.PICTURE_5);
-                pictureList.add(Urls.PICTURE_6);
-                pictureList.add(Urls.PICTURE_7);
-                pictureList.add(Urls.PICTURE_8);
-                pictureList.add(Urls.PICTURE_9);
-
-                final List<Task> taskList = new ArrayList<>();
-                taskList.add(new Task(Urls.PICTURE_1,
-                        "Howell", "S", "这是第一个任务", pictureList, "8:40", commentList));
-                taskList.add(new Task(Urls.PICTURE_2,
-                        "Leung", "A", "这是第二个任务", pictureList, "9:00", commentList));
-                taskList.add(new Task(Urls.PICTURE_3,
-                        "Jack", "B", "这是第三个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_4,
-                        "Mike", "C", "这是第四个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_5,
-                        "Susan", "D", "这是第五个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_6,
-                        "Jimmy", "S", "这是第六个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_7,
-                        "Peter", "A", "这是第七个任务", pictureList, "9:10", commentList));
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_loading.setVisibility(View.GONE);
-
-                                lv.setAdapter(new Adpt_Timeline(Aty_PersonalInfo.this, taskList));
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
-                            }
-                        });
-
-                    }
-                }, 300);
-
-                Looper.loop();
-            }
-        }).start();
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Looper.prepare();
+//                ArrayList<Comment> commentList = new ArrayList<>();
+//                commentList.add(new Comment("Jack", "123", "How are you?", "8:50"));
+//                commentList.add(new Comment("Mike", "456", "Jack", "123", "I'm fine, what about you?", "8:50"));
+//                commentList.add(new Comment("Jack", "123", "Mike", "456", "I'm fine.", "8:50"));
+//
+//                ArrayList<String> pictureList = new ArrayList<>();
+//
+//                pictureList.add(Urls.PICTURE_1);
+//                pictureList.add(Urls.PICTURE_2);
+//                pictureList.add(Urls.PICTURE_3);
+//                pictureList.add(Urls.PICTURE_4);
+//                pictureList.add(Urls.PICTURE_5);
+//                pictureList.add(Urls.PICTURE_6);
+//                pictureList.add(Urls.PICTURE_7);
+//                pictureList.add(Urls.PICTURE_8);
+//                pictureList.add(Urls.PICTURE_9);
+//
+//                final List<Task> taskList = new ArrayList<>();
+//                taskList.add(new Task(Urls.PICTURE_1, "Howell", "S", "这是第一个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_2, "Leung", "A", "这是第二个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_3, "Jack", "B", "这是第三个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_4, "Mike", "C", "这是第四个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_5, "Susan", "D", "这是第五个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_6, "Jimmy", "S", "这是第六个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//                taskList.add(new Task(Urls.PICTURE_7, "Peter", "A", "这是第七个任务",
+//                        null, null, null, pictureList, commentList, 0, 0, 0));
+//
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                tv_loading.setVisibility(View.GONE);
+//
+//                                lv.setAdapter(new Adpt_Timeline(Aty_PersonalInfo.this, taskList));
+//                                UtilBox.setListViewHeightBasedOnChildren(lv);
+//                            }
+//                        });
+//
+//                    }
+//                }, 300);
+//
+//                Looper.loop();
+//            }
+//        }).start();
 
     }
 

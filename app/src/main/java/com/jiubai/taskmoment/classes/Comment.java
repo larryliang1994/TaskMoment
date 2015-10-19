@@ -4,31 +4,43 @@ package com.jiubai.taskmoment.classes;
  * 评论类
  */
 public class Comment {
+    private String taskId;
     private String sender;
     private String senderId;
     private String receiver;
     private String receiverId;
     private String content;
-    private String time;
+    private long time;
 
     public Comment() {
     }
 
-    public Comment(String sender, String senderId, String content, String time) {
+    public Comment(String taskId, String sender, String senderId, String content, long time) {
+        this.taskId = taskId;
         this.sender = sender;
         this.senderId = senderId;
         this.content = content;
         this.time = time;
     }
 
-    public Comment(String sender, String senderId, String receiver,
-                   String receiverId, String content, String time) {
+    public Comment(String taskId, String sender, String senderId,
+                   String receiver, String receiverId,
+                   String content, long time) {
+        this.taskId = taskId;
         this.sender = sender;
         this.senderId = senderId;
         this.receiver = receiver;
         this.receiverId = receiverId;
         this.content = content;
         this.time = time;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getSender() {
@@ -71,11 +83,11 @@ public class Comment {
         this.content = content;
     }
 
-    public String getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(long time) {
         this.time = time;
     }
 }

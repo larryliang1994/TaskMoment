@@ -3,6 +3,8 @@ package com.jiubai.taskmoment.net;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
@@ -58,6 +60,13 @@ public class SoapUtil {
         String[] decodeKey = {"string", "operation"};
         String[] decodeValue = {cookie, "DECODE"};
         String urlString = getUrlBySoap("authcode", decodeKey, decodeValue);
+
+        try {
+            JSONObject jsonObject = new JSONObject(urlString);
+            Config.MID = jsonObject.getString("id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         String[] encodeKey = {"string", "operation", "p1", "p2"};
         String[] encodeValue = {urlString, "ENCODE", "jbw", "40000000"};

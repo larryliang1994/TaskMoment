@@ -133,6 +133,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         SharedPreferences.Editor editor = sp.edit();
         if (Config.COOKIE != null) {
             editor.putString(Constants.SP_KEY_COOKIE, Config.COOKIE);
+            editor.putString(Constants.SP_KEY_MID, Config.MID);
         }
 
         editor.apply();
@@ -229,6 +230,10 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
                                 changeLoadingState("show");
 
+                                if (Config.RANDOM == null) {
+                                    UtilBox.getRandom();
+                                }
+
                                 String[] soapKey = {"type", "table_name", "feedback_url", "return"};
                                 String[] soapValue = {"sms_send_verifycode", Config.RANDOM, "", "1"};
                                 String[] httpKey = {"mobile"};
@@ -302,8 +307,6 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                             @Override
                                             public void onResponse(final String response) {
                                                 changeLoadingState("dismiss");
-
-                                                System.out.println(response);
 
                                                 new Thread(new Runnable() {
                                                     @Override

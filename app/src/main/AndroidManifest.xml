@@ -27,8 +27,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
-        <meta-data android:value="561dc86ee0f55af087008f6a" android:name="UMENG_APPKEY"/>
-        <meta-data android:value="developer" android:name="UMENG_CHANNEL"/>
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="561dc86ee0f55af087008f6a" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="developer" />
 
         <activity
             android:name=".MainActivity"
@@ -62,6 +66,8 @@
         <activity android:name=".ui.Aty_CheckPicture" />
 
         <activity android:name=".ui.Aty_PersonalInfo" />
+
+        <activity android:name=".ui.Aty_News" />
 
         <!--<activity-->
         <!--android:name="me.nereo.multi_image_selector.PreviewPicturesActivity"-->

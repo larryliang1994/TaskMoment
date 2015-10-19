@@ -84,7 +84,6 @@ public class Aty_Company extends AppCompatActivity {
     @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void initView() {
         tv_title.setText(R.string.myCompany);
-        iBtn_more.setVisibility(View.VISIBLE);
 
         // 若不来自切换公司，则不需要返回键
         if (!getIntent().getBooleanExtra("hide", false)) {
@@ -98,6 +97,8 @@ public class Aty_Company extends AppCompatActivity {
 
             tv_title.setLayoutParams(lp);
         }
+
+        iBtn_more.setVisibility(View.VISIBLE);
 
         srl.setColorSchemeResources(R.color.primary);
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -167,13 +168,8 @@ public class Aty_Company extends AppCompatActivity {
                                     @Override
                                     public void onClick(View v) {
                                         dialog.dismiss();
-                                        SharedPreferences sp = getSharedPreferences(
-                                                Constants.SP_FILENAME, Activity.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = sp.edit();
-                                        editor.remove(Constants.SP_KEY_COOKIE);
-                                        editor.apply();
 
-                                        Config.COOKIE = null;
+                                        UtilBox.clearAllData(Aty_Company.this);
 
                                         startActivity(new Intent(Aty_Company.this, Aty_Login.class));
                                         finish();

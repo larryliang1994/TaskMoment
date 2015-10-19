@@ -65,7 +65,7 @@ public class Frag_UserInfo extends Fragment {
 
                     final Bitmap bitmap = data.getParcelableExtra("data");
 
-                    final String objectName = UtilBox.getObjectName();
+                    final String objectName = "task_moment/" + Config.MID + ".jpg";
 
                     OssUtil.uploadImage(
                             UtilBox.compressImage(bitmap, Constants.SIZE_PORTRAIT),

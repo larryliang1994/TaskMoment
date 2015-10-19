@@ -117,7 +117,7 @@ public class Adpt_Comment extends BaseAdapter {
         holder.tv_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow(null, null, comment.getSender(), null);
+                Frag_Timeline.showCommentWindow(context, 0, comment.getTaskId(), null, comment.getSender(), null);
 
                 holder.tv_comment.setBackgroundColor(
                         context.getResources().getColor(R.color.gray));

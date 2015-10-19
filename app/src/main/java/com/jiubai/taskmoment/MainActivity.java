@@ -1,16 +1,12 @@
 package com.jiubai.taskmoment;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
@@ -25,12 +21,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.Callable;
-
 public class MainActivity extends Activity {
 
     @Override
@@ -43,11 +33,8 @@ public class MainActivity extends Activity {
         // 初始化网络状态
         getNetworkState();
 
-        // 读取存储好的数据——cookie,公司信息
+        // 读取存储好的数据——cookie,公司信息,个人信息
         loadStorageData();
-
-        // 获取五位随机数
-        getRandom();
 
         // 初始化图片加载框架
         initImageLoader();
@@ -73,6 +60,8 @@ public class MainActivity extends Activity {
         Config.CID = sp.getString(Constants.SP_KEY_COMPANY_ID, null);
         Config.COMPANY_BACKGROUND = sp.getString(Constants.SP_KEY_COMPANY_BACKGROUND, null);
         Config.PORTRAIT = sp.getString(Constants.SP_KEY_PORTRAIT, null);
+        Config.MID = sp.getString(Constants.SP_KEY_MID, null);
+        Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "Leung_Howell");
     }
 
     @SuppressWarnings("deprecation")
@@ -98,13 +87,5 @@ public class MainActivity extends Activity {
         NetworkInfo info = cm.getActiveNetworkInfo();
 
         Config.IS_CONNECTED = info != null && info.isAvailable();
-    }
-
-    private static void getRandom() {
-        int number = (int) (Math.random() * 100000);
-        if (number < 90000) {
-            number += 10000;
-        }
-        Config.RANDOM = String.valueOf(number);
     }
 }

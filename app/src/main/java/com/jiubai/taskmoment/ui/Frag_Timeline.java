@@ -10,10 +10,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -36,8 +36,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
@@ -47,9 +47,13 @@ import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * 时间线（任务圈）
@@ -61,10 +65,10 @@ public class Frag_Timeline extends Fragment
     private static ListView lv;
     public static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
-    private Adpt_Timeline adapter;
+    private static Adpt_Timeline adapter;
+    private boolean isBottomRefleshing = false;
     private ImageView iv_companyBackground;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
-    private List<Task> taskList;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
     @Nullable
@@ -106,8 +110,8 @@ public class Frag_Timeline extends Fragment
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
 
-        View footView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
-        lv.addFooterView(footView);
+        final View footView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
+
         lv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -139,6 +143,15 @@ public class Frag_Timeline extends Fragment
 
             @Override
             public void onBottom() {
+                if (!isBottomRefleshing) {
+                    isBottomRefleshing = true;
+
+                    lv.addFooterView(footView);
+
+
+                    isBottomRefleshing = false;
+                }
+
                 // may be done multi times, u should control it
                 //Toast.makeText(getActivity(), "has reached bottom", Toast.LENGTH_SHORT).show();
             }
@@ -146,6 +159,12 @@ public class Frag_Timeline extends Fragment
 
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
+
+        LinearLayout ll_news = (LinearLayout) view.findViewById(R.id.ll_news);
+        ll_news.setOnClickListener(this);
+
+        GradientDrawable newsBgShape = (GradientDrawable) ll_news.getBackground();
+        newsBgShape.setColor(getResources().getColor(R.color.news));
 
         iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
         iv_companyBackground.setOnClickListener(this);
@@ -178,127 +197,81 @@ public class Frag_Timeline extends Fragment
 
         srl.setRefreshing(true);
 
-//        String[] key = {};
-//        String[] value = {};
-//        VolleyUtil.requestWithCookie(Urls.GET_TASKLIST, key, value,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//
-//                        JSONObject responseJson;
-//                        try {
-//                            responseJson = new JSONObject(response);
-//
-//                            String responseStatus = responseJson.getString("status");
-//
-//                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-//                                adapter = new Adpt_Timeline(getActivity(), response);
-//                                new Handler().postDelayed(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//
-//                                        getActivity().runOnUiThread(new Runnable() {
-//                                            @Override
-//                                            public void run() {
-//                                                lv.setAdapter(adapter);
-//                                                UtilBox.setListViewHeightBasedOnChildren(lv);
-//                                                srl.setRefreshing(false);
-//                                            }
-//                                        });
-//
-//                                    }
-//                                }, 1000);
-//                            } else {
-//                                Toast.makeText(getActivity(),
-//                                        responseJson.getString("info"),
-//                                        Toast.LENGTH_SHORT).show();
-//                            }
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                },
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError volleyError) {
-//                        Toast.makeText(getActivity(),
-//                                "Oops...好像出错了，再试一次吧？",
-//                                Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//
-//        );
+        String request_time = Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "";
+        System.out.println(UtilBox.getDateToString(Long.valueOf(request_time)));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
+        String[] key = {"len", "cid", "create_time"};
+        String[] value = {"30", Config.CID, request_time};
 
-                ArrayList<Comment> commentList = new ArrayList<>();
-                commentList.add(new Comment("Jack", "123", "How are you?", "8:50"));
-                commentList.add(new Comment("Mike", "456", "Jack", "123", "I'm fine, what about you?", "8:50"));
-                commentList.add(new Comment("Jack", "123", "Mike", "456", "I'm fine.", "8:50"));
-
-                ArrayList<String> pictureList = new ArrayList<>();
-                pictureList.add(Urls.PICTURE_1);
-                pictureList.add(Urls.PICTURE_2);
-                pictureList.add(Urls.PICTURE_3);
-                pictureList.add(Urls.PICTURE_4);
-                pictureList.add(Urls.PICTURE_5);
-                pictureList.add(Urls.PICTURE_6);
-                pictureList.add(Urls.PICTURE_7);
-                pictureList.add(Urls.PICTURE_8);
-                pictureList.add(Urls.PICTURE_9);
-
-                taskList = new ArrayList<>();
-                taskList.add(new Task(Urls.PICTURE_1,
-                        "Howell", "S", "这是第一个任务", pictureList, "8:40", commentList));
-                taskList.add(new Task(Urls.PICTURE_2,
-                        "Leung", "A", "这是第二个任务", pictureList, "9:00", commentList));
-                taskList.add(new Task(Urls.PICTURE_3,
-                        "Jack", "B", "这是第三个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_4,
-                        "Mike", "C", "这是第四个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_5,
-                        "Susan", "D", "这是第五个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_6,
-                        "Jimmy", "S", "这是第六个任务", pictureList, "9:10", commentList));
-                taskList.add(new Task(Urls.PICTURE_7,
-                        "Peter", "A", "这是第七个任务", pictureList, "9:10", commentList));
-
-                adapter = new Adpt_Timeline(getActivity(), taskList);
-                new Handler().postDelayed(new Runnable() {
+        VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
+                new Response.Listener<String>() {
                     @Override
-                    public void run() {
+                    public void onResponse(String response) {
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                lv.setAdapter(adapter);
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
+                        JSONObject responseJson;
+                        try {
+                            responseJson = new JSONObject(response);
+
+                            String responseStatus = responseJson.getString("status");
+
+                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
+                                System.out.println(response);
+
+                                adapter = new Adpt_Timeline(getActivity(), response);
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                lv.setAdapter(adapter);
+                                                UtilBox.setListViewHeightBasedOnChildren(lv);
+                                                srl.setRefreshing(false);
+                                            }
+                                        });
+                                    }
+                                }, 1000);
+
+                            } else {
                                 srl.setRefreshing(false);
+                                System.out.println(responseJson);
+                                Toast.makeText(getActivity(),
+                                        responseJson.getString("info"),
+                                        Toast.LENGTH_SHORT).show();
                             }
-                        });
-
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }, 1000);
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        srl.setRefreshing(false);
+                        volleyError.printStackTrace();
+                        Toast.makeText(getActivity(),
+                                "Oops...好像出错了，再试一次吧？",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
 
-                Looper.loop();
-            }
-        }).start();
+        );
     }
 
     /**
      * 弹出评论窗口
      *
+     * @param context    上下文
+     * @param taskID     任务ID
      * @param sender     发送者
-     * @param senderID   发送者ID
      * @param receiver   接收者
      * @param receiverID 接收者ID
      */
     @SuppressWarnings("unused")
-    public static void showCommentWindow(String sender, String senderID,
-                                         String receiver, String receiverID) {
+    public static void showCommentWindow(final Context context, final int position,
+                                         final String taskID, String sender,
+                                         final String receiver, final String receiverID) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -308,13 +281,13 @@ public class Frag_Timeline extends Fragment
         }
 
         ll_comment.setVisibility(View.VISIBLE);
-        EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
 
-        if (receiver != null) {
+        if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
         } else {
             edt_content.setHint("评论");
@@ -325,22 +298,53 @@ public class Frag_Timeline extends Fragment
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(context,
+                            R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 ll_comment.setVisibility(View.GONE);
 
-                String[] key = {};
-                String[] value = {};
+                UtilBox.toggleSoftInput(ll_comment, false);
+
+                String[] key = {"oid", "pmid", "content"};
+                String[] value = {taskID, receiverID, edt_content.getText().toString()};
 
                 VolleyUtil.requestWithCookie(Urls.SEND_COMMENT, key, value,
                         new Response.Listener<String>() {
                             @Override
-                            public void onResponse(String s) {
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
 
+                                    if (!"900001".equals(jsonObject.getString("status"))) {
+                                        System.out.println(response);
+
+                                        Toast.makeText(context,
+                                                R.string.usual_error,
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        adapter.taskList.get(position).getComments().add(
+                                                new Comment(taskID, Config.NICKNAME, Config.MID,
+                                                        edt_content.getText().toString(),
+                                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis())
+                                        );
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError volleyError) {
-
+                                volleyError.printStackTrace();
+                                Toast.makeText(context,
+                                        R.string.usual_error,
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
             }
@@ -430,8 +434,16 @@ public class Frag_Timeline extends Fragment
 
             case R.id.iBtn_publish:
                 startActivityForResult(
-                        new Intent(getActivity(), Aty_TaskPublish.class), Constants.CODE_PUBLISH_TASK);
-                getActivity().overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                        new Intent(getActivity(), Aty_TaskPublish.class),
+                        Constants.CODE_PUBLISH_TASK);
+                getActivity().overridePendingTransition(R.anim.in_right_left,
+                        R.anim.out_right_left);
+                break;
+
+            case R.id.ll_news:
+                startActivity(new Intent(getActivity(), Aty_News.class));
+                getActivity().overridePendingTransition(R.anim.in_right_left,
+                        R.anim.out_right_left);
                 break;
         }
     }
@@ -456,7 +468,7 @@ public class Frag_Timeline extends Fragment
                                     getActivity().getContentResolver().openInputStream(imageUri));
                             iv_companyBackground.setImageBitmap(bitmap);
 
-                            final String objectName = UtilBox.getObjectName();
+                            final String objectName = "task_moment/" + Config.CID + ".jpg";
 
                             OssUtil.uploadImage(
                                     UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
@@ -464,7 +476,7 @@ public class Frag_Timeline extends Fragment
                                     new SaveCallback() {
                                         @Override
                                         public void onSuccess(String objectKey) {
-                                            System.out.println("upload success!");
+                                            System.out.println(objectKey + " upload success!");
 
                                             Config.COMPANY_BACKGROUND = Constants.HOST_ID + objectKey;
 
@@ -492,6 +504,28 @@ public class Frag_Timeline extends Fragment
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     });
+
+//                            String[] key = {};
+//                            String[] value = {};
+//
+//                            VolleyUtil.requestWithCookie(Urls.UPLOAD_COMPANY_BACKGROUND,
+//                                    key, value,
+//                                    new Response.Listener<String>() {
+//                                        @Override
+//                                        public void onResponse(String response) {
+//
+//                                        }
+//                                    },
+//                                    new Response.ErrorListener() {
+//                                        @Override
+//                                        public void onErrorResponse(VolleyError volleyError) {
+//                                            volleyError.printStackTrace();
+//
+//                                            Toast.makeText(getActivity(),
+//                                                    R.string.usual_error,
+//                                                    Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    });
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -503,12 +537,16 @@ public class Frag_Timeline extends Fragment
                 if (resultCode == Activity.RESULT_OK) {
                     String grade = data.getStringExtra("grade");
                     String content = data.getStringExtra("content");
+                    long create_time = data.getLongExtra("create_time", 0);
 
                     ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
                     pictureList.remove(pictureList.size() - 1);
 
-                    taskList.add(0, new Task(Urls.PICTURE_1,
-                            "Howell", grade, content, pictureList, "8:40", null));
+                    adapter.taskList.add(0, new Task("0",
+                            Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg",
+                            "Howell", grade, content,
+                            null, null, null,
+                            pictureList, null, 0, 0, create_time, "1"));
 
                     adapter.notifyDataSetChanged();
                 }

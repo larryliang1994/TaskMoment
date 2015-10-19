@@ -35,6 +35,13 @@ package com.jiubai.taskmoment.other;
 /**
  * 发现日期：2015-10-17
  * 问题描述：userInfo从adapter中打开相册，fragment中的activityResult无法执行
+ * 解决情况：已解决
+ * 解决方案：给adapter传入fragment，然后用fragment.start()来启动新的activity，就能接收到result
+ */
+
+/**
+ * 发现日期：2015-10-19
+ * 问题描述：注销后再登录会收不到验证码
  * 解决情况：未解决
  * 解决方案：无
  */

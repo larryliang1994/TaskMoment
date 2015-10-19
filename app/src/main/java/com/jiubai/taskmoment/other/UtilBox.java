@@ -2,6 +2,7 @@ package com.jiubai.taskmoment.other;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -13,6 +14,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -161,6 +165,40 @@ public class UtilBox {
     public static int px2dip(Context context, float pxValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (pxValue / scale + 0.5f);
+    }
+
+    /**
+     * 清除所有用户数据
+     *
+     * @param context 上下文
+     */
+    public static void clearAllData(Context context){
+        SharedPreferences sp = context.getSharedPreferences(
+                Constants.SP_FILENAME, Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        editor.apply();
+
+        Config.COMPANY_BACKGROUND = null;
+        Config.PORTRAIT = null;
+        Config.CID = null;
+        Config.COMPANY_NAME = null;
+        Config.COOKIE = null;
+        Config.MID = null;
+        Config.NICKNAME = null;
+        Config.RANDOM = null;
+    }
+
+    /**
+     * 获取5位随机数
+     */
+    public static void getRandom() {
+        int number = (int) (Math.random() * 100000);
+        if (number < 90000) {
+            number += 10000;
+        }
+        Config.RANDOM = String.valueOf(number);
     }
 
     /**
@@ -320,6 +358,7 @@ public class UtilBox {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
         return date.getTime();
     }
 
@@ -352,7 +391,7 @@ public class UtilBox {
             messageDigest.update(str.getBytes("UTF-8"));
         } catch (NoSuchAlgorithmException e) {
             System.out.println("NoSuchAlgorithmException caught!");
-            System.exit(-1);
+            return null;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -368,8 +407,10 @@ public class UtilBox {
                 md5StrBuff.append(Integer.toHexString(0xFF & aByteArray));
         }
 
-        // 16位加密，从第9位到25位
-        return md5StrBuff.substring(8, 24).toUpperCase();
+        return md5StrBuff.toString();
+
+//        // 16位加密，从第9位到25位
+//        return md5StrBuff.substring(8, 24).toUpperCase();
     }
 
     /**

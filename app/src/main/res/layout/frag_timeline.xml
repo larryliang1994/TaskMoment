@@ -30,8 +30,8 @@
                         android:id="@+id/iv_companyBackground"
                         android:layout_width="match_parent"
                         android:layout_height="270dp"
-                        android:src="@drawable/background"
-                        android:scaleType="centerCrop" />
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/background" />
 
                     <ImageView
                         android:id="@+id/iv_portrait"
@@ -42,8 +42,8 @@
                         android:layout_marginRight="12dp"
                         android:background="@drawable/rectangle"
                         android:padding="1.5dp"
-                        android:src="@drawable/portrait"
                         android:scaleType="centerInside"
+                        android:src="@drawable/portrait"
                         tools:ignore="RtlHardcoded" />
 
                     <TextView
@@ -61,6 +61,35 @@
                         android:textSize="18sp"
                         tools:ignore="RtlHardcoded" />
                 </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_news"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/round_button_grade"
+                    android:orientation="horizontal"
+                    android:padding="7dp">
+
+                    <ImageView
+                        android:id="@+id/iv_news_portrait"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/portrait_default" />
+
+                    <TextView
+                        android:id="@+id/tv_news"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:text="1条新消息"
+                        android:textColor="#ffffff"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <ListView
                     android:id="@+id/lv_timeline"
@@ -95,25 +124,25 @@
                 android:id="@+id/edt_comment_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/round_edittext"
                 android:hint="@string/comment"
-                android:paddingLeft="10dp"
-                android:singleLine="false"
-                android:paddingRight="10dp"
                 android:maxLines="4"
+                android:minHeight="40dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:singleLine="false"
                 android:textSize="16sp" />
 
             <Button
                 android:id="@+id/btn_comment_send"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_gravity="bottom"
                 android:background="@drawable/round_button_white"
                 android:text="@string/send"
                 android:textColor="#767676"
