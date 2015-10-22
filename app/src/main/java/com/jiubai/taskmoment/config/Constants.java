@@ -32,6 +32,6 @@ public class Constants {
     public static final String TEMP_FILE_LOCATION = "file:///"
             + Environment.getExternalStorageDirectory() + "/temp.jpg";
     public static final int SIZE_COMPANY_BACKGROUND = 500;
-    public static final int SIZE_TASK_IMAGE = 500;
-    public static final int SIZE_PORTRAIT = 500;
+    public static final int SIZE_TASK_IMAGE = 300;
+    public static final int SIZE_PORTRAIT = 300;
 }

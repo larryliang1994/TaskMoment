@@ -63,7 +63,6 @@ public class UtilBox {
         Matcher m = continuousNumberPattern.matcher(str);
         String dynamicPassword = "";
         while (m.find()) {
-            System.out.print(m.group());
             dynamicPassword = m.group();
         }
 
@@ -172,7 +171,7 @@ public class UtilBox {
      *
      * @param context 上下文
      */
-    public static void clearAllData(Context context){
+    public static void clearAllData(Context context) {
         SharedPreferences sp = context.getSharedPreferences(
                 Constants.SP_FILENAME, Context.MODE_PRIVATE);
 
@@ -239,7 +238,6 @@ public class UtilBox {
                     } catch (OutOfMemoryError e) {
                         e.printStackTrace();
                         opts.inSampleSize += 1;
-                        System.out.println("error");
                     }
                 }
             }
@@ -332,15 +330,18 @@ public class UtilBox {
         }
     }
 
+    public static String DATE = "MM-dd";
+    public static String TIME = "HH:mm";
+
     /**
      * 时间戳转换成字符串
      *
      * @param time 时间戳
      * @return 日期字符串
      */
-    public static String getDateToString(long time) {
+    public static String getDateToString(long time, String type) {
         Date d = new Date(time);
-        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        SimpleDateFormat sf = new SimpleDateFormat(type, Locale.CHINA);
         return sf.format(d);
     }
 
@@ -380,7 +381,7 @@ public class UtilBox {
      * @param str 需要加密的字符串
      * @return 加密完成的字符串
      */
-    private static String getMD5Str(String str) {
+    public static String getMD5Str(String str) {
         MessageDigest messageDigest = null;
 
         try {
@@ -437,7 +438,7 @@ public class UtilBox {
 
         byte[] b = baos.toByteArray();
         // 将字节换成KB
-        double mid = b.length/1024;
+        double mid = b.length / 1024;
 
         // 判断bitmap占用空间是否大于允许最大空间  如果大于则压缩 小于则不压缩
         if (mid > size) {
@@ -453,7 +454,7 @@ public class UtilBox {
     }
 
     private static Bitmap zoomImage(Bitmap image, double newWidth,
-                                   double newHeight) {
+                                    double newHeight) {
         // 获取这个图片的宽和高
         float width = image.getWidth();
         float height = image.getHeight();

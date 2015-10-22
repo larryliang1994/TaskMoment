@@ -134,6 +134,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         if (Config.COOKIE != null) {
             editor.putString(Constants.SP_KEY_COOKIE, Config.COOKIE);
             editor.putString(Constants.SP_KEY_MID, Config.MID);
+            editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
+            editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
         }
 
         editor.apply();

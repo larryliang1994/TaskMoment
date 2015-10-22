@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.other.ClickableText;
@@ -34,7 +35,7 @@ public class Adpt_Comment extends BaseAdapter {
     private List<Comment> commentList;
 
     public Adpt_Comment(Context context, List<Comment> commentList) {
-        if(commentList!=null) {
+        if (commentList != null) {
             this.commentList = commentList;
         } else {
             this.commentList = new ArrayList<>();
@@ -117,7 +118,14 @@ public class Adpt_Comment extends BaseAdapter {
         holder.tv_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow(context, 0, comment.getTaskId(), null, comment.getSender(), null);
+                if (!Config.MID.equals(comment.getSenderId())) {
+                    Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                            comment.getTaskId(), Config.MID,
+                            comment.getSender(), comment.getSenderId());
+                } else {
+                    Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                            comment.getTaskId(), Config.MID, "", "");
+                }
 
                 holder.tv_comment.setBackgroundColor(
                         context.getResources().getColor(R.color.gray));

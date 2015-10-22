@@ -303,10 +303,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                             try {
                                                 JSONObject responseJson = new JSONObject(response);
 
-                                                if ("1".equals(responseJson.getString("status"))
-                                                        || "900001".equals(responseJson.getString("status"))) {
-                                                    System.out.println(responseJson.getString("info"));
-                                                } else {
+                                                if (!"1".equals(responseJson.getString("status"))
+                                                        && !"900001".equals(responseJson.getString("status"))) {
                                                     System.out.println(response);
                                                     Toast.makeText(Aty_TaskPublish.this,
                                                             responseJson.getString("info"),

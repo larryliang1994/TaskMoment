@@ -35,7 +35,7 @@ import java.util.List;
  * Timeline的适配器
  */
 public class Adpt_Timeline extends BaseAdapter {
-    public List<Task> taskList;
+    public static List<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
 
@@ -68,7 +68,8 @@ public class Adpt_Timeline extends BaseAdapter {
                     String auditor = obj.getString("ext3");
 
                     ArrayList<String> pictures = decodePictureList(obj.getString("works"));
-                    ArrayList<Comment> comments = decodeCommentList(obj.getString("member_comment"));
+                    ArrayList<Comment> comments
+                            = decodeCommentList(i, id, obj.getString("member_comment"));
 
                     long deadline = Long.valueOf(obj.getString("time1")) * 1000;
                     long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
@@ -120,7 +121,7 @@ public class Adpt_Timeline extends BaseAdapter {
         holder.tv_grade.setText(task.getGrade());
         setGradeColor(holder.tv_grade, task.getGrade());
         holder.tv_desc.setText(task.getDesc());
-        holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time()));
+        holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
         ImageLoader loader = ImageLoader.getInstance();
         loader.displayImage(task.getPortraitUrl(), holder.iv_portrait);
@@ -234,42 +235,43 @@ public class Adpt_Timeline extends BaseAdapter {
      * @param comments 评论json
      * @return 图片List
      */
-    private ArrayList<Comment> decodeCommentList(String comments) {
+    private ArrayList<Comment> decodeCommentList(int taskPosition, String taskID, String comments) {
         ArrayList<Comment> commentList = new ArrayList<>();
 
-        try {
-            System.out.println(comments);
+        if (!"".equals(comments) && !"null".equals(comments)) {
+            try {
 
-            JSONArray jsonArray = new JSONArray(comments);
+                JSONArray jsonArray = new JSONArray(comments);
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject object = new JSONObject(jsonArray.getString(i));
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = new JSONObject(jsonArray.getString(i));
 
-                String sender = "null".equals(object.getString("send_real_name")) ?
-                        object.getString("send_mobile") : object.getString("send_real_name");
+                    String sender = "null".equals(object.getString("send_real_name")) ?
+                            object.getString("send_mobile") : object.getString("send_real_name");
 
-                String receiver = "null".equals(object.getString("receiver_real_name")) ?
-                        object.getString("receiver_mobile") : object.getString("receiver_real_name");
+                    String receiver = "null".equals(object.getString("receiver_real_name")) ?
+                            object.getString("receiver_mobile") : object.getString("receiver_real_name");
 
-                if ("null".equals(receiver)) {
-                    Comment comment = new Comment(object.getString("id"),
-                            sender, object.getString("send_id"),
-                            object.getString("content"),
-                            Long.valueOf(object.getString("create_time")) * 1000);
+                    if ("null".equals(receiver)) {
+                        Comment comment = new Comment(taskID, taskPosition,
+                                sender, object.getString("send_id"),
+                                object.getString("content"),
+                                Long.valueOf(object.getString("create_time")) * 1000);
 
-                    commentList.add(comment);
-                } else {
-                    Comment comment = new Comment(object.getString("id"),
-                            sender, object.getString("send_id"),
-                            receiver, object.getString("receiver_id"),
-                            object.getString("content"),
-                            Long.valueOf(object.getString("create_time")) * 1000);
+                        commentList.add(comment);
+                    } else {
+                        Comment comment = new Comment(taskID, taskPosition,
+                                sender, object.getString("send_id"),
+                                receiver, object.getString("receiver_id"),
+                                object.getString("content"),
+                                Long.valueOf(object.getString("create_time")) * 1000);
 
-                    commentList.add(comment);
+                        commentList.add(comment);
+                    }
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         return commentList;

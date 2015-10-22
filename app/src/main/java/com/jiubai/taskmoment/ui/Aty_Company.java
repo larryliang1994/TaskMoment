@@ -201,7 +201,7 @@ public class Aty_Company extends AppCompatActivity {
      */
     private void refreshListView() {
         if (!Config.IS_CONNECTED) {
-            Toast.makeText(Aty_Company.this, R.string.cant_access_network,
+            Toast.makeText(this, R.string.cant_access_network,
                     Toast.LENGTH_SHORT).show();
             return;
         }

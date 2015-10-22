@@ -22,6 +22,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
 
@@ -84,7 +85,9 @@ public class Aty_Main extends AppCompatActivity {
 
         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
 
-        tv_nickname.setText("Leung_Howell");
+        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+            tv_nickname.setText(Config.NICKNAME);
+        }
 
         iBtn_back.setImageResource(R.drawable.navigation);
 
@@ -192,7 +195,7 @@ public class Aty_Main extends AppCompatActivity {
         });
 
         // 获取抽屉的头像
-        if(Config.PORTRAIT!=null){
+        if (Config.PORTRAIT != null) {
             ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
         } else {
             iv_navigation.setImageResource(R.drawable.portrait_default);
@@ -229,12 +232,11 @@ public class Aty_Main extends AppCompatActivity {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (dw.isDrawerOpen(GravityCompat.START)) {
                 dw.closeDrawer(GravityCompat.START);
-            } else if(currentItem == 0 && Frag_Timeline.commentWindowIsShow){
+            } else if (currentItem == 0 && Frag_Timeline.commentWindowIsShow) {
                 Frag_Timeline.ll_comment.setVisibility(View.GONE);
                 Frag_Timeline.commentWindowIsShow = false;
                 UtilBox.toggleSoftInput(Frag_Timeline.ll_comment, false);
-            }
-            else {
+            } else {
                 Intent MyIntent = new Intent(Intent.ACTION_MAIN);
                 MyIntent.addCategory(Intent.CATEGORY_HOME);
                 startActivity(MyIntent);

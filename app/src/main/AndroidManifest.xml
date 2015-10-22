@@ -69,6 +69,10 @@
 
         <activity android:name=".ui.Aty_News" />
 
+        <activity
+            android:name=".ui.Aty_TaskInfo"
+            android:windowSoftInputMode="adjustPan" />
+
         <!--<activity-->
         <!--android:name="me.nereo.multi_image_selector.PreviewPicturesActivity"-->
         <!--android:configChanges="orientation|screenSize" />-->

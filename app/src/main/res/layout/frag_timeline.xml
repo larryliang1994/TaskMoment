@@ -56,7 +56,7 @@
                         android:layout_toLeftOf="@id/iv_portrait"
                         android:shadowColor="#000000"
                         android:shadowRadius="3"
-                        android:text="@string/author"
+                        android:text="@string/nickname"
                         android:textColor="#ffffff"
                         android:textSize="18sp"
                         tools:ignore="RtlHardcoded" />

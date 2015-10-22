@@ -23,6 +23,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.view.RippleView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -75,7 +76,10 @@ public class Adpt_UserInfo extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_userinfo_head, null);
 
             final TextView tv_nickname = ((TextView) convertView.findViewById(R.id.tv_nickname));
-            tv_nickname.setText(itemList.get(position));
+            if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+                tv_nickname.setText(Config.NICKNAME);
+            }
+
             tv_nickname.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -85,7 +89,7 @@ public class Adpt_UserInfo extends BaseAdapter {
 
             ImageView iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);
 
-            if(Config.PORTRAIT!=null) {
+            if (Config.PORTRAIT != null) {
                 ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
             } else {
                 iv_portrait.setImageResource(R.drawable.portrait_default);

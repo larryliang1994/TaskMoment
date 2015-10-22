@@ -21,6 +21,7 @@ public class SmsContentUtil extends ContentObserver {
         this.verifyText = verifyText;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);

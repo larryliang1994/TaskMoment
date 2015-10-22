@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aliyun.mbaas.oss.callback.SaveCallback;
@@ -45,6 +46,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;
@@ -68,6 +70,7 @@ public class Frag_Timeline extends Fragment
     private static Adpt_Timeline adapter;
     private boolean isBottomRefleshing = false;
     private ImageView iv_companyBackground;
+    private ImageView iv_news_portrait;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
@@ -90,6 +93,10 @@ public class Frag_Timeline extends Fragment
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
         iv_portrait.setOnClickListener(this);
+
+        if(!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+            ((TextView) view.findViewById(R.id.tv_timeline_nickname)).setText(Config.NICKNAME);
+        }
 
         if (Config.PORTRAIT != null) {
             ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
@@ -146,7 +153,7 @@ public class Frag_Timeline extends Fragment
                 if (!isBottomRefleshing) {
                     isBottomRefleshing = true;
 
-                    lv.addFooterView(footView);
+                    //lv.addFooterView(footView);
 
 
                     isBottomRefleshing = false;
@@ -173,6 +180,9 @@ public class Frag_Timeline extends Fragment
                     Config.COMPANY_BACKGROUND, iv_companyBackground);
         }
 
+        iv_news_portrait = (ImageView) view.findViewById(R.id.iv_news_portrait);
+        ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_news_portrait);
+
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
 
         // 延迟执行才能使旋转进度条显示出来
@@ -198,7 +208,6 @@ public class Frag_Timeline extends Fragment
         srl.setRefreshing(true);
 
         String request_time = Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "";
-        System.out.println(UtilBox.getDateToString(Long.valueOf(request_time)));
 
         String[] key = {"len", "cid", "create_time"};
         String[] value = {"30", Config.CID, request_time};
@@ -215,7 +224,6 @@ public class Frag_Timeline extends Fragment
                             String responseStatus = responseJson.getString("status");
 
                             if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-                                System.out.println(response);
 
                                 adapter = new Adpt_Timeline(getActivity(), response);
                                 new Handler().postDelayed(new Runnable() {
@@ -326,10 +334,12 @@ public class Frag_Timeline extends Fragment
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
-                                        adapter.taskList.get(position).getComments().add(
-                                                new Comment(taskID, Config.NICKNAME, Config.MID,
+                                        Adpt_Timeline.taskList.get(position).getComments().add(
+                                                new Comment(taskID, position,
+                                                        Config.NICKNAME, Config.MID,
                                                         edt_content.getText().toString(),
-                                                        Calendar.getInstance(Locale.CHINA).getTimeInMillis())
+                                                        Calendar.getInstance(Locale.CHINA)
+                                                                .getTimeInMillis())
                                         );
                                         adapter.notifyDataSetChanged();
                                     }
@@ -476,8 +486,6 @@ public class Frag_Timeline extends Fragment
                                     new SaveCallback() {
                                         @Override
                                         public void onSuccess(String objectKey) {
-                                            System.out.println(objectKey + " upload success!");
-
                                             Config.COMPANY_BACKGROUND = Constants.HOST_ID + objectKey;
 
                                             SharedPreferences sp = getActivity()

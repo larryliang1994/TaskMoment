@@ -7,10 +7,12 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.OssUtil;
+import com.jiubai.taskmoment.net.SoapUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
@@ -20,6 +22,9 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends Activity {
 
@@ -47,6 +52,14 @@ public class MainActivity extends Activity {
         } else if (Config.CID == null) {
             startActivity(new Intent(this, Aty_Company.class));
         } else {
+            if (!Config.IS_CONNECTED) {
+                Toast.makeText(this, R.string.cant_access_network,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // 获取用户信息
+                //getUserInfo();
+            }
+
             startActivity(new Intent(this, Aty_Main.class));
         }
 
@@ -61,19 +74,18 @@ public class MainActivity extends Activity {
         Config.COMPANY_BACKGROUND = sp.getString(Constants.SP_KEY_COMPANY_BACKGROUND, null);
         Config.PORTRAIT = sp.getString(Constants.SP_KEY_PORTRAIT, null);
         Config.MID = sp.getString(Constants.SP_KEY_MID, null);
-        Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "Leung_Howell");
+        Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "null");
     }
 
-    @SuppressWarnings("deprecation")
     private void initImageLoader(){
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .cacheInMemory().cacheOnDisc().build();
+                .cacheOnDisk(true).cacheInMemory(true).build();
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
                 getApplicationContext()).defaultDisplayImageOptions(defaultOptions)
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
-                .discCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .tasksProcessingOrder(QueueProcessingType.LIFO).build();
         ImageLoader.getInstance().init(config);
     }
@@ -87,5 +99,27 @@ public class MainActivity extends Activity {
         NetworkInfo info = cm.getActiveNetworkInfo();
 
         Config.IS_CONNECTED = info != null && info.isAvailable();
+    }
+
+    private void getUserInfo(){
+        String[] decodeKey = {"string", "operation"};
+        String[] decodeValue = {Config.COOKIE, "DECODE"};
+        String userInfo = SoapUtil.getUrlBySoap("authcode", decodeKey, decodeValue);
+
+        try {
+            JSONObject jsonObject = new JSONObject(userInfo);
+            Config.MID = jsonObject.getString("id");
+            Config.NICKNAME = jsonObject.getString("real_name");
+            Config.PORTRAIT = Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg";
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString(Constants.SP_KEY_MID, Config.MID);
+        editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
+        editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
+        editor.apply();
     }
 }

@@ -23,6 +23,13 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.other.UtilBox;
+import com.nostra13.universalimageloader.cache.disc.DiskCache;
+import com.nostra13.universalimageloader.cache.memory.MemoryCache;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * 个人中心
@@ -74,6 +81,13 @@ public class Frag_UserInfo extends Fragment {
                                 @Override
                                 public void onSuccess(final String objectKey) {
                                     System.out.println(objectKey + " upload success!");
+
+                                    DiskCache diskCache = ImageLoader.getInstance().getDiskCache();
+                                    boolean remove = diskCache.remove(UtilBox.getMD5Str(Config.PORTRAIT + "_"
+                                            + UtilBox.dip2px(getActivity(), 60) + "x"
+                                            + UtilBox.dip2px(getActivity(), 60)));
+
+                                    System.out.println(remove);
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
