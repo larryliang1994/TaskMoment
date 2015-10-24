@@ -233,6 +233,7 @@ public class Aty_Main extends AppCompatActivity {
             if (dw.isDrawerOpen(GravityCompat.START)) {
                 dw.closeDrawer(GravityCompat.START);
             } else if (currentItem == 0 && Frag_Timeline.commentWindowIsShow) {
+                UtilBox.setViewParams(Frag_Timeline.space, 1, 0);
                 Frag_Timeline.ll_comment.setVisibility(View.GONE);
                 Frag_Timeline.commentWindowIsShow = false;
                 UtilBox.toggleSoftInput(Frag_Timeline.ll_comment, false);

@@ -22,6 +22,7 @@ import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.other.ClickableText;
 import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
+import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 
 import java.util.ArrayList;
@@ -32,15 +33,17 @@ import java.util.List;
  */
 public class Adpt_Comment extends BaseAdapter {
     private Context context;
-    private List<Comment> commentList;
+    public List<Comment> commentList;
+    public String which;
 
-    public Adpt_Comment(Context context, List<Comment> commentList) {
+    public Adpt_Comment(Context context, List<Comment> commentList, String which) {
         if (commentList != null) {
             this.commentList = commentList;
         } else {
             this.commentList = new ArrayList<>();
         }
         this.context = context;
+        this.which = which;
     }
 
     @Override
@@ -118,13 +121,29 @@ public class Adpt_Comment extends BaseAdapter {
         holder.tv_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int[] location = new int[2];
+                holder.tv_comment.getLocationOnScreen(location);
+                int y = location[1];
+
                 if (!Config.MID.equals(comment.getSenderId())) {
-                    Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
-                            comment.getTaskId(), Config.MID,
-                            comment.getSender(), comment.getSenderId());
+                    if ("timeline".equals(which)) {
+
+                        Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                                comment.getTaskId(), Config.MID,
+                                comment.getSender(), comment.getSenderId(), y);
+                    } else {
+                        Aty_TaskInfo.showCommentWindow(context,
+                                comment.getTaskId(), Config.MID,
+                                comment.getSender(), comment.getSenderId(), y);
+                    }
                 } else {
-                    Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
-                            comment.getTaskId(), Config.MID, "", "");
+                    if ("timeline".equals(which)) {
+                        Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                                comment.getTaskId(), Config.MID, "", "", y);
+                    } else {
+                        Aty_TaskInfo.showCommentWindow(context,
+                                comment.getTaskId(), Config.MID, "", "", y);
+                    }
                 }
 
                 holder.tv_comment.setBackgroundColor(

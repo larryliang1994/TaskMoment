@@ -12,18 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -286,6 +283,21 @@ public class UtilBox {
         } else {
             return upperBound;
         }
+    }
+
+    /**
+     * 设置控件参数
+     *
+     * @param view   控件
+     * @param width  控件宽度
+     * @param height 控件高度
+     */
+    public static void setViewParams(View view, int width, int height) {
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+        params.width = width;
+        params.height = height;
+
+        view.setLayoutParams(params);
     }
 
     /**

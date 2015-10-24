@@ -57,9 +57,7 @@
             android:name=".ui.Aty_TaskPublish"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
-        <activity
-            android:name=".ui.Aty_Main"
-            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.Aty_Main" />
 
         <activity android:name=".ui.Aty_Company" />
 
@@ -69,9 +67,8 @@
 
         <activity android:name=".ui.Aty_News" />
 
-        <activity
-            android:name=".ui.Aty_TaskInfo"
-            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.Aty_TaskInfo"
+            android:windowSoftInputMode="adjustResize"/>
 
         <!--<activity-->
         <!--android:name="me.nereo.multi_image_selector.PreviewPicturesActivity"-->

@@ -35,9 +35,14 @@ import java.util.List;
  * Timeline的适配器
  */
 public class Adpt_Timeline extends BaseAdapter {
-    public static List<Task> taskList;
+    public static ArrayList<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
+
+    public Adpt_Timeline(Context context, ArrayList<Task> taskList){
+        this.context = context;
+        Adpt_Timeline.taskList = taskList;
+    }
 
     public Adpt_Timeline(Context context, String response) {
         this.context = context;
@@ -155,7 +160,7 @@ public class Adpt_Timeline extends BaseAdapter {
             holder.lv_comment.setVisibility(View.GONE);
         } else {
             holder.lv_comment.setVisibility(View.VISIBLE);
-            commentAdapter = new Adpt_Comment(context, task.getComments());
+            commentAdapter = new Adpt_Comment(context, task.getComments(), "timeline");
             holder.lv_comment.setAdapter(commentAdapter);
             UtilBox.setListViewHeightBasedOnChildren(holder.lv_comment);
         }
@@ -163,7 +168,12 @@ public class Adpt_Timeline extends BaseAdapter {
         holder.btn_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Frag_Timeline.showCommentWindow(context, position, task.getId(), Config.MID, "", "");
+                int[] location = new int[2];
+                holder.btn_comment.getLocationOnScreen(location);
+                int y = location[1];
+
+                Frag_Timeline.showCommentWindow(context, position, task.getId(),
+                        Config.MID, "", "", y + UtilBox.dip2px(context, 15) );
             }
         });
 

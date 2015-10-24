@@ -2,8 +2,10 @@ package com.jiubai.taskmoment.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.ScrollView;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +54,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.iv_item_portrait)
     ImageView iv_portrait;
 
+    @Bind(R.id.btn_comment)
+    Button btn_comment;
+
     @Bind(R.id.tv_item_desc)
     TextView tv_desc;
 
@@ -74,18 +81,15 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.tv_item_date)
     TextView tv_date;
 
-    @Bind(R.id.ll_audit)
-    LinearLayout ll_audit;
-
-    @Bind(R.id.ll_comment)
-    LinearLayout ll_comment;
-
-    @Bind(R.id.lv_item_comment)
-    ListView lv_comment;
-
+    private static LinearLayout ll_audit;
+    private static LinearLayout ll_comment;
+    private static ListView lv_comment;
+    private static ScrollView sv_taskInfo;
+    private static Space space;
     private Task task;
-    private Adpt_Comment adapter_comment;
-    private boolean commentWindowIsShow = false, auditWindowIsShow = false;
+    private static Adpt_Comment adapter_comment;
+    private static boolean commentWindowIsShow = false;
+    private static boolean auditWindowIsShow = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,6 +110,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
         initView();
     }
 
+    /**
+     * 初始化所有view
+     */
     private void initView() {
         tv_title.setText("任务详情");
 
@@ -132,7 +139,35 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
         tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
-        adapter_comment = new Adpt_Comment(this, task.getComments());
+        ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
+        ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
+        lv_comment = (ListView) findViewById(R.id.lv_comment);
+        sv_taskInfo = (ScrollView) findViewById(R.id.sv_taskInfo);
+        space = (Space) findViewById(R.id.space);
+
+        sv_taskInfo.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (commentWindowIsShow) {
+                    UtilBox.setViewParams(space, 0, 0);
+
+                    ll_comment.setVisibility(View.GONE);
+                    commentWindowIsShow = false;
+
+                    // 关闭键盘
+                    UtilBox.toggleSoftInput(ll_comment, false);
+                }
+
+                if (auditWindowIsShow) {
+                    ll_audit.setVisibility(View.GONE);
+
+                    auditWindowIsShow = false;
+                }
+                return false;
+            }
+        });
+
+        adapter_comment = new Adpt_Comment(this, task.getComments(), "taskInfo");
         lv_comment.setAdapter(adapter_comment);
         UtilBox.setListViewHeightBasedOnChildren(lv_comment);
     }
@@ -181,7 +216,12 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 break;
 
             case R.id.btn_comment:
-                showCommentWindow(task.getId(), Config.MID, "", "");
+                int[] location = new int[2];
+                btn_comment.getLocationOnScreen(location);
+                int y = location[1];
+
+                showCommentWindow(this, task.getId(), Config.MID, "", "",
+                        y + UtilBox.dip2px(this, 15));
                 break;
         }
     }
@@ -195,8 +235,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
      * @param receiverID 接收者ID
      */
     @SuppressWarnings("unused")
-    private void showCommentWindow(final String taskID, String sender,
-                                         final String receiver, final String receiverID) {
+    public static void showCommentWindow(final Context context, final String taskID, String sender,
+                                         final String receiver, final String receiverID, final int y) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -209,8 +249,23 @@ public class Aty_TaskInfo extends AppCompatActivity {
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
+        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 56));
+
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                int keyBoardHeight = UtilBox.dip2px(context, 360);
+                int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                int finalScroll = keyBoardHeight - viewHeight
+                        + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 56);
+
+                sv_taskInfo.smoothScrollTo(0, finalScroll);
+            }
+        });
 
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
@@ -224,13 +279,15 @@ public class Aty_TaskInfo extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!Config.IS_CONNECTED) {
-                    Toast.makeText(Aty_TaskInfo.this,
+                    Toast.makeText(context,
                             R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 ll_comment.setVisibility(View.GONE);
+
+                UtilBox.setViewParams(space, 0, 0);
 
                 UtilBox.toggleSoftInput(ll_comment, false);
 
@@ -247,13 +304,29 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                     if (!"900001".equals(jsonObject.getString("status"))) {
                                         System.out.println(response);
 
-                                        Toast.makeText(Aty_TaskInfo.this,
+                                        Toast.makeText(context,
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
+                                        if (!"".equals(receiver)) {
+                                            adapter_comment.commentList.add(new Comment(
+                                                    taskID, 0, Config.NICKNAME, Config.MID,
+                                                    receiver, receiverID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
+                                        } else {
+                                            adapter_comment.commentList.add(new Comment(
+                                                    taskID, 0, Config.NICKNAME, Config.MID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
+                                        }
 
-
-                                        adapter_comment.notifyDataSetChanged();
+                                        adapter_comment = new Adpt_Comment(context,
+                                                adapter_comment.commentList, "taskInfo");
+                                        lv_comment.setAdapter(adapter_comment);
+                                        UtilBox.setListViewHeightBasedOnChildren(lv_comment);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -264,7 +337,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
-                                Toast.makeText(Aty_TaskInfo.this,
+                                Toast.makeText(context,
                                         R.string.usual_error,
                                         Toast.LENGTH_SHORT).show();
                             }
@@ -280,12 +353,14 @@ public class Aty_TaskInfo extends AppCompatActivity {
      * @param senderID 发送者ID
      */
     @SuppressWarnings("unused")
-    private void showAuditWindow(String sender, String senderID) {
+    public static void showAuditWindow(String sender, String senderID) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
             ll_comment.setVisibility(View.GONE);
             commentWindowIsShow = false;
+
+            UtilBox.setViewParams(space, 0, 0);
         }
 
         ll_audit.setVisibility(View.VISIBLE);
@@ -305,10 +380,16 @@ public class Aty_TaskInfo extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            finish();
-            overridePendingTransition(R.anim.in_left_right,
-                    R.anim.out_left_right);
+            if (commentWindowIsShow) {
+                UtilBox.setViewParams(space, 1, 0);
+                ll_comment.setVisibility(View.GONE);
+                commentWindowIsShow = false;
+                UtilBox.toggleSoftInput(ll_comment, false);
+            } else {
+                finish();
+                overridePendingTransition(R.anim.in_left_right,
+                        R.anim.out_left_right);
+            }
             return true;
         }
 

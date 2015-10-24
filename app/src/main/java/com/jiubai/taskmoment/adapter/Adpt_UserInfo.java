@@ -23,7 +23,6 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.view.RippleView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class Adpt_UserInfo extends BaseAdapter {
 
         itemList.clear();
 
-        itemList.add("Leung_Howell");
+        itemList.add("昵称");
         itemList.add("我发布的任务");
         itemList.add("我参与的任务");
         itemList.add("我审核的任务");
@@ -83,7 +82,7 @@ public class Adpt_UserInfo extends BaseAdapter {
             tv_nickname.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showNicknameDialog(tv_nickname, itemList.get(position));
+                    showNicknameDialog(tv_nickname, tv_nickname.getText().toString());
                 }
             });
 

@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,7 +47,6 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;
@@ -68,6 +68,8 @@ public class Frag_Timeline extends Fragment
     public static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
     private static Adpt_Timeline adapter;
+    private static BorderScrollView sv;
+    public static Space space;
     private boolean isBottomRefleshing = false;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
@@ -94,7 +96,7 @@ public class Frag_Timeline extends Fragment
         iv_portrait.requestFocus();
         iv_portrait.setOnClickListener(this);
 
-        if(!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
             ((TextView) view.findViewById(R.id.tv_timeline_nickname)).setText(Config.NICKNAME);
         }
 
@@ -123,6 +125,8 @@ public class Frag_Timeline extends Fragment
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (commentWindowIsShow) {
+                    UtilBox.setViewParams(space, 0, 0);
+
                     ll_comment.setVisibility(View.GONE);
                     commentWindowIsShow = false;
 
@@ -139,7 +143,7 @@ public class Frag_Timeline extends Fragment
             }
         });
 
-        BorderScrollView sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
+        sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
         sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
 
             @Override
@@ -164,6 +168,8 @@ public class Frag_Timeline extends Fragment
             }
         });
 
+        space = (Space) view.findViewById(R.id.space);
+
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
 
@@ -184,6 +190,11 @@ public class Frag_Timeline extends Fragment
         ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_news_portrait);
 
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
+
+        if (Adpt_Timeline.taskList != null && !Adpt_Timeline.taskList.isEmpty()) {
+            adapter = new Adpt_Timeline(getActivity(), Adpt_Timeline.taskList);
+            lv.setAdapter(adapter);
+        }
 
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
@@ -279,7 +290,7 @@ public class Frag_Timeline extends Fragment
     @SuppressWarnings("unused")
     public static void showCommentWindow(final Context context, final int position,
                                          final String taskID, String sender,
-                                         final String receiver, final String receiverID) {
+                                         final String receiver, final String receiverID, final int y) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -292,8 +303,23 @@ public class Frag_Timeline extends Fragment
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
+        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 56));
+
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                int keyBoardHeight = UtilBox.dip2px(context, 360);
+                int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                int finalScroll = keyBoardHeight - viewHeight
+                        + sv.getScrollY() + UtilBox.dip2px(context, 56);
+
+                sv.smoothScrollTo(0, finalScroll);
+            }
+        });
 
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
@@ -315,6 +341,8 @@ public class Frag_Timeline extends Fragment
 
                 ll_comment.setVisibility(View.GONE);
 
+                UtilBox.setViewParams(space, 0, 0);
+
                 UtilBox.toggleSoftInput(ll_comment, false);
 
                 String[] key = {"oid", "pmid", "content"};
@@ -334,13 +362,22 @@ public class Frag_Timeline extends Fragment
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
-                                        Adpt_Timeline.taskList.get(position).getComments().add(
-                                                new Comment(taskID, position,
-                                                        Config.NICKNAME, Config.MID,
-                                                        edt_content.getText().toString(),
-                                                        Calendar.getInstance(Locale.CHINA)
-                                                                .getTimeInMillis())
-                                        );
+                                        if (!"".equals(receiver)) {
+                                            Adpt_Timeline.taskList.get(position).getComments().add(
+                                                    new Comment(taskID, position,
+                                                            Config.NICKNAME, Config.MID,
+                                                            receiver, receiverID,
+                                                            edt_content.getText().toString(),
+                                                            Calendar.getInstance(Locale.CHINA)
+                                                                    .getTimeInMillis()));
+                                        } else {
+                                            Adpt_Timeline.taskList.get(position).getComments().add(
+                                                    new Comment(taskID, position,
+                                                            Config.NICKNAME, Config.MID,
+                                                            edt_content.getText().toString(),
+                                                            Calendar.getInstance(Locale.CHINA)
+                                                                    .getTimeInMillis()));
+                                        }
                                         adapter.notifyDataSetChanged();
                                     }
                                 } catch (JSONException e) {
@@ -372,6 +409,7 @@ public class Frag_Timeline extends Fragment
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
+            UtilBox.setViewParams(space, 1, 0);
             ll_comment.setVisibility(View.GONE);
             commentWindowIsShow = false;
         }
@@ -457,6 +495,7 @@ public class Frag_Timeline extends Fragment
                 break;
         }
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
