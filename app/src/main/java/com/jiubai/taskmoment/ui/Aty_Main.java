@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -22,7 +23,6 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
 
@@ -60,9 +60,8 @@ public class Aty_Main extends AppCompatActivity {
     private Frag_Member frag_member = new Frag_Member();
     private Frag_UserInfo frag_userInfo = new Frag_UserInfo();
     private Frag_Preference frag_preference = new Frag_Preference();
-
     private int currentItem = 0;
-
+    private FragmentManager fragmentManager;
     public static LinearLayout toolbar;
 
     @SuppressWarnings("ConstantConditions")
@@ -94,7 +93,7 @@ public class Aty_Main extends AppCompatActivity {
         iBtn_publish.setVisibility(View.VISIBLE);
 
         // 默认显示任务圈
-        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frag_main, frag_timeline).commit();
 
@@ -105,7 +104,6 @@ public class Aty_Main extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 dw.closeDrawer(GravityCompat.START);
-                FragmentTransaction fragmentTransaction;
                 switch (menuItem.getItemId()) {
                     case R.id.navItem_timeLine:
                         if (currentItem == 0) {
@@ -115,11 +113,8 @@ public class Aty_Main extends AppCompatActivity {
                         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
-                        fragmentTransaction.replace(R.id.frag_main, frag_timeline);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        switchContent(frag_timeline);
+
                         currentItem = 0;
 
                         iBtn_publish.setVisibility(View.VISIBLE);
@@ -133,11 +128,7 @@ public class Aty_Main extends AppCompatActivity {
                         tv_title.setText(R.string.member);
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
-                        fragmentTransaction.replace(R.id.frag_main, frag_member);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        switchContent(frag_member);
 
                         currentItem = 1;
 
@@ -152,11 +143,7 @@ public class Aty_Main extends AppCompatActivity {
                         tv_title.setText(R.string.userInfo);
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
-                        fragmentTransaction.replace(R.id.frag_main, frag_userInfo);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        switchContent(frag_userInfo);
 
                         currentItem = 2;
 
@@ -171,11 +158,7 @@ public class Aty_Main extends AppCompatActivity {
                         tv_title.setText(R.string.timeline);
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
-                        fragmentTransaction.replace(R.id.frag_main, frag_preference);
-                        fragmentTransaction.addToBackStack(null);
-                        fragmentTransaction.commit();
+                        switchContent(frag_preference);
 
                         currentItem = 3;
 
@@ -201,6 +184,42 @@ public class Aty_Main extends AppCompatActivity {
             iv_navigation.setImageResource(R.drawable.portrait_default);
         }
     }
+
+    /**
+     * 切换fragment
+     *
+     * @param to 需要切换到的fragment
+     */
+    public void switchContent(Fragment to) {
+        Fragment from = null;
+        switch (currentItem){
+            case 0:
+                from = frag_timeline;
+                break;
+
+            case 1:
+                from = frag_member;
+                break;
+
+            case 2:
+                from = frag_userInfo;
+                break;
+
+            case 3:
+                from = frag_preference;
+                break;
+        }
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
+
+        if (!to.isAdded()) {    // 先判断是否被add过
+            transaction.hide(from).add(R.id.frag_main, to).commit(); // 隐藏当前的fragment，add下一个到Activity中
+        } else {
+            transaction.hide(from).show(to).commit(); // 隐藏当前的fragment，显示下一个
+        }
+    }
+
 
     @OnClick({R.id.iBtn_back})
     public void onClick(View view) {
@@ -237,6 +256,9 @@ public class Aty_Main extends AppCompatActivity {
                 Frag_Timeline.ll_comment.setVisibility(View.GONE);
                 Frag_Timeline.commentWindowIsShow = false;
                 UtilBox.toggleSoftInput(Frag_Timeline.ll_comment, false);
+            } else if ((currentItem == 0 && Frag_Timeline.auditWindowIsShow)) {
+                Frag_Timeline.ll_audit.setVisibility(View.GONE);
+                Frag_Timeline.auditWindowIsShow = false;
             } else {
                 Intent MyIntent = new Intent(Intent.ACTION_MAIN);
                 MyIntent.addCategory(Intent.CATEGORY_HOME);

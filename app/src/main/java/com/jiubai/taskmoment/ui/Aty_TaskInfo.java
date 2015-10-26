@@ -23,9 +23,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Comment;
+import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.adapter.Adpt_TimelinePicture;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
@@ -128,14 +130,20 @@ public class Aty_TaskInfo extends AppCompatActivity {
         gv_picture.setAdapter(new Adpt_TimelinePicture(this, task.getPictures()));
         UtilBox.setGridViewHeightBasedOnChildren(gv_picture, true);
 
-        tv_executor.append("：");
-        tv_executor.append(task.getExecutor());
+        if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+            UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
+                @Override
+                public void successCallback() {
+                    setESA();
+                }
 
-        tv_supervisor.append("：");
-        tv_supervisor.append(task.getSupervisor());
-
-        tv_auditor.append("：");
-        tv_auditor.append(task.getAuditor());
+                @Override
+                public void failedCallback() {
+                }
+            });
+        } else {
+            setESA();
+        }
 
         tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
@@ -170,6 +178,59 @@ public class Aty_TaskInfo extends AppCompatActivity {
         adapter_comment = new Adpt_Comment(this, task.getComments(), "taskInfo");
         lv_comment.setAdapter(adapter_comment);
         UtilBox.setListViewHeightBasedOnChildren(lv_comment);
+    }
+
+    /**
+     * 设置执行者，监督者，审核者
+     */
+    private void setESA() {
+        String executorID = task.getExecutor();
+        String supervisorID = task.getSupervisor();
+        String auditorID = task.getAuditor();
+
+        String executor = null, supervisor = null, auditor = null;
+
+        // TODO 这里应该可以更高效
+        for (int i = 1; i < Adpt_Member.memberList.size() - 1; i++) {
+            Member member = Adpt_Member.memberList.get(i);
+
+            if (executorID.equals(member.getId())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    executor = member.getName();
+                } else {
+                    executor = member.getMobile();
+                }
+            }
+
+            if (supervisorID.equals(member.getId())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    supervisor = member.getName();
+                } else {
+                    supervisor = member.getMobile();
+                }
+            }
+
+            if (auditorID.equals(member.getId())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    auditor = member.getName();
+                } else {
+                    auditor = member.getMobile();
+                }
+            }
+
+            if (executor != null && supervisor != null && auditor != null) {
+                break;
+            }
+        }
+
+        tv_executor.append("：");
+        tv_executor.append(executor);
+
+        tv_supervisor.append("：");
+        tv_supervisor.append(supervisor);
+
+        tv_auditor.append("：");
+        tv_auditor.append(auditor);
     }
 
     /**
@@ -212,7 +273,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 break;
 
             case R.id.btn_audit:
-                showAuditWindow(null, null);
+                showAuditWindow();
                 break;
 
             case R.id.btn_comment:
@@ -220,7 +281,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 btn_comment.getLocationOnScreen(location);
                 int y = location[1];
 
-                showCommentWindow(this, task.getId(), Config.MID, "", "",
+                showCommentWindow(this, task.getId(), "", "",
                         y + UtilBox.dip2px(this, 15));
                 break;
         }
@@ -229,14 +290,15 @@ public class Aty_TaskInfo extends AppCompatActivity {
     /**
      * 弹出评论窗口
      *
+     * @param context    上下文
      * @param taskID     任务ID
-     * @param sender     发送者
      * @param receiver   接收者
      * @param receiverID 接收者ID
+     * @param y          所点击的组件的y坐标
      */
-    @SuppressWarnings("unused")
-    public static void showCommentWindow(final Context context, final String taskID, String sender,
-                                         final String receiver, final String receiverID, final int y) {
+    public static void showCommentWindow(final Context context, final String taskID,
+                                         final String receiver, final String receiverID,
+                                         final int y) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -348,12 +410,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
     /**
      * 弹出审核窗口
-     *
-     * @param sender   发送者
-     * @param senderID 发送者ID
      */
     @SuppressWarnings("unused")
-    public static void showAuditWindow(String sender, String senderID) {
+    public static void showAuditWindow() {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -385,6 +444,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 ll_comment.setVisibility(View.GONE);
                 commentWindowIsShow = false;
                 UtilBox.toggleSoftInput(ll_comment, false);
+            } else if (auditWindowIsShow) {
+                ll_audit.setVisibility(View.GONE);
+                auditWindowIsShow = false;
             } else {
                 finish();
                 overridePendingTransition(R.anim.in_left_right,

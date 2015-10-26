@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="41dp"
+    android:animateLayoutChanges="true"
     android:orientation="vertical">
 
     <LinearLayout
@@ -9,6 +10,7 @@
         android:layout_height="40dp"
         android:layout_marginLeft="18dp"
         android:layout_marginRight="18dp"
+        android:animateLayoutChanges="true"
         android:orientation="horizontal">
 
         <TextView

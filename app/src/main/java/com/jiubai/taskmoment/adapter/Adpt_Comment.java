@@ -21,7 +21,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.other.ClickableText;
-import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
+import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 
@@ -81,8 +81,8 @@ public class Adpt_Comment extends BaseAdapter {
         ClickableSpan senderClickableSpan = new ClickableText() {
             @Override
             public void onClick(View widget) {
-                Intent intent = new Intent(context, Aty_PersonalInfo.class);
-                intent.putExtra("name", comment.getSender());
+                Intent intent = new Intent(context, Aty_PersonalTimeline.class);
+                intent.putExtra("mid", Config.MID);
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -99,8 +99,8 @@ public class Adpt_Comment extends BaseAdapter {
             ClickableSpan receiverClickableSpan = new ClickableText() {
                 @Override
                 public void onClick(View widget) {
-                    Intent intent = new Intent(context, Aty_PersonalInfo.class);
-                    intent.putExtra("name", comment.getReceiver());
+                    Intent intent = new Intent(context, Aty_PersonalTimeline.class);
+                    intent.putExtra("mid", Config.MID);
                     context.startActivity(intent);
                     ((Activity) context).overridePendingTransition(
                             R.anim.in_right_left, R.anim.out_right_left);
@@ -127,22 +127,24 @@ public class Adpt_Comment extends BaseAdapter {
 
                 if (!Config.MID.equals(comment.getSenderId())) {
                     if ("timeline".equals(which)) {
-
                         Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
-                                comment.getTaskId(), Config.MID,
-                                comment.getSender(), comment.getSenderId(), y);
-                    } else {
+                                comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
+                    } else if ("taskInfo".equals(which)) {
                         Aty_TaskInfo.showCommentWindow(context,
-                                comment.getTaskId(), Config.MID,
-                                comment.getSender(), comment.getSenderId(), y);
+                                comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
+                    } else {
+                        Aty_PersonalTimeline.showCommentWindow(context, comment.getTaskPosition(),
+                                comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
                     }
                 } else {
                     if ("timeline".equals(which)) {
                         Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
-                                comment.getTaskId(), Config.MID, "", "", y);
+                                comment.getTaskId(), "", "", y);
+                    } else if ("taskInfo".equals(which)) {
+                        Aty_TaskInfo.showCommentWindow(context, comment.getTaskId(), "", "", y);
                     } else {
-                        Aty_TaskInfo.showCommentWindow(context,
-                                comment.getTaskId(), Config.MID, "", "", y);
+                        Aty_PersonalTimeline.showCommentWindow(context, comment.getTaskPosition(),
+                                comment.getTaskId(), "", "", y);
                     }
                 }
 

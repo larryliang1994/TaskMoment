@@ -48,6 +48,10 @@ import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,17 +64,17 @@ import java.util.Locale;
 /**
  * 时间线（任务圈）
  */
-public class Frag_Timeline extends Fragment
-        implements View.OnClickListener {
+public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     private SwipeRefreshLayout srl;
     private static ListView lv;
     public static LinearLayout ll_comment;
-    private static LinearLayout ll_audit;
+    public static LinearLayout ll_audit;
     private static Adpt_Timeline adapter;
     private static BorderScrollView sv;
     public static Space space;
-    private boolean isBottomRefleshing = false;
+    private static View footerView;
+    private boolean isBottomRefreshing = false;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
@@ -78,7 +82,8 @@ public class Frag_Timeline extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_timeline, container, false);
 
         initView(view);
@@ -111,7 +116,13 @@ public class Frag_Timeline extends Fragment
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshTimeline();
+                // 下拉刷新过以后，可以重新进行底部加载
+                if (lv.getFooterViewsCount() == 0) {
+                    lv.addFooterView(footerView);
+                }
+
+                refreshTimeline("refresh",
+                        Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "");
             }
         });
 
@@ -119,7 +130,8 @@ public class Frag_Timeline extends Fragment
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
 
-        final View footView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
+        footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
+        lv.addFooterView(footerView);
 
         lv.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -148,23 +160,20 @@ public class Frag_Timeline extends Fragment
 
             @Override
             public void onTop() {
-                // may be done multi times, u should control it
-                //Toast.makeText(getActivity(), "has reached top", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onBottom() {
-                if (!isBottomRefleshing) {
-                    isBottomRefleshing = true;
+                // 有footerView并且不是正在加载
+                if (lv.getFooterViewsCount() > 0 && !isBottomRefreshing) {
+                    isBottomRefreshing = true;
 
-                    //lv.addFooterView(footView);
-
-
-                    isBottomRefleshing = false;
+                    // 参数应为最后一条任务的时间减1秒
+                    refreshTimeline("loadMore",
+                            (Adpt_Timeline.taskList
+                                    .get(Adpt_Timeline.taskList.size() - 1)
+                                    .getCreate_time() / 1000 - 1) + "");
                 }
-
-                // may be done multi times, u should control it
-                //Toast.makeText(getActivity(), "has reached bottom", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -181,9 +190,29 @@ public class Frag_Timeline extends Fragment
 
         iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
         iv_companyBackground.setOnClickListener(this);
+
+        final TextView tv_addBackground = (TextView) view.findViewById(R.id.tv_add_background);
+
         if (Config.COMPANY_BACKGROUND != null) {
             ImageLoader.getInstance().displayImage(
-                    Config.COMPANY_BACKGROUND, iv_companyBackground);
+                    Config.COMPANY_BACKGROUND, iv_companyBackground, new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String s, View view) {
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String s, View view, FailReason failReason) {
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                            tv_addBackground.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String s, View view) {
+                        }
+                    });
         }
 
         iv_news_portrait = (ImageView) view.findViewById(R.id.iv_news_portrait);
@@ -191,24 +220,23 @@ public class Frag_Timeline extends Fragment
 
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
 
-        if (Adpt_Timeline.taskList != null && !Adpt_Timeline.taskList.isEmpty()) {
-            adapter = new Adpt_Timeline(getActivity(), Adpt_Timeline.taskList);
-            lv.setAdapter(adapter);
-        }
-
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                refreshTimeline();
+                refreshTimeline("refresh",
+                        Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
             }
         }, 500);
     }
 
     /**
      * 刷新时间线
+     *
+     * @param type         refresh或loadMore
+     * @param request_time 需要获取哪个时间之后的数据
      */
-    private void refreshTimeline() {
+    private void refreshTimeline(final String type, final String request_time) {
         if (!Config.IS_CONNECTED) {
             Toast.makeText(getActivity(),
                     R.string.cant_access_network,
@@ -216,12 +244,12 @@ public class Frag_Timeline extends Fragment
             return;
         }
 
-        srl.setRefreshing(true);
-
-        String request_time = Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "";
+        if ("refresh".equals(type)) {
+            srl.setRefreshing(true);
+        }
 
         String[] key = {"len", "cid", "create_time"};
-        String[] value = {"30", Config.CID, request_time};
+        String[] value = {"2", Config.CID, request_time};
 
         VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
                 new Response.Listener<String>() {
@@ -236,7 +264,12 @@ public class Frag_Timeline extends Fragment
 
                             if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
 
-                                adapter = new Adpt_Timeline(getActivity(), response);
+                                if ("refresh".equals(type)) {
+                                    adapter = new Adpt_Timeline(getActivity(), true, response);
+                                } else {
+                                    adapter = new Adpt_Timeline(getActivity(), false, response);
+                                }
+
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
@@ -246,15 +279,39 @@ public class Frag_Timeline extends Fragment
                                             public void run() {
                                                 lv.setAdapter(adapter);
                                                 UtilBox.setListViewHeightBasedOnChildren(lv);
-                                                srl.setRefreshing(false);
+
+                                                if ("refresh".equals(type)) {
+                                                    srl.setRefreshing(false);
+                                                } else {
+                                                    isBottomRefreshing = false;
+                                                }
                                             }
                                         });
                                     }
                                 }, 1000);
 
+                            } else if ("900900".equals(responseStatus)) {
+                                // 没有更多了，就去掉footerView
+                                if ("refresh".equals(type)) {
+                                    srl.setRefreshing(false);
+                                } else {
+                                    lv.removeFooterView(footerView);
+
+                                    UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                    isBottomRefreshing = false;
+                                }
+
+                                Toast.makeText(getActivity(),
+                                        responseJson.getString("info"),
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                srl.setRefreshing(false);
-                                System.out.println(responseJson);
+                                if ("refresh".equals(type)) {
+                                    srl.setRefreshing(false);
+                                } else {
+                                    isBottomRefreshing = false;
+                                }
+
                                 Toast.makeText(getActivity(),
                                         responseJson.getString("info"),
                                         Toast.LENGTH_SHORT).show();
@@ -267,10 +324,15 @@ public class Frag_Timeline extends Fragment
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        srl.setRefreshing(false);
+
+                        if ("refresh".equals(type)) {
+                            srl.setRefreshing(false);
+                        } else {
+                            isBottomRefreshing = false;
+                        }
                         volleyError.printStackTrace();
                         Toast.makeText(getActivity(),
-                                "Oops...好像出错了，再试一次吧？",
+                                R.string.usual_error,
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -282,15 +344,16 @@ public class Frag_Timeline extends Fragment
      * 弹出评论窗口
      *
      * @param context    上下文
+     * @param position   任务位置
      * @param taskID     任务ID
-     * @param sender     发送者
      * @param receiver   接收者
      * @param receiverID 接收者ID
+     * @param y          所点击的组件的y坐标
      */
-    @SuppressWarnings("unused")
-    public static void showCommentWindow(final Context context, final int position,
-                                         final String taskID, String sender,
-                                         final String receiver, final String receiverID, final int y) {
+    public static void showCommentWindow(final Context context,
+                                         final int position, final String taskID,
+                                         final String receiver, final String receiverID,
+                                         final int y) {
         commentWindowIsShow = true;
 
         if (auditWindowIsShow) {
@@ -379,6 +442,7 @@ public class Frag_Timeline extends Fragment
                                                                     .getTimeInMillis()));
                                         }
                                         adapter.notifyDataSetChanged();
+                                        UtilBox.setListViewHeightBasedOnChildren(lv);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -400,12 +464,8 @@ public class Frag_Timeline extends Fragment
 
     /**
      * 弹出审核窗口
-     *
-     * @param sender   发送者
-     * @param senderID 发送者ID
      */
-    @SuppressWarnings("unused")
-    public static void showAuditWindow(String sender, String senderID) {
+    public static void showAuditWindow() {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -459,7 +519,7 @@ public class Frag_Timeline extends Fragment
                         intent.putExtra("outputX", standardWidth);
                         intent.putExtra("outputY", standardHeight);
 
-                        startActivityForResult(intent, Constants.CODE_CROP_PICTURE);
+                        startActivityForResult(intent, Constants.CODE_CHOOSE_COMPANY_BACKGROUND);
 
                         getActivity().overridePendingTransition(
                                 R.anim.in_right_left, R.anim.out_right_left);
@@ -473,8 +533,8 @@ public class Frag_Timeline extends Fragment
                 break;
 
             case R.id.iv_portrait:
-                Intent intent = new Intent(getActivity(), Aty_PersonalInfo.class);
-                intent.putExtra("name", "Leung_Howell");
+                Intent intent = new Intent(getActivity(), Aty_PersonalTimeline.class);
+                intent.putExtra("mid", Config.MID);
                 startActivity(intent);
                 getActivity().overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -502,7 +562,7 @@ public class Frag_Timeline extends Fragment
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case Constants.CODE_CROP_PICTURE:
+            case Constants.CODE_CHOOSE_COMPANY_BACKGROUND:
                 if (resultCode == Activity.RESULT_OK) {
                     if (!Config.IS_CONNECTED) {
                         Toast.makeText(getActivity(),
@@ -527,6 +587,14 @@ public class Frag_Timeline extends Fragment
                                         public void onSuccess(String objectKey) {
                                             Config.COMPANY_BACKGROUND = Constants.HOST_ID + objectKey;
 
+                                            // 清除原有的cache
+                                            MemoryCacheUtils.removeFromCache(
+                                                    Config.COMPANY_BACKGROUND,
+                                                    ImageLoader.getInstance().getMemoryCache());
+                                            DiskCacheUtils.removeFromCache(
+                                                    Config.COMPANY_BACKGROUND,
+                                                    ImageLoader.getInstance().getDiskCache());
+
                                             SharedPreferences sp = getActivity()
                                                     .getSharedPreferences("config",
                                                             Context.MODE_PRIVATE);
@@ -534,6 +602,10 @@ public class Frag_Timeline extends Fragment
                                             editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
                                                     Config.COMPANY_BACKGROUND);
                                             editor.apply();
+
+                                            ImageLoader.getInstance().displayImage(
+                                                    Config.COMPANY_BACKGROUND,
+                                                    iv_companyBackground);
                                         }
 
                                         @Override
@@ -552,27 +624,6 @@ public class Frag_Timeline extends Fragment
                                         }
                                     });
 
-//                            String[] key = {};
-//                            String[] value = {};
-//
-//                            VolleyUtil.requestWithCookie(Urls.UPLOAD_COMPANY_BACKGROUND,
-//                                    key, value,
-//                                    new Response.Listener<String>() {
-//                                        @Override
-//                                        public void onResponse(String response) {
-//
-//                                        }
-//                                    },
-//                                    new Response.ErrorListener() {
-//                                        @Override
-//                                        public void onErrorResponse(VolleyError volleyError) {
-//                                            volleyError.printStackTrace();
-//
-//                                            Toast.makeText(getActivity(),
-//                                                    R.string.usual_error,
-//                                                    Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    });
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -589,7 +640,7 @@ public class Frag_Timeline extends Fragment
                     ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
                     pictureList.remove(pictureList.size() - 1);
 
-                    adapter.taskList.add(0, new Task("0",
+                    Adpt_Timeline.taskList.add(0, new Task("0",
                             Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg",
                             "Howell", grade, content,
                             null, null, null,

@@ -15,9 +15,21 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.Adpt_Member;
+import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.VolleyUtil;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +38,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -484,5 +497,74 @@ public class UtilBox {
                 (int) height, matrix, true);
     }
 
+    public interface GetMemberCallBack{
+        void successCallback();
+        void failedCallback();
+    }
+    /**
+     * 获取成员列表
+     */
+    public static void getMember(final Context context, final GetMemberCallBack callBack) {
+        if (!Config.IS_CONNECTED) {
+            callBack.failedCallback();
+            Toast.makeText(context, R.string.cant_access_network,
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject responseJson = new JSONObject(response);
+
+                            String responseStatus = responseJson.getString("status");
+
+                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
+                                Adpt_Member.memberList = new ArrayList<>();
+                                Adpt_Member.memberList.add(new Member("", "", "", ""));
+
+                                JSONObject memberJson = new JSONObject(response);
+
+                                if (!"null".equals(memberJson.getString("info"))) {
+                                    JSONArray memberArray = memberJson.getJSONArray("info");
+
+                                    for (int i = 0; i < memberArray.length(); i++) {
+                                        JSONObject obj
+                                                = new JSONObject(memberArray.getString(i));
+                                        Adpt_Member.memberList.add(
+                                                new Member(
+                                                        obj.getString("real_name"),
+                                                        obj.getString("mobile"),
+                                                        obj.getString("id"),
+                                                        obj.getString("mid")));
+                                    }
+
+                                    Adpt_Member.memberList.add(new Member("", "", "", ""));
+                                }
+
+                                callBack.successCallback();
+                            } else {
+                                callBack.failedCallback();
+                                Toast.makeText(context,
+                                        R.string.usual_error,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        callBack.failedCallback();
+                        Toast.makeText(context,
+                                R.string.usual_error,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 }

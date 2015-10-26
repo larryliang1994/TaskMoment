@@ -49,7 +49,7 @@ public class SoapUtil {
             e.printStackTrace();
         }
 
-        return null;
+        return "";
     }
 
     /**

@@ -25,6 +25,7 @@ import com.aliyun.mbaas.oss.model.OSSException;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.adapter.Adpt_PublishPicture;
 import com.jiubai.taskmoment.classes.Member;
@@ -94,8 +95,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
 
     private int grade = 4;
     private List<Button> gradeBtnList = new ArrayList<>();
-    private boolean isDeadline = false, isPublishTime = false, hasLoadedMember = false;
-    private ArrayList<Member> memberList;
+    private boolean isDeadline = false, isPublishTime = false;
     private ArrayList<String> pictureList = new ArrayList<>();
     private Adpt_PublishPicture adpt_publishPicture;
     private int uploadedNum = 0;
@@ -179,6 +179,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     public void onClick(View view) {
         MyDate myDate;
         DateDialog dateDialog;
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("加载中...");
 
         switch (view.getId()) {
             case R.id.iBtn_back:
@@ -206,15 +208,66 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 break;
 
             case R.id.tv_executor:
-                getMember(R.id.tv_executor, "executor");
+                if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+                    progressDialog.show();
+
+                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
+                        @Override
+                        public void successCallback() {
+                            progressDialog.dismiss();
+                            showMemberList(R.id.tv_executor, "executor");
+                        }
+
+                        @Override
+                        public void failedCallback() {
+                            progressDialog.dismiss();
+                        }
+                    });
+                } else {
+                    showMemberList(R.id.tv_executor, "executor");
+                }
                 break;
 
             case R.id.tv_supervisor:
-                getMember(R.id.tv_supervisor, "supervisor");
+                if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+                    progressDialog.show();
+
+                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
+                        @Override
+                        public void successCallback() {
+                            progressDialog.dismiss();
+                            showMemberList(R.id.tv_supervisor, "supervisor");
+                        }
+
+                        @Override
+                        public void failedCallback() {
+                            progressDialog.dismiss();
+                        }
+                    });
+                } else {
+                    showMemberList(R.id.tv_supervisor, "supervisor");
+                }
                 break;
 
             case R.id.tv_auditor:
-                getMember(R.id.tv_auditor, "auditor");
+                if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+                    progressDialog.show();
+
+                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
+                        @Override
+                        public void successCallback() {
+                            progressDialog.dismiss();
+                            showMemberList(R.id.tv_auditor, "auditor");
+                        }
+
+                        @Override
+                        public void failedCallback() {
+                            progressDialog.dismiss();
+                        }
+                    });
+                } else {
+                    showMemberList(R.id.tv_auditor, "auditor");
+                }
                 break;
 
             case R.id.btn_grade_s:
@@ -288,9 +341,9 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                             String[] value = {
                                     String.valueOf(grade),
                                     edt_desc.getText().toString(),
-                                    memberList.get(executor).getId(),
-                                    memberList.get(supervisor).getId(),
-                                    memberList.get(auditor).getId(),
+                                    Adpt_Member.memberList.get(executor).getId(),
+                                    Adpt_Member.memberList.get(supervisor).getId(),
+                                    Adpt_Member.memberList.get(auditor).getId(),
                                     Config.CID,
                                     UtilBox.getStringToDate(tv_deadline.getText().toString()) / 1000 + "",
                                     UtilBox.getStringToDate(tv_publishTime.getText().toString()) / 1000 + "",
@@ -343,97 +396,22 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     }
 
     /**
-     * 获取成员列表
-     *
-     * @param viewID 显示控件的Id
-     * @param which  正在选择哪个
-     */
-    private void getMember(final int viewID, final String which) {
-        if (!Config.IS_CONNECTED) {
-            Toast.makeText(this, R.string.cant_access_network,
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (hasLoadedMember) {
-            showMemberList(viewID, which);
-        } else {
-            hasLoadedMember = true;
-
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("加载中...");
-            progressDialog.show();
-
-            VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            progressDialog.dismiss();
-
-                            try {
-                                JSONObject responseJson = new JSONObject(response);
-
-                                String responseStatus = responseJson.getString("status");
-
-                                if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-                                    memberList = new ArrayList<>();
-
-                                    JSONObject memberJson = new JSONObject(response);
-
-                                    if (!"null".equals(memberJson.getString("info"))) {
-                                        JSONArray memberArray = memberJson.getJSONArray("info");
-
-                                        for (int i = 0; i < memberArray.length(); i++) {
-                                            JSONObject obj
-                                                    = new JSONObject(memberArray.getString(i));
-                                            memberList.add(
-                                                    new Member(
-                                                            obj.getString("real_name"),
-                                                            obj.getString("mobile"),
-                                                            obj.getString("id"),
-                                                            obj.getString("mid")));
-                                        }
-
-                                        showMemberList(viewID, which);
-                                    }
-                                } else {
-                                    Toast.makeText(Aty_TaskPublish.this,
-                                            R.string.usual_error,
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            progressDialog.dismiss();
-                            Toast.makeText(Aty_TaskPublish.this,
-                                    R.string.usual_error,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
-
-    /**
      * 弹出成员选择对话框
+     * 出现的+1-1都是因为memberList有空白的头尾
      *
      * @param viewID   显示控件的Id
      * @param whichExt 正在选择哪个
      */
     private void showMemberList(final int viewID, final String whichExt) {
-        String[] members = new String[memberList.size()];
-        for (int i = 0; i < memberList.size(); i++) {
+        String[] members = new String[Adpt_Member.memberList.size() - 2];
+        for (int i = 1; i < Adpt_Member.memberList.size() - 1; i++) {
 
-            Member member = memberList.get(i);
-            if (!"null".equals(member.getName())
-                    && !"".equals(member.getName())) {
-                members[i] = member.getName();
+            Member member = Adpt_Member.memberList.get(i);
+
+            if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                members[i - 1] = member.getName();
             } else {
-                members[i] = member.getMobile();
+                members[i - 1] = member.getMobile();
             }
         }
 
@@ -441,7 +419,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         builder.setItems(members, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Member member = memberList.get(which);
+                Member member = Adpt_Member.memberList.get(which + 1);
                 if (!"null".equals(member.getName())
                         && !"".equals(member.getName())) {
                     ((TextView) Aty_TaskPublish.this.findViewById(viewID))

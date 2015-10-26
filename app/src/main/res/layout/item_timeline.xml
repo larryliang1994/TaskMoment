@@ -2,30 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/iv_item_portrait"
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
+        android:layout_marginTop="10dp"
         android:background="#eeeeee"
         android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="10dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="horizontal">
 
             <TextView
@@ -74,17 +77,18 @@
             android:id="@+id/gv_item_picture"
             android:layout_width="218dp"
             android:layout_height="wrap_content"
-            android:numColumns="3"
-            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
             android:horizontalSpacing="4dp"
-            android:verticalSpacing="4dp"
+            android:minHeight="70dp"
+            android:numColumns="3"
             android:scrollbars="none"
-            android:minHeight="70dp" />
+            android:verticalSpacing="4dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="horizontal">
 
             <TextView
@@ -123,11 +127,11 @@
             android:id="@+id/lv_item_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
+            android:layout_marginTop="10dp"
+            android:background="#eeeeee"
             android:divider="#00ffffff"
             android:dividerHeight="0dp"
-            android:layout_marginTop="10dp"
-            android:background="#eeeeee"/>
+            android:scrollbars="none" />
     </LinearLayout>
 
 </LinearLayout>

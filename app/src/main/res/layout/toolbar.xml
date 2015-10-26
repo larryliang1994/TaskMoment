@@ -3,6 +3,7 @@
     android:id="@+id/toolBar"
     android:layout_width="match_parent"
     android:layout_height="48dp"
+    android:animateLayoutChanges="true"
     android:background="@drawable/titleBar"
     android:orientation="horizontal">
 
@@ -19,8 +20,8 @@
         android:id="@+id/iv_divider"
         android:layout_width="1dp"
         android:layout_height="30dp"
-        android:background="#212121"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:background="#212121" />
 
     <TextView
         android:id="@+id/tv_title"
@@ -43,9 +44,9 @@
         android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
         android:padding="12dp"
-        android:visibility="gone"
         android:scaleType="centerInside"
-        android:src="@drawable/more" />
+        android:src="@drawable/more"
+        android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/iBtn_publish"
@@ -53,17 +54,17 @@
         android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
         android:padding="10dp"
-        android:visibility="gone"
         android:scaleType="centerInside"
-        android:src="@drawable/add" />
+        android:src="@drawable/add"
+        android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/iBtn_delete"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
-        android:scaleType="centerInside"
         android:padding="12dp"
-        android:visibility="gone"
-        android:src="@drawable/delete"/>
+        android:scaleType="centerInside"
+        android:src="@drawable/delete"
+        android:visibility="gone" />
 </LinearLayout>

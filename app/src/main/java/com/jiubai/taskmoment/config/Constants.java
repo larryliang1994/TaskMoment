@@ -19,6 +19,7 @@ public class Constants {
     public static final int CODE_PUBLISH_TASK = 6;
     public static final int CODE_CROP_PICTURE = 7;
     public static final int CODE_CHOOSE_PORTRAIT = 8;
+    public static final int CODE_CHOOSE_COMPANY_BACKGROUND = 9;
 
     public static final String SP_FILENAME = "config";
     public static final String SP_KEY_COOKIE = "cookie";

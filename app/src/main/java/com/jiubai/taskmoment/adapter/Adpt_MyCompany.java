@@ -115,6 +115,8 @@ public class Adpt_MyCompany extends BaseAdapter {
                 public void onComplete(RippleView rippleView) {
                     Config.COMPANY_NAME = companyList.get(position).getName();
                     Config.CID = companyList.get(position).getCid();
+                    Config.COMPANY_BACKGROUND
+                            = Constants.HOST_ID + "task_moment/" + Config.CID + ".jpg";
 
                     // 保存公司信息
                     SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
@@ -122,6 +124,7 @@ public class Adpt_MyCompany extends BaseAdapter {
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
                     editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
+                    editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND, Config.COMPANY_BACKGROUND);
                     editor.apply();
 
                     Intent intent = new Intent(context, Aty_Main.class);

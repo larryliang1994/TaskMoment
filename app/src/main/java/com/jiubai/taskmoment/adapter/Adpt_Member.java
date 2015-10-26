@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class Adpt_Member extends BaseAdapter {
 
-    public List<Member> memberList;
+    public static List<Member> memberList;
     private Context context;
     public boolean isEmpty = false;
 

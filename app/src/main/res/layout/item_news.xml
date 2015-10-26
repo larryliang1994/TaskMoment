@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
     android:orientation="horizontal">
 
     <com.jiubai.taskmoment.view.RippleView
@@ -16,6 +17,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
             android:orientation="horizontal"
             android:paddingBottom="10dp"
             android:paddingLeft="16dp"
@@ -35,6 +37,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:animateLayoutChanges="true"
                 android:gravity="center_vertical"
                 android:orientation="vertical">
 

@@ -57,4 +57,5 @@
     <string name="usual_error">Oops…好像出错了，再试一次？</string>
     <string name="usual_error_refresh">Oops…好像出错了，下拉刷新一下吧？</string>
     <string name="cant_access_network">啊哦，网络好像抽风了~</string>
+    <string name="add_company_background">点此添加公司背景</string>
 </resources>

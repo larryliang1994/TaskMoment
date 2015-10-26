@@ -1,6 +1,5 @@
 package com.jiubai.taskmoment.adapter;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,12 +15,11 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
-import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONArray;
@@ -31,19 +29,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 /**
- * Timeline的适配器
+ * 个人时间线适配器
  */
-public class Adpt_Timeline extends BaseAdapter {
+public class Adpt_PersonalTimeline extends BaseAdapter {
     public static ArrayList<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
 
-    public Adpt_Timeline(Context context, ArrayList<Task> taskList) {
+    public Adpt_PersonalTimeline(Context context, ArrayList<Task> taskList) {
         this.context = context;
-        Adpt_Timeline.taskList = taskList;
+        Adpt_PersonalTimeline.taskList = taskList;
     }
 
-    public Adpt_Timeline(Context context, boolean isRefresh, String response) {
+    public Adpt_PersonalTimeline(Context context, boolean isRefresh, String response) {
         this.context = context;
 
         if(isRefresh) {
@@ -93,99 +91,6 @@ public class Adpt_Timeline extends BaseAdapter {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public int getCount() {
-        return taskList.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return taskList.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @SuppressLint("InflateParams")
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        final ViewHolder holder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);
-            holder = new ViewHolder(convertView);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        final Task task = taskList.get(position);
-        holder.tv_nickname.setText(task.getNickname());
-        holder.tv_grade.setText(task.getGrade());
-        setGradeColor(holder.tv_grade, task.getGrade());
-        holder.tv_desc.setText(task.getDesc());
-        holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
-
-        ImageLoader loader = ImageLoader.getInstance();
-        loader.displayImage(task.getPortraitUrl(), holder.iv_portrait);
-
-        holder.iv_portrait.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
-                context.startActivity(intent);
-                ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
-            }
-        });
-
-        holder.tv_nickname.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
-                context.startActivity(intent);
-                ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
-            }
-        });
-
-        holder.gv_picture.setAdapter(new Adpt_TimelinePicture(context, task.getPictures()));
-        UtilBox.setGridViewHeightBasedOnChildren(holder.gv_picture, true);
-
-        if (task.getComments() == null || task.getComments().isEmpty()) {
-            holder.lv_comment.setVisibility(View.GONE);
-        } else {
-            holder.lv_comment.setVisibility(View.VISIBLE);
-            commentAdapter = new Adpt_Comment(context, task.getComments(), "timeline");
-            holder.lv_comment.setAdapter(commentAdapter);
-            UtilBox.setListViewHeightBasedOnChildren(holder.lv_comment);
-        }
-
-        holder.btn_comment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int[] location = new int[2];
-                holder.btn_comment.getLocationOnScreen(location);
-                int y = location[1];
-
-                Frag_Timeline.showCommentWindow(context, position, task.getId(),
-                       "", "", y + UtilBox.dip2px(context, 15));
-            }
-        });
-
-        holder.btn_audit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Frag_Timeline.showAuditWindow();
-            }
-        });
-
-        return convertView;
     }
 
     /**
@@ -286,6 +191,98 @@ public class Adpt_Timeline extends BaseAdapter {
         }
 
         return commentList;
+    }
+
+    @Override
+    public int getCount() {
+        return taskList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return taskList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        final Task task = taskList.get(position);
+        holder.tv_nickname.setText(task.getNickname());
+        holder.tv_grade.setText(task.getGrade());
+        setGradeColor(holder.tv_grade, task.getGrade());
+        holder.tv_desc.setText(task.getDesc());
+        holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
+
+        ImageLoader loader = ImageLoader.getInstance();
+        loader.displayImage(task.getPortraitUrl(), holder.iv_portrait);
+
+        holder.iv_portrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Aty_PersonalTimeline.class);
+                intent.putExtra("mid", Config.MID);
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+
+        holder.tv_nickname.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Aty_PersonalTimeline.class);
+                intent.putExtra("mid", Config.MID);
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+
+        holder.gv_picture.setAdapter(new Adpt_TimelinePicture(context, task.getPictures()));
+        UtilBox.setGridViewHeightBasedOnChildren(holder.gv_picture, true);
+
+        if (task.getComments() == null || task.getComments().isEmpty()) {
+            holder.lv_comment.setVisibility(View.GONE);
+        } else {
+            holder.lv_comment.setVisibility(View.VISIBLE);
+            commentAdapter = new Adpt_Comment(context, task.getComments(), "personal");
+            holder.lv_comment.setAdapter(commentAdapter);
+            UtilBox.setListViewHeightBasedOnChildren(holder.lv_comment);
+        }
+
+        holder.btn_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int[] location = new int[2];
+                holder.btn_comment.getLocationOnScreen(location);
+                int y = location[1];
+
+                Aty_PersonalTimeline.showCommentWindow(context, position, task.getId(),
+                        "", "", y + UtilBox.dip2px(context, 15));
+            }
+        });
+
+        holder.btn_audit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Aty_PersonalTimeline.showAuditWindow();
+            }
+        });
+
+        return convertView;
     }
 
     public static class ViewHolder {

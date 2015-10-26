@@ -91,6 +91,12 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         edt_telephone.addTextChangedListener(this);
 
         edt_verifyCode.addTextChangedListener(this);
+
+        GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
+        verifyBgShape.setColor(getResources().getColor(R.color.gray));
+
+        GradientDrawable submitBgShape = (GradientDrawable) btn_submit.getBackground();
+        submitBgShape.setColor(getResources().getColor(R.color.gray));
     }
 
     /**

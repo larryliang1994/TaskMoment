@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,20 +25,17 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.nostra13.universalimageloader.cache.disc.DiskCache;
-import com.nostra13.universalimageloader.cache.memory.MemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.Iterator;
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * 个人中心
  */
 public class Frag_UserInfo extends Fragment {
     private Adpt_UserInfo adapter;
-    private ListView lv_userInfo;
 
     @Nullable
     @Override
@@ -53,15 +52,50 @@ public class Frag_UserInfo extends Fragment {
      */
     private void initView(View view) {
         adapter = new Adpt_UserInfo(getActivity(), this);
-        lv_userInfo = (ListView) view.findViewById(R.id.lv_userInfo);
+        ListView lv_userInfo = (ListView) view.findViewById(R.id.lv_userInfo);
         lv_userInfo.setAdapter(adapter);
+
+        Button btn_logout = (Button)view.findViewById(R.id.btn_logout);
+
+        GradientDrawable logoutBgShape = (GradientDrawable) btn_logout.getBackground();
+        logoutBgShape.setColor(getResources().getColor(R.color.primary));
+
+        btn_logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final MaterialDialog dialog = new MaterialDialog(getActivity());
+                dialog.setTitle("注销")
+                        .setMessage("真的要注销吗?")
+                        .setPositiveButton("真的", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+
+                                UtilBox.clearAllData(getActivity());
+
+                                startActivity(new Intent(getActivity(), Aty_Login.class));
+                                getActivity().finish();
+                                getActivity().overridePendingTransition(
+                                        R.anim.in_left_right, R.anim.out_left_right);
+                            }
+                        })
+                        .setNegativeButton("假的", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setCanceledOnTouchOutside(true)
+                        .show();
+            }
+        });
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode){
+        switch (requestCode) {
             case Constants.CODE_CHOOSE_PORTRAIT:
                 if (resultCode == Activity.RESULT_OK) {
                     if (!Config.IS_CONNECTED) {
@@ -82,12 +116,11 @@ public class Frag_UserInfo extends Fragment {
                                 public void onSuccess(final String objectKey) {
                                     System.out.println(objectKey + " upload success!");
 
-                                    DiskCache diskCache = ImageLoader.getInstance().getDiskCache();
-                                    boolean remove = diskCache.remove(UtilBox.getMD5Str(Config.PORTRAIT + "_"
-                                            + UtilBox.dip2px(getActivity(), 60) + "x"
-                                            + UtilBox.dip2px(getActivity(), 60)));
-
-                                    System.out.println(remove);
+                                    // 清除原有的cache
+                                    MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
+                                            ImageLoader.getInstance().getMemoryCache());
+                                    DiskCacheUtils.removeFromCache(Config.PORTRAIT,
+                                            ImageLoader.getInstance().getDiskCache());
 
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override

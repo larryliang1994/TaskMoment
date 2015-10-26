@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +14,7 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.News;
-import com.jiubai.taskmoment.other.ClickableText;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.ui.Aty_PersonalInfo;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.view.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
