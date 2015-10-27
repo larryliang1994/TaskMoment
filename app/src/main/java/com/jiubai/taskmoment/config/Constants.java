@@ -34,5 +34,5 @@ public class Constants {
             + Environment.getExternalStorageDirectory() + "/temp.jpg";
     public static final int SIZE_COMPANY_BACKGROUND = 500;
     public static final int SIZE_TASK_IMAGE = 300;
-    public static final int SIZE_PORTRAIT = 300;
+    public static final int SIZE_PORTRAIT = 100;
 }

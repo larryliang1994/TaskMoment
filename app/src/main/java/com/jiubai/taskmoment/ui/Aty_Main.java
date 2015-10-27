@@ -1,5 +1,6 @@
 package com.jiubai.taskmoment.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -38,9 +40,6 @@ public class Aty_Main extends AppCompatActivity {
     @Bind(R.id.dw_main)
     DrawerLayout dw;
 
-    @Bind(R.id.nv_main)
-    NavigationView nv;
-
     @Bind(R.id.iBtn_back)
     ImageButton iBtn_back;
 
@@ -50,12 +49,6 @@ public class Aty_Main extends AppCompatActivity {
     @Bind(R.id.iBtn_publish)
     ImageButton iBtn_publish;
 
-    @Bind(R.id.iv_navigation)
-    CircleImageView iv_navigation;
-
-    @Bind(R.id.tv_navigation_nickname)
-    TextView tv_nickname;
-
     private Frag_Timeline frag_timeline = new Frag_Timeline();
     private Frag_Member frag_member = new Frag_Member();
     private Frag_UserInfo frag_userInfo = new Frag_UserInfo();
@@ -63,6 +56,10 @@ public class Aty_Main extends AppCompatActivity {
     private int currentItem = 0;
     private FragmentManager fragmentManager;
     public static LinearLayout toolbar;
+    public static LinearLayout ll_nvHeader;
+    public static NavigationView nv;
+    public static CircleImageView iv_navigation;
+    public static TextView tv_nickname;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -84,10 +81,6 @@ public class Aty_Main extends AppCompatActivity {
 
         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
 
-        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
-            tv_nickname.setText(Config.NICKNAME);
-        }
-
         iBtn_back.setImageResource(R.drawable.navigation);
 
         iBtn_publish.setVisibility(View.VISIBLE);
@@ -97,6 +90,15 @@ public class Aty_Main extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frag_main, frag_timeline).commit();
 
+        ll_nvHeader = (LinearLayout) LayoutInflater.from(this)
+                .inflate(R.layout.navigation_header, null);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.height = UtilBox.dip2px(this, 192);
+        ll_nvHeader.setLayoutParams(lp);
+
+        nv = (NavigationView) findViewById(R.id.nv_main);
+        nv.addHeaderView(ll_nvHeader);
         nv.getMenu().getItem(0).setChecked(true);
         nv.setItemTextColor(ColorStateList.valueOf(Color.parseColor("#212121")));
         nv.setItemIconTintList(null);
@@ -177,13 +179,22 @@ public class Aty_Main extends AppCompatActivity {
             }
         });
 
+        // 设置昵称
+        tv_nickname = (TextView) findViewById(R.id.tv_navigation_nickname);
+        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+            tv_nickname.setText(Config.NICKNAME);
+        }
+
         // 获取抽屉的头像
+        iv_navigation = (CircleImageView) findViewById(R.id.iv_navigation);
         if (Config.PORTRAIT != null) {
             ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
         } else {
             iv_navigation.setImageResource(R.drawable.portrait_default);
         }
     }
+
+
 
     /**
      * 切换fragment
@@ -210,6 +221,7 @@ public class Aty_Main extends AppCompatActivity {
                 break;
         }
 
+        @SuppressLint("CommitTransaction")
         FragmentTransaction transaction = fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
 

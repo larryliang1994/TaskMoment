@@ -29,6 +29,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import me.drakeet.materialdialog.MaterialDialog;
 
 /**
@@ -55,7 +56,7 @@ public class Frag_UserInfo extends Fragment {
         ListView lv_userInfo = (ListView) view.findViewById(R.id.lv_userInfo);
         lv_userInfo.setAdapter(adapter);
 
-        Button btn_logout = (Button)view.findViewById(R.id.btn_logout);
+        Button btn_logout = (Button) view.findViewById(R.id.btn_logout);
 
         GradientDrawable logoutBgShape = (GradientDrawable) btn_logout.getBackground();
         logoutBgShape.setColor(getResources().getColor(R.color.primary));
@@ -136,6 +137,15 @@ public class Frag_UserInfo extends Fragment {
                                             editor.apply();
 
                                             adapter.notifyDataSetChanged();
+
+                                            // 把抽屉里的头像也改掉
+                                            ImageLoader.getInstance().displayImage(
+                                                    Config.PORTRAIT, Frag_Timeline.iv_portrait);
+
+                                            ImageLoader.getInstance().displayImage(
+                                                    Config.PORTRAIT, Aty_Main.iv_navigation);
+                                            Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
+                                            Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
                                         }
                                     });
                                 }

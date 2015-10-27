@@ -72,8 +72,10 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     public static LinearLayout ll_audit;
     private static Adpt_Timeline adapter;
     private static BorderScrollView sv;
+    public static TextView tv_nickname;
     public static Space space;
     private static View footerView;
+    public static ImageView iv_portrait;
     private boolean isBottomRefreshing = false;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
@@ -95,14 +97,15 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
      */
     @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void initView(View view) {
-        ImageView iv_portrait = (ImageView) view.findViewById(R.id.iv_portrait);
+        iv_portrait = (ImageView) view.findViewById(R.id.iv_portrait);
         iv_portrait.setFocusable(true);
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
         iv_portrait.setOnClickListener(this);
 
+        tv_nickname = (TextView) view.findViewById(R.id.tv_timeline_nickname);
         if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
-            ((TextView) view.findViewById(R.id.tv_timeline_nickname)).setText(Config.NICKNAME);
+            tv_nickname.setText(Config.NICKNAME);
         }
 
         if (Config.PORTRAIT != null) {

@@ -12,6 +12,9 @@ import com.jiubai.taskmoment.net.SoapUtil;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
 import com.jiubai.taskmoment.ui.Aty_Main;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +37,12 @@ public class MainActivity extends Activity {
                     } else {
                         // 获取用户信息
                         getUserInfo();
+
+                        // 清除原有的cache
+                        MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
+                                ImageLoader.getInstance().getMemoryCache());
+                        DiskCacheUtils.removeFromCache(Config.PORTRAIT,
+                                ImageLoader.getInstance().getDiskCache());
                     }
                     startActivity(new Intent(MainActivity.this, Aty_Company.class));
                 }

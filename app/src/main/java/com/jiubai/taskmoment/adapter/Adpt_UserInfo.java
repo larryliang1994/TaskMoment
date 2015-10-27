@@ -22,6 +22,8 @@ import android.widget.Toast;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.ui.Aty_Main;
+import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.jiubai.taskmoment.view.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -193,6 +195,11 @@ public class Adpt_UserInfo extends BaseAdapter {
                         // 到时候删掉这两行
                         tv_nickname.setText(newNickname);
                         dialog.dismiss();
+
+                        Frag_Timeline.tv_nickname.setText(newNickname);
+                        Aty_Main.tv_nickname.setText(newNickname);
+                        Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
+                        Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
 
 //                        String[] key = {"mobile", "cid"};
 //                        String[] value = {newNickname, Config.CID};

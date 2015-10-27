@@ -46,6 +46,13 @@ package com.jiubai.taskmoment.other;
  * 解决方案：无
  */
 
+/**
+ * 发现日期：2015-10-27
+ * 问题描述：每次修改个人信息都需要全局变量的支持，容易导致内存泄漏
+ * 解决情况：未解决
+ * 解决方案：无
+ */
+
 @SuppressWarnings("unused")
 public class BugLog {
 }
