@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -468,7 +469,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     /**
      * 弹出审核窗口
      */
-    public static void showAuditWindow() {
+    public static void showAuditWindow(final Context context, final String taskID) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -479,13 +480,67 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         ll_audit.setVisibility(View.VISIBLE);
 
-        ((RadioButton) ll_audit.findViewById(R.id.rb_complete)).setChecked(true);
+        final int[] audit_result = {3};
+        RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);
+        radioGroup.check(R.id.rb_complete);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case R.id.rb_failed:
+                        audit_result[0] = 4;
+                        break;
+
+                    case R.id.rb_complete:
+                        audit_result[0] = 3;
+                        break;
+
+                    case R.id.rb_solved:
+                        audit_result[0] = 2;
+                        break;
+                }
+            }
+        });
 
         Button btn_send = (Button) ll_audit.findViewById(R.id.btn_audit_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ll_audit.setVisibility(View.GONE);
+                String[] key = {"id", "level"};
+                String[] value = {taskID, audit_result[0] + ""};
+
+                    VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject responseObject = new JSONObject(response);
+                                    String status = responseObject.getString("status");
+                                    if ("1".equals(status) || "900001".equals(status)) {
+                                        ll_audit.setVisibility(View.GONE);
+
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                volleyError.printStackTrace();
+
+                                Toast.makeText(context, R.string.usual_error,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
     }
@@ -639,6 +694,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     String grade = data.getStringExtra("grade");
                     String content = data.getStringExtra("content");
                     long create_time = data.getLongExtra("create_time", 0);
+                    String executor = data.getStringExtra("executor");
+                    String supervisor = data.getStringExtra("supervisor");
+                    String auditor = data.getStringExtra("auditor");
 
                     ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
                     pictureList.remove(pictureList.size() - 1);
@@ -646,7 +704,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     Adpt_Timeline.taskList.add(0, new Task("0",
                             Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg",
                             "Howell", grade, content,
-                            null, null, null,
+                            executor, supervisor, auditor,
                             pictureList, null, 0, 0, create_time, "1"));
 
                     adapter.notifyDataSetChanged();

@@ -59,6 +59,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.btn_comment)
     Button btn_comment;
 
+    @Bind(R.id.btn_audit)
+    Button btn_audit;
+
     @Bind(R.id.tv_item_desc)
     TextView tv_desc;
 
@@ -82,6 +85,9 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
     @Bind(R.id.tv_item_date)
     TextView tv_date;
+
+    @Bind(R.id.tv_audit_result)
+    TextView tv_audit_result;
 
     private static LinearLayout ll_audit;
     private static LinearLayout ll_comment;
@@ -126,6 +132,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
         setGradeColor(tv_grade, task.getGrade());
 
         tv_nickname.setText(task.getNickname());
+
+        tv_audit_result.setText(task.getAuditResult());
 
         gv_picture.setAdapter(new Adpt_TimelinePicture(this, task.getPictures()));
         UtilBox.setGridViewHeightBasedOnChildren(gv_picture, true);
@@ -175,11 +183,16 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         });
 
+        if (!Config.MID.equals(task.getAuditor())) {
+            btn_audit.setVisibility(View.GONE);
+        }
+
         adapter_comment = new Adpt_Comment(this, task.getComments(), "taskInfo");
         lv_comment.setAdapter(adapter_comment);
         UtilBox.setListViewHeightBasedOnChildren(lv_comment);
     }
 
+    //TODO 新发布的任务不能查看详情
     /**
      * 设置执行者，监督者，审核者
      */
@@ -194,7 +207,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         for (int i = 1; i < Adpt_Member.memberList.size() - 1; i++) {
             Member member = Adpt_Member.memberList.get(i);
 
-            if (executorID.equals(member.getId())) {
+            if (executorID.equals(member.getMid())) {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     executor = member.getName();
                 } else {
@@ -202,7 +215,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 }
             }
 
-            if (supervisorID.equals(member.getId())) {
+            if (supervisorID.equals(member.getMid())) {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     supervisor = member.getName();
                 } else {
@@ -210,7 +223,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 }
             }
 
-            if (auditorID.equals(member.getId())) {
+            if (auditorID.equals(member.getMid())) {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     auditor = member.getName();
                 } else {

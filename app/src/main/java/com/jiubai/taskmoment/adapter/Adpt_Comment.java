@@ -82,7 +82,7 @@ public class Adpt_Comment extends BaseAdapter {
             @Override
             public void onClick(View widget) {
                 Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
+                intent.putExtra("mid", comment.getSenderId());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -100,7 +100,7 @@ public class Adpt_Comment extends BaseAdapter {
                 @Override
                 public void onClick(View widget) {
                     Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                    intent.putExtra("mid", Config.MID);
+                    intent.putExtra("mid", comment.getReceiverId());
                     context.startActivity(intent);
                     ((Activity) context).overridePendingTransition(
                             R.anim.in_right_left, R.anim.out_right_left);

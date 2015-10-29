@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
@@ -46,7 +47,7 @@ public class Adpt_Timeline extends BaseAdapter {
     public Adpt_Timeline(Context context, boolean isRefresh, String response) {
         this.context = context;
 
-        if(isRefresh) {
+        if (isRefresh) {
             taskList = new ArrayList<>();
         }
 
@@ -57,13 +58,15 @@ public class Adpt_Timeline extends BaseAdapter {
                 JSONArray taskArray = taskJson.getJSONArray("info");
 
                 for (int i = 0; i < taskArray.length(); i++) {
+
                     JSONObject obj = new JSONObject(taskArray.getString(i));
 
                     String id = obj.getString("id");
 
                     String mid = obj.getString("mid");
                     String portraitUrl = Constants.HOST_ID + "task_moment/" + mid + ".jpg";
-                    String nickname = "dont know";
+
+                    String nickname = obj.getString("show_name");
 
                     char p1 = obj.getString("p1").charAt(0);
                     String grade = (p1 - 48) == 1 ? "S" : String.valueOf((char) (p1 + 15));
@@ -81,8 +84,7 @@ public class Adpt_Timeline extends BaseAdapter {
                     long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
                     long create_time = Long.valueOf(obj.getString("create_time")) * 1000;
 
-                    String audit_result = null;
-                    //String audit_result = obj.getString("audit_result");
+                    String audit_result = obj.getString("p2");
 
                     Task task = new Task(id, portraitUrl, nickname, grade, desc,
                             executor, supervisor, auditor,
@@ -174,16 +176,21 @@ public class Adpt_Timeline extends BaseAdapter {
                 int y = location[1];
 
                 Frag_Timeline.showCommentWindow(context, position, task.getId(),
-                       "", "", y + UtilBox.dip2px(context, 15));
+                        "", "", y + UtilBox.dip2px(context, 15));
             }
         });
 
-        holder.btn_audit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Frag_Timeline.showAuditWindow();
-            }
-        });
+        if (Config.MID.equals(task.getAuditor())) {
+            holder.btn_audit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Frag_Timeline.showAuditWindow(context, task.getId());
+                }
+            });
+        } else {
+            System.out.println(Config.MID + ":" + task.getAuditor());
+            holder.btn_audit.setVisibility(View.GONE);
+        }
 
         return convertView;
     }

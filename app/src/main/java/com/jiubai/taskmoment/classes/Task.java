@@ -149,11 +149,11 @@ public class Task {
         this.id = id;
     }
 
-    public String getAudit_result() {
+    public String getAuditResult() {
         return audit_result;
     }
 
-    public void setAudit_result(String audit_result) {
+    public void setAuditResult(String audit_result) {
         this.audit_result = audit_result;
     }
 }

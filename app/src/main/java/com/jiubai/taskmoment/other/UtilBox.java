@@ -540,6 +540,9 @@ public class UtilBox {
                                                         obj.getString("mobile"),
                                                         obj.getString("id"),
                                                         obj.getString("mid")));
+
+                                        System.out.println("id:" + obj.getString("id") + "\n"
+                                         + "mid:" + obj.getString("mid"));
                                     }
 
                                     Adpt_Member.memberList.add(new Member("", "", "", ""));

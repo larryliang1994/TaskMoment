@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -19,13 +20,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.ui.Aty_Main;
+import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.jiubai.taskmoment.view.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -146,7 +155,12 @@ public class Adpt_UserInfo extends BaseAdapter {
                     new RippleView.OnRippleCompleteListener() {
                         @Override
                         public void onComplete(RippleView rippleView) {
-
+                            Intent intent = new Intent(context, Aty_PersonalTimeline.class);
+                            intent.putExtra("request_type", Config.MID);
+                            intent.putExtra("mid", Config.MID);
+                            context.startActivity(intent);
+                            ((Activity) context).overridePendingTransition(
+                                    R.anim.in_right_left, R.anim.out_right_left);
                         }
                     });
 
@@ -190,54 +204,66 @@ public class Adpt_UserInfo extends BaseAdapter {
                             tv.setText("昵称不能为空");
 
                             return;
+                        } else if (newNickname.getBytes().length > 12) {
+                            TextView tv = (TextView) contentView
+                                    .findViewById(R.id.tv_input);
+                            tv.setVisibility(View.VISIBLE);
+                            tv.setText("昵称过长");
+
+                            return;
                         }
 
-                        // 到时候删掉这两行
-                        tv_nickname.setText(newNickname);
-                        dialog.dismiss();
+                        String[] key = {"real_name"};
+                        String[] value = {newNickname};
 
-                        Frag_Timeline.tv_nickname.setText(newNickname);
-                        Aty_Main.tv_nickname.setText(newNickname);
-                        Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
-                        Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
+                        VolleyUtil.requestWithCookie(Urls.UPDATE_USER_INFO, key, value,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        try {
+                                            JSONObject responseObject = new JSONObject(response);
+                                            String status = responseObject.getString("status");
+                                            if ("1".equals(status) || "900001".equals(status)) {
+                                                dialog.dismiss();
 
-//                        String[] key = {"mobile", "cid"};
-//                        String[] value = {newNickname, Config.CID};
+                                                tv_nickname.setText(newNickname);
 
-//                        VolleyUtil.requestWithCookie(Urls.CHANGE_NICKNAME, key, value,
-//                                new Response.Listener<String>() {
-//                                    @Override
-//                                    public void onResponse(String response) {
-//                                        try {
-//                                            JSONObject responseObject = new JSONObject(response);
-//                                            String status = responseObject.getString("status");
-//                                            if ("1".equals(status) || "900001".equals(status)) {
-//                                                dialog.dismiss();
-//
-//                                                tv_nickname.setText(newNickname);
-//
-//                                                Toast.makeText(context, "修改成功",
-//                                                        Toast.LENGTH_SHORT).show();
-//                                            } else {
-//                                                String info = responseObject.getString("info");
-//
-//                                                TextView tv = (TextView) contentView
-//                                                        .findViewById(R.id.tv_input);
-//                                                tv.setVisibility(View.VISIBLE);
-//                                                tv.setText(info);
-//                                            }
-//                                        } catch (JSONException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-//                                },
-//                                new Response.ErrorListener() {
-//                                    @Override
-//                                    public void onErrorResponse(VolleyError volleyError) {
-//                                        Toast.makeText(context, R.string.usual_error,
-//                                                Toast.LENGTH_SHORT).show();
-//                                    }
-//                                });
+                                                Frag_Timeline.tv_nickname.setText(newNickname);
+                                                Aty_Main.tv_nickname.setText(newNickname);
+                                                Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
+                                                Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
+
+                                                SharedPreferences sp = context.getSharedPreferences(
+                                                        Constants.SP_FILENAME, Context.MODE_PRIVATE);
+                                                SharedPreferences.Editor editor = sp.edit();
+                                                editor.putString(
+                                                        Constants.SP_KEY_NICKNAME, newNickname);
+                                                editor.apply();
+
+                                                Toast.makeText(context, "修改成功",
+                                                        Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                String info = responseObject.getString("info");
+
+                                                TextView tv = (TextView) contentView
+                                                        .findViewById(R.id.tv_input);
+                                                tv.setVisibility(View.VISIBLE);
+                                                tv.setText(info);
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError volleyError) {
+                                        volleyError.printStackTrace();
+
+                                        Toast.makeText(context, R.string.usual_error,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
                 });
             }

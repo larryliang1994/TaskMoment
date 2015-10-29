@@ -44,7 +44,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
     public Adpt_PersonalTimeline(Context context, boolean isRefresh, String response) {
         this.context = context;
 
-        if(isRefresh) {
+        if (isRefresh) {
             taskList = new ArrayList<>();
         }
 
@@ -275,12 +275,16 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             }
         });
 
-        holder.btn_audit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Aty_PersonalTimeline.showAuditWindow();
-            }
-        });
+        if (Config.MID.equals(task.getAuditor())) {
+            holder.btn_audit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Aty_PersonalTimeline.showAuditWindow();
+                }
+            });
+        } else {
+            holder.btn_audit.setVisibility(View.GONE);
+        }
 
         return convertView;
     }

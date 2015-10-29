@@ -75,6 +75,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private String mid;
     private String name;
     private String mobile;
+    private String request_type;
     private boolean isBottomRefreshing = false;
 
     @Override
@@ -86,6 +87,9 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mid = getIntent().getStringExtra("mid");
+
+        String rt = getIntent().getStringExtra("request_type");
+        request_type = rt == null ? "0" : rt;
 
         if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
             UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
@@ -194,8 +198,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
             return;
         }
 
-        String[] key = {"len", "cid", "create_time"};
-        String[] value = {"2", Config.CID, request_time};
+        String[] key = {"len", "cid", "create_time", "mid", "shenhe"};
+        String[] value = {"2", Config.CID, request_time, mid, request_type};
 
         VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
                 new Response.Listener<String>() {

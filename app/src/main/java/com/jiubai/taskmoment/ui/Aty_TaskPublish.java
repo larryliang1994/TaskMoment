@@ -153,8 +153,63 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 } else if (year_publishTime == 0) {
                     Toast.makeText(Aty_TaskPublish.this, "请填入发布时间", Toast.LENGTH_SHORT).show();
                 } else {
-                    // 上传图片后上传其他数据
-                    uploadImage();
+                    /**
+                     *  'p1'         => _post('p1'),//任务级别
+                     *  'comments'   => _post('comments'),//备注
+                     *  'works'      => _post('works'),//图片
+                     *  'ext1'       => _post('ext1'),//执行者id
+                     *  'ext2'       => _post('ext2'),//监督者id
+                     *  'ext3'       => _post('ext3'),//审核者id
+                     *  'ext4'       => _post('cid'),//所属公司
+                     *  'time1'      => _post('time1'),//完成期限
+                     *  'time2'      => _post('time2'),//发布时间
+                     */
+                    String[] key = {"p1", "comments", "ext1", "ext2", "ext3",
+                            "cid", "time1", "time2"};
+                    String[] value = {
+                            String.valueOf(grade),
+                            edt_desc.getText().toString(),
+                            Adpt_Member.memberList.get(executor).getMid(),
+                            Adpt_Member.memberList.get(supervisor).getMid(),
+                            Adpt_Member.memberList.get(auditor).getMid(),
+                            Config.CID,
+                            UtilBox.getStringToDate(tv_deadline.getText().toString()) / 1000 + "",
+                            UtilBox.getStringToDate(tv_publishTime.getText().toString()) / 1000 + ""};
+
+                    VolleyUtil.requestWithCookie(Urls.PUBLISH_TASK, key, value,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        JSONObject responseJson = new JSONObject(response);
+
+                                        if (!"1".equals(responseJson.getString("status"))
+                                                && !"900001".equals(responseJson.getString("status"))) {
+                                            System.out.println(response);
+
+                                            Toast.makeText(Aty_TaskPublish.this,
+                                                    responseJson.getString("info"),
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // 上传图片
+                                            uploadImage(responseJson.getString("taskid"));
+                                        }
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+
+                                        Toast.makeText(Aty_TaskPublish.this,
+                                                R.string.usual_error,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    volleyError.printStackTrace();
+                                }
+                            });
 
                     // 为了能马上显示出来
                     Intent intent = new Intent();
@@ -163,6 +218,9 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                     intent.putExtra("pictureList", adpt_publishPicture.pictureList);
                     intent.putExtra("create_time",
                             Calendar.getInstance(Locale.CHINA).getTimeInMillis());
+                    intent.putExtra("executor", Adpt_Member.memberList.get(executor).getMid());
+                    intent.putExtra("supervisor", Adpt_Member.memberList.get(supervisor).getMid());
+                    intent.putExtra("auditor", Adpt_Member.memberList.get(auditor).getMid());
 
                     Aty_TaskPublish.this.setResult(RESULT_OK, intent);
                     Aty_TaskPublish.this.finish();
@@ -303,7 +361,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
      * 完成后上传其他相关信息
      */
     @SuppressWarnings("deprecation")
-    private void uploadImage() {
+    private void uploadImage(final String id) {
         // 压缩图片
         final Bitmap bitmap = UtilBox.getLocalBitmap(
                 adpt_publishPicture.pictureList.get(uploadedNum),
@@ -323,33 +381,12 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                         // -1是因为最后一张是本地的加号
                         if (uploadedNum < adpt_publishPicture.pictureList.size() - 1) {
                             // 接着上传下一张图片
-                            uploadImage();
+                            uploadImage(id);
                         } else {
-                            /**
-                             *  'p1'         => _post('p1'),//任务级别
-                             *  'comments'   => _post('comments'),//备注
-                             *  'works'      => _post('works'),//图片
-                             *  'ext1'       => _post('ext1'),//执行者id
-                             *  'ext2'       => _post('ext2'),//监督者id
-                             *  'ext3'       => _post('ext3'),//审核者id
-                             *  'ext4'       => _post('cid'),//所属公司
-                             *  'time1'      => _post('time1'),//完成期限
-                             *  'time2'      => _post('time2'),//发布时间
-                             */
-                            String[] key = {"p1", "comments", "ext1", "ext2", "ext3",
-                                    "cid", "time1", "time2", "works"};
-                            String[] value = {
-                                    String.valueOf(grade),
-                                    edt_desc.getText().toString(),
-                                    Adpt_Member.memberList.get(executor).getId(),
-                                    Adpt_Member.memberList.get(supervisor).getId(),
-                                    Adpt_Member.memberList.get(auditor).getId(),
-                                    Config.CID,
-                                    UtilBox.getStringToDate(tv_deadline.getText().toString()) / 1000 + "",
-                                    UtilBox.getStringToDate(tv_publishTime.getText().toString()) / 1000 + "",
-                                    new JSONArray(pictureList).toString()};
+                            String[] key = {"taskid", "works"};
+                            String[] value = {id, new JSONArray(pictureList).toString()};
 
-                            VolleyUtil.requestWithCookie(Urls.PUBLISH_TASK, key, value,
+                            VolleyUtil.requestWithCookie(Urls.UPDATE_TASK_PICTURE, key, value,
                                     new Response.Listener<String>() {
                                         @Override
                                         public void onResponse(String response) {
@@ -359,6 +396,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                                 if (!"1".equals(responseJson.getString("status"))
                                                         && !"900001".equals(responseJson.getString("status"))) {
                                                     System.out.println(response);
+
                                                     Toast.makeText(Aty_TaskPublish.this,
                                                             responseJson.getString("info"),
                                                             Toast.LENGTH_SHORT).show();
@@ -373,6 +411,10 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                         @Override
                                         public void onErrorResponse(VolleyError volleyError) {
                                             volleyError.printStackTrace();
+
+                                            Toast.makeText(Aty_TaskPublish.this,
+                                                    R.string.usual_error,
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     });
                         }
@@ -429,17 +471,18 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                             .setText(member.getMobile());
                 }
 
+                System.out.println(which);
                 switch (whichExt) {
                     case "executor":
-                        executor = which;
+                        executor = which + 1;
                         break;
 
                     case "supervisor":
-                        supervisor = which;
+                        supervisor = which + 1;
                         break;
 
                     case "auditor":
-                        auditor = which;
+                        auditor = which + 1;
                         break;
                 }
             }
