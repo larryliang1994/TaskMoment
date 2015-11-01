@@ -142,10 +142,13 @@ public class Frag_Member extends Fragment {
                     });
 
                     dialog.setContentView(contentView)
+                            .setTitle("添加成员")
                             .setCanceledOnTouchOutside(true)
                             .show();
 
-                    //UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_addMember), true);
+                    contentView.requestFocus();
+
+                    //UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_input), true);
                 } else if (!adpt_member.isEmpty && position != 0) {
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());

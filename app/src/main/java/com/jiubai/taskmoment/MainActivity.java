@@ -6,9 +6,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.net.SoapUtil;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
 import com.jiubai.taskmoment.ui.Aty_Main;
@@ -24,6 +30,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PushManager.startWork(getApplicationContext(),
+                PushConstants.LOGIN_TYPE_API_KEY,
+                Constants.API_KEY);
 
         if (Config.COOKIE == null) {
             startActivity(new Intent(this, Aty_Login.class));
@@ -59,7 +69,16 @@ public class MainActivity extends Activity {
                         getUserInfo();
                     }
 
-                    startActivity(new Intent(MainActivity.this, Aty_Main.class));
+                    UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
+                        @Override
+                        public void successCallback() {
+                            startActivity(new Intent(MainActivity.this, Aty_Main.class));
+                        }
+
+                        @Override
+                        public void failedCallback() {
+                        }
+                    });
                 }
             }).start();
         }
@@ -68,24 +87,43 @@ public class MainActivity extends Activity {
     }
 
     private void getUserInfo() {
-        String[] decodeKey = {"string", "operation"};
-        String[] decodeValue = {Config.COOKIE, "DECODE"};
-        String userInfo = SoapUtil.getUrlBySoap("authcode", decodeKey, decodeValue);
+        VolleyUtil.requestWithCookie(Urls.GET_USER_INFO, null, null,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject object = new JSONObject(response);
 
-        try {
-            JSONObject jsonObject = new JSONObject(userInfo);
-            Config.MID = jsonObject.getString("id");
-            Config.NICKNAME = jsonObject.getString("real_name");
-            Config.PORTRAIT = Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg";
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                            if("900001".equals(object.getString("status"))){
+                                JSONObject data = new JSONObject(object.getString("data"));
 
-        SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(Constants.SP_KEY_MID, Config.MID);
-        editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
-        editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
-        editor.apply();
+                                Config.MID = data.getString("id");
+                                Config.NICKNAME = data.getString("real_name");
+                                Config.PORTRAIT = Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg";
+
+                                SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString(Constants.SP_KEY_MID, Config.MID);
+                                editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
+                                editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
+                                editor.apply();
+                            } else {
+                                Toast.makeText(MainActivity.this,
+                                        object.getString("info"),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Toast.makeText(MainActivity.this,
+                                R.string.usual_error,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

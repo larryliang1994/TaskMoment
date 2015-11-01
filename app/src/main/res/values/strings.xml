@@ -49,6 +49,7 @@
     <string name="colon">：</string>
     <string name="checkPicture">查看图片</string>
     <string name="send">发送</string>
+    <string name="audit_result">审核结果为</string>
     <string name="solved">完美解决</string>
     <string name="complete">普通完成</string>
     <string name="task_failed">任务失败</string>
@@ -58,4 +59,6 @@
     <string name="usual_error_refresh">Oops…好像出错了，下拉刷新一下吧？</string>
     <string name="cant_access_network">啊哦，网络好像抽风了~</string>
     <string name="add_company_background">点此添加公司背景</string>
+    <string name="delete">删除</string>
+    <string name="tips">提示</string>
 </resources>

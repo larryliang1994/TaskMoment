@@ -20,6 +20,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
+import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONArray;
@@ -61,7 +62,8 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
 
                     String mid = obj.getString("mid");
                     String portraitUrl = Constants.HOST_ID + "task_moment/" + mid + ".jpg";
-                    String nickname = "dont know";
+
+                    String nickname = obj.getString("show_name");
 
                     char p1 = obj.getString("p1").charAt(0);
                     String grade = (p1 - 48) == 1 ? "S" : String.valueOf((char) (p1 + 15));
@@ -79,10 +81,9 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
                     long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
                     long create_time = Long.valueOf(obj.getString("create_time")) * 1000;
 
-                    String audit_result = null;
-                    //String audit_result = obj.getString("audit_result");
+                    String audit_result = obj.getString("p2");
 
-                    Task task = new Task(id, portraitUrl, nickname, grade, desc,
+                    Task task = new Task(id, portraitUrl, nickname, mid, grade, desc,
                             executor, supervisor, auditor,
                             pictures, comments, deadline, publish_time, create_time, audit_result);
                     taskList.add(task);
@@ -233,7 +234,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
+                intent.putExtra("mid", task.getMid());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -244,7 +245,19 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
+                intent.putExtra("mid", task.getMid());
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+
+        holder.tv_desc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, Aty_TaskInfo.class);
+                intent.putExtra("taskID", task.getId());
+
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -275,11 +288,11 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             }
         });
 
-        if (Config.MID.equals(task.getAuditor())) {
+        if (Config.MID.equals(task.getAuditor()) && "1".equals(task.getAuditResult())) {
             holder.btn_audit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Aty_PersonalTimeline.showAuditWindow();
+                    Aty_PersonalTimeline.showAuditWindow(context, task.getId());
                 }
             });
         } else {

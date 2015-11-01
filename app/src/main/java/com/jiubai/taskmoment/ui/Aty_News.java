@@ -12,6 +12,7 @@ import com.jiubai.taskmoment.adapter.Adpt_News;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.classes.Task;
+import com.jiubai.taskmoment.other.UtilBox;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,8 @@ public class Aty_News extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_news);
 
@@ -58,12 +61,22 @@ public class Aty_News extends AppCompatActivity {
         ArrayList<News> newsList = new ArrayList<>();
 
         Task task1 = Adpt_Timeline.taskList.get(0);
-        newsList.add(new News(task1.getPortraitUrl(), task1.getNickname(), "123", task1.getDesc(),
-                task1.getCreate_time(), task1.getPictures().get(0), task1.getId()));
+        if(task1.getPictures().isEmpty()) {
+            newsList.add(new News(task1.getPortraitUrl(), task1.getNickname(), "123", task1.getDesc(),
+                    task1.getCreate_time(), null, task1.getId()));
+        } else {
+            newsList.add(new News(task1.getPortraitUrl(), task1.getNickname(), "123", task1.getDesc(),
+                    task1.getCreate_time(), task1.getPictures().get(0), task1.getId()));
+        }
 
         Task task2 = Adpt_Timeline.taskList.get(1);
-        newsList.add(new News(task2.getPortraitUrl(), task2.getNickname(), "123", task2.getDesc(),
-                task2.getCreate_time(), task2.getPictures().get(0), task2.getId()));
+        if(task2.getPictures().isEmpty()) {
+            newsList.add(new News(task2.getPortraitUrl(), task2.getNickname(), "123", task2.getDesc(),
+                    task2.getCreate_time(), null, task2.getId()));
+        } else {
+            newsList.add(new News(task2.getPortraitUrl(), task2.getNickname(), "123", task2.getDesc(),
+                    task2.getCreate_time(), task2.getPictures().get(0), task2.getId()));
+        }
 
         adapter = new Adpt_News(this, newsList);
         lv.setAdapter(adapter);

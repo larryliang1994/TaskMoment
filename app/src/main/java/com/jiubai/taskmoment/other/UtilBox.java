@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -26,6 +29,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -540,9 +544,6 @@ public class UtilBox {
                                                         obj.getString("mobile"),
                                                         obj.getString("id"),
                                                         obj.getString("mid")));
-
-                                        System.out.println("id:" + obj.getString("id") + "\n"
-                                         + "mid:" + obj.getString("mid"));
                                     }
 
                                     Adpt_Member.memberList.add(new Member("", "", "", ""));
@@ -569,5 +570,31 @@ public class UtilBox {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    /**
+     * 设置状态栏颜色
+     *
+     * @param activity 需要设置的activity
+     */
+    public static void setStatusBarTint(Activity activity, int color){
+        Window window = activity.getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+
+        SystemBarTintManager tintManager = new SystemBarTintManager(activity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            // enable status bar tint
+            tintManager.setStatusBarTintEnabled(true);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.setStatusBarColor(activity.getResources().getColor(color));
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            tintManager.setTintColor(activity.getResources().getColor(color));
+        }
     }
 }

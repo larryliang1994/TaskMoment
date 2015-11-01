@@ -158,7 +158,6 @@ public class Adpt_Comment extends BaseAdapter {
                                 context.getResources().getColor(R.color.transparent));
                     }
                 }, 100);
-
             }
         });
 

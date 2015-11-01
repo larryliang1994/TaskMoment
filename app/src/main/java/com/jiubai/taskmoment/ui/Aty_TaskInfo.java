@@ -1,6 +1,7 @@
 package com.jiubai.taskmoment.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Space;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ import java.util.Locale;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * 任务详情页面
@@ -53,7 +55,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
-    @Bind(R.id.iv_item_portrait)
+    @Bind(R.id.iv_portrait)
     ImageView iv_portrait;
 
     @Bind(R.id.btn_comment)
@@ -62,16 +64,16 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.btn_audit)
     Button btn_audit;
 
-    @Bind(R.id.tv_item_desc)
+    @Bind(R.id.tv_desc)
     TextView tv_desc;
 
-    @Bind(R.id.tv_item_grade)
+    @Bind(R.id.tv_grade)
     TextView tv_grade;
 
-    @Bind(R.id.tv_item_nickname)
+    @Bind(R.id.tv_nickname)
     TextView tv_nickname;
 
-    @Bind(R.id.gv_item_picture)
+    @Bind(R.id.gv_picture)
     GridView gv_picture;
 
     @Bind(R.id.tv_executor)
@@ -83,18 +85,28 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.tv_auditor)
     TextView tv_auditor;
 
-    @Bind(R.id.tv_item_date)
+    @Bind(R.id.tv_date)
     TextView tv_date;
+
+    @Bind(R.id.tv_delete)
+    TextView tv_delete;
 
     @Bind(R.id.tv_audit_result)
     TextView tv_audit_result;
 
-    private static LinearLayout ll_audit;
+    @Bind(R.id.tv_space_comment)
+    TextView tv_space_comment;
+
+    @Bind(R.id.tv_space_audit)
+    TextView tv_space_audit;
+
     private static LinearLayout ll_comment;
+    private static LinearLayout ll_audit;
     private static ListView lv_comment;
     private static ScrollView sv_taskInfo;
     private static Space space;
     private Task task;
+    private int position = -1;
     private static Adpt_Comment adapter_comment;
     private static boolean commentWindowIsShow = false;
     private static boolean auditWindowIsShow = false;
@@ -103,10 +115,13 @@ public class Aty_TaskInfo extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
+
         setContentView(R.layout.aty_taskinfo);
 
         ButterKnife.bind(this);
 
+        position = getIntent().getIntExtra("taskPosition", -1);
         String taskID = getIntent().getStringExtra("taskID");
         for (int i = 0; i < Adpt_Timeline.taskList.size(); i++) {
             task = Adpt_Timeline.taskList.get(i);
@@ -153,6 +168,27 @@ public class Aty_TaskInfo extends AppCompatActivity {
             setESA();
         }
 
+        if ("1".equals(task.getAuditResult()) || "null".equals(task.getAuditResult())) {
+            tv_audit_result.setVisibility(View.GONE);
+        } else {
+            tv_audit_result.setVisibility(View.VISIBLE);
+
+            if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+                UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
+                    @Override
+                    public void successCallback() {
+                        setAuditResult();
+                    }
+
+                    @Override
+                    public void failedCallback() {
+                    }
+                });
+            } else {
+                setAuditResult();
+            }
+        }
+
         tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
@@ -161,7 +197,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         sv_taskInfo = (ScrollView) findViewById(R.id.sv_taskInfo);
         space = (Space) findViewById(R.id.space);
 
-        sv_taskInfo.setOnTouchListener(new View.OnTouchListener() {
+        tv_space_comment.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (commentWindowIsShow) {
@@ -173,7 +209,13 @@ public class Aty_TaskInfo extends AppCompatActivity {
                     // 关闭键盘
                     UtilBox.toggleSoftInput(ll_comment, false);
                 }
+                return false;
+            }
+        });
 
+        tv_space_audit.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
                 if (auditWindowIsShow) {
                     ll_audit.setVisibility(View.GONE);
 
@@ -183,16 +225,123 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         });
 
-        if (!Config.MID.equals(task.getAuditor())) {
+        if(!Config.MID.equals(task.getMid())){
+            tv_delete.setVisibility(View.GONE);
+        } else {
+            tv_delete.setVisibility(View.VISIBLE);
+
+            tv_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    tv_delete.setBackgroundColor(
+                            Aty_TaskInfo.this.getResources().getColor(R.color.gray));
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_delete.setBackgroundColor(
+                                    Aty_TaskInfo.this.getResources().getColor(R.color.transparent));
+                        }
+                    }, 100);
+
+                    final MaterialDialog dialog = new MaterialDialog(Aty_TaskInfo.this);
+                    dialog.setTitle(R.string.tips)
+                            .setMessage("真的要删除吗")
+                            .setCanceledOnTouchOutside(true)
+                            .setNegativeButton("假的", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setPositiveButton("真的", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (!Config.IS_CONNECTED) {
+                                        Toast.makeText(Aty_TaskInfo.this,
+                                                R.string.cant_access_network,
+                                                Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    String[] key = {"taskid"};
+                                    String[] value = {task.getId()};
+                                    VolleyUtil.requestWithCookie(Urls.TASK_DELETE, key, value,
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    try {
+                                                        JSONObject jsonObject = new JSONObject(response);
+
+                                                        if ("900001".equals(jsonObject.getString("status"))) {
+                                                            dialog.dismiss();
+
+                                                            Intent intent = new Intent();
+                                                            intent.putExtra("taskPosition", position);
+                                                            Aty_TaskInfo.this.setResult(RESULT_OK, intent);
+                                                            Aty_TaskInfo.this.finish();
+                                                            overridePendingTransition(R.anim.in_left_right,
+                                                                    R.anim.out_left_right);
+                                                        } else {
+                                                            Toast.makeText(Aty_TaskInfo.this,
+                                                                    jsonObject.getString("info"),
+                                                                    Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            },
+                                            new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError volleyError) {
+                                                    volleyError.printStackTrace();
+
+                                                    Toast.makeText(Aty_TaskInfo.this,
+                                                            R.string.usual_error,
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                }
+                            })
+                            .show();
+                }
+            });
+        }
+
+        if (!Config.MID.equals(task.getAuditor()) || !"1".equals(task.getAuditResult())) {
             btn_audit.setVisibility(View.GONE);
         }
 
-        adapter_comment = new Adpt_Comment(this, task.getComments(), "taskInfo");
-        lv_comment.setAdapter(adapter_comment);
-        UtilBox.setListViewHeightBasedOnChildren(lv_comment);
+        if (task.getComments() != null && !task.getComments().isEmpty()) {
+            adapter_comment = new Adpt_Comment(this, task.getComments(), "taskInfo");
+            lv_comment.setVisibility(View.VISIBLE);
+            lv_comment.setAdapter(adapter_comment);
+            UtilBox.setListViewHeightBasedOnChildren(lv_comment);
+        } else {
+            lv_comment.setVisibility(View.GONE);
+        }
     }
 
-    //TODO 新发布的任务不能查看详情
+    /**
+     * 设置审核结果
+     */
+    private void setAuditResult() {
+        switch (task.getAuditResult()) {
+            case "2":
+                tv_audit_result.setText(R.string.solved);
+                break;
+
+            case "3":
+                tv_audit_result.setText(R.string.complete);
+                break;
+
+            case "4":
+                tv_audit_result.setText(R.string.task_failed);
+                break;
+        }
+    }
+
     /**
      * 设置执行者，监督者，审核者
      */
@@ -211,7 +360,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     executor = member.getName();
                 } else {
-                    executor = member.getMobile();
+                    executor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
                 }
             }
 
@@ -219,7 +368,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     supervisor = member.getName();
                 } else {
-                    supervisor = member.getMobile();
+                    supervisor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
                 }
             }
 
@@ -227,7 +376,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     auditor = member.getName();
                 } else {
-                    auditor = member.getMobile();
+                    auditor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
                 }
             }
 
@@ -236,14 +385,20 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         }
 
-        tv_executor.append("：");
-        tv_executor.append(executor);
+        if(executor!=null) {
+            tv_executor.append("：");
+            tv_executor.append(executor);
+        }
 
-        tv_supervisor.append("：");
-        tv_supervisor.append(supervisor);
+        if(supervisor!=null) {
+            tv_supervisor.append("：");
+            tv_supervisor.append(supervisor);
+        }
 
-        tv_auditor.append("：");
-        tv_auditor.append(auditor);
+        if (auditor != null) {
+            tv_auditor.append("：");
+            tv_auditor.append(auditor);
+        }
     }
 
     /**
@@ -276,17 +431,18 @@ public class Aty_TaskInfo extends AppCompatActivity {
         }
     }
 
-    @OnClick({R.id.iBtn_back, R.id.btn_audit, R.id.btn_comment})
+    @OnClick({R.id.iBtn_back, R.id.btn_audit, R.id.btn_comment, R.id.tv_nickname, R.id.iv_portrait})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iBtn_back:
+                setResult(RESULT_CANCELED);
                 finish();
                 overridePendingTransition(R.anim.in_left_right,
                         R.anim.out_left_right);
                 break;
 
             case R.id.btn_audit:
-                showAuditWindow();
+                showAuditWindow(this, task.getId());
                 break;
 
             case R.id.btn_comment:
@@ -296,6 +452,15 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
                 showCommentWindow(this, task.getId(), "", "",
                         y + UtilBox.dip2px(this, 15));
+                break;
+
+            case R.id.tv_nickname:
+            case R.id.iv_portrait:
+                Intent intent = new Intent(this, Aty_PersonalTimeline.class);
+                intent.putExtra("mid", task.getMid());
+                startActivity(intent);
+                overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
                 break;
         }
     }
@@ -322,9 +487,10 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
         ll_comment.setVisibility(View.VISIBLE);
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        edt_content.setText(null);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 56));
+        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
 
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
@@ -336,7 +502,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 int viewHeight = UtilBox.getHeightPixels(context) - y;
 
                 int finalScroll = keyBoardHeight - viewHeight
-                        + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 56);
+                        + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 48);
 
                 sv_taskInfo.smoothScrollTo(0, finalScroll);
             }
@@ -347,13 +513,17 @@ public class Aty_TaskInfo extends AppCompatActivity {
         } else {
             edt_content.setHint("评论");
         }
-        edt_content.setText(null);
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Config.IS_CONNECTED) {
+                if(edt_content.getText().toString().isEmpty()){
+                    Toast.makeText(context,
+                            "请填入评论内容",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (!Config.IS_CONNECTED) {
                     Toast.makeText(context,
                             R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
@@ -425,7 +595,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
      * 弹出审核窗口
      */
     @SuppressWarnings("unused")
-    public static void showAuditWindow() {
+    public void showAuditWindow(final Context context, final String taskID) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -437,13 +607,90 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
         ll_audit.setVisibility(View.VISIBLE);
 
-        ((RadioButton) ll_audit.findViewById(R.id.rb_complete)).setChecked(true);
+        final int[] audit_result = {3};
+        RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);
+        radioGroup.check(R.id.rb_complete);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_failed:
+                        audit_result[0] = 4;
+                        break;
+
+                    case R.id.rb_complete:
+                        audit_result[0] = 3;
+                        break;
+
+                    case R.id.rb_solved:
+                        audit_result[0] = 2;
+                        break;
+                }
+            }
+        });
 
         Button btn_send = (Button) ll_audit.findViewById(R.id.btn_audit_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ll_audit.setVisibility(View.GONE);
+                String[] key = {"id", "level"};
+                String[] value = {taskID, audit_result[0] + ""};
+
+                VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject responseObject = new JSONObject(response);
+                                    String status = responseObject.getString("status");
+                                    if ("1".equals(status) || "900001".equals(status)) {
+                                        ll_audit.setVisibility(View.GONE);
+
+                                        btn_audit.setVisibility(View.GONE);
+
+                                        tv_audit_result.setVisibility(View.VISIBLE);
+
+                                        task.setAuditResult(audit_result[0] + "");
+
+                                        if (Adpt_Member.memberList == null
+                                                || Adpt_Member.memberList.isEmpty()) {
+                                            UtilBox.getMember(context,
+                                                    new UtilBox.GetMemberCallBack() {
+                                                        @Override
+                                                        public void successCallback() {
+                                                            setAuditResult();
+                                                        }
+
+                                                        @Override
+                                                        public void failedCallback() {
+                                                        }
+                                                    });
+                                        } else {
+                                            setAuditResult();
+                                        }
+
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                volleyError.printStackTrace();
+
+                                Toast.makeText(context, R.string.usual_error,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
     }
@@ -461,6 +708,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 ll_audit.setVisibility(View.GONE);
                 auditWindowIsShow = false;
             } else {
+                setResult(RESULT_CANCELED);
                 finish();
                 overridePendingTransition(R.anim.in_left_right,
                         R.anim.out_left_right);

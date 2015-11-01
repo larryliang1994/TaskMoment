@@ -69,6 +69,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UtilBox.setStatusBarTint(this, R.color.primary);
+
         setContentView(R.layout.aty_login);
 
         ButterKnife.bind(this);

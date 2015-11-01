@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +18,12 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
-import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
+import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -38,14 +40,16 @@ public class Adpt_Timeline extends BaseAdapter {
     public static ArrayList<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
+    private Fragment fragment;
 
     public Adpt_Timeline(Context context, ArrayList<Task> taskList) {
         this.context = context;
         Adpt_Timeline.taskList = taskList;
     }
 
-    public Adpt_Timeline(Context context, boolean isRefresh, String response) {
+    public Adpt_Timeline(Context context, boolean isRefresh, String response, Fragment fragment) {
         this.context = context;
+        this.fragment = fragment;
 
         if (isRefresh) {
             taskList = new ArrayList<>();
@@ -86,7 +90,7 @@ public class Adpt_Timeline extends BaseAdapter {
 
                     String audit_result = obj.getString("p2");
 
-                    Task task = new Task(id, portraitUrl, nickname, grade, desc,
+                    Task task = new Task(id, portraitUrl, nickname, mid, grade, desc,
                             executor, supervisor, auditor,
                             pictures, comments, deadline, publish_time, create_time, audit_result);
                     taskList.add(task);
@@ -138,7 +142,7 @@ public class Adpt_Timeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
+                intent.putExtra("mid", task.getMid());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
@@ -149,8 +153,32 @@ public class Adpt_Timeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                intent.putExtra("mid", Config.MID);
+                intent.putExtra("mid", task.getMid());
                 context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(
+                        R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+
+        holder.tv_desc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.tv_desc.setBackgroundColor(
+                        context.getResources().getColor(R.color.gray));
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.tv_desc.setBackgroundColor(
+                                context.getResources().getColor(R.color.transparent));
+                    }
+                }, 100);
+
+                Intent intent = new Intent(context, Aty_TaskInfo.class);
+                intent.putExtra("taskID", task.getId());
+                intent.putExtra("taskPosition", position);
+
+                fragment.startActivityForResult(intent, Constants.CODE_CHECK_TASK);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
             }
@@ -180,7 +208,7 @@ public class Adpt_Timeline extends BaseAdapter {
             }
         });
 
-        if (Config.MID.equals(task.getAuditor())) {
+        if (Config.MID.equals(task.getAuditor()) && "1".equals(task.getAuditResult())) {
             holder.btn_audit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -188,7 +216,6 @@ public class Adpt_Timeline extends BaseAdapter {
                 }
             });
         } else {
-            System.out.println(Config.MID + ":" + task.getAuditor());
             holder.btn_audit.setVisibility(View.GONE);
         }
 
@@ -234,14 +261,16 @@ public class Adpt_Timeline extends BaseAdapter {
     private ArrayList<String> decodePictureList(String pictures) {
         ArrayList<String> pictureList = new ArrayList<>();
 
-        try {
-            JSONArray jsonArray = new JSONArray(pictures);
+        if (pictures != null && !"null".equals(pictures)) {
+            try {
+                JSONArray jsonArray = new JSONArray(pictures);
 
-            for (int i = 0; i < jsonArray.length(); i++) {
-                pictureList.add(Constants.HOST_ID + jsonArray.getString(i));
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    pictureList.add(Constants.HOST_ID + jsonArray.getString(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         return pictureList;

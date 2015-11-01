@@ -61,15 +61,14 @@ public class Aty_Company extends AppCompatActivity {
     @Bind(R.id.iBtn_back)
     ImageButton iBtn_back;
 
-    @Bind(R.id.iv_divider)
-    ImageView iv_divider;
-
     @Bind(R.id.iBtn_more)
     ImageButton iBtn_more;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_company);
 
@@ -88,7 +87,6 @@ public class Aty_Company extends AppCompatActivity {
         // 若不来自切换公司，则不需要返回键
         if (!getIntent().getBooleanExtra("hide", false)) {
             iBtn_back.setVisibility(View.GONE);
-            iv_divider.setVisibility(View.GONE);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

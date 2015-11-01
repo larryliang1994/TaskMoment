@@ -16,8 +16,9 @@ public class Urls {
     public static final String ADD_MEMBER = "chengyuan_add";
     public static final String PUBLISH_TASK = "renwu_add";
     public static final String UPDATE_TASK_PICTURE = "renwu_update";
-    public static final String UPLOAD_COMPANY_BACKGROUND = "";
     public static final String GET_TASK_LIST = "get_renwulist";
     public static final String UPDATE_USER_INFO = "update_user_info";
     public static final String SEND_AUDIT = "renwu_shenhe";
+    public static final String GET_USER_INFO = "get_user_info";
+    public static final String TASK_DELETE = "renwu_del";
 }

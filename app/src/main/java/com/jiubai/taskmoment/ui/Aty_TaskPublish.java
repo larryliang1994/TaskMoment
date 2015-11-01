@@ -107,6 +107,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
+
         setContentView(R.layout.aty_task_publish);
 
         ButterKnife.bind(this);
@@ -153,6 +155,14 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 } else if (year_publishTime == 0) {
                     Toast.makeText(Aty_TaskPublish.this, "请填入发布时间", Toast.LENGTH_SHORT).show();
                 } else {
+                    // 先把多余的添加图片入口删掉
+                    if (adpt_publishPicture.pictureList != null
+                            && !adpt_publishPicture.pictureList.isEmpty()
+                            && adpt_publishPicture.actualCount < 9) {
+                        adpt_publishPicture.pictureList.remove(
+                                adpt_publishPicture.pictureList.size() - 1);
+                    }
+
                     /**
                      *  'p1'         => _post('p1'),//任务级别
                      *  'comments'   => _post('comments'),//备注
@@ -191,8 +201,14 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                                     responseJson.getString("info"),
                                                     Toast.LENGTH_SHORT).show();
                                         } else {
+                                            // 为了能马上显示出来
+                                            setResultAndFinish(responseJson.getString("taskid"));
+
                                             // 上传图片
-                                            uploadImage(responseJson.getString("taskid"));
+                                            if (adpt_publishPicture.pictureList != null
+                                                    && !adpt_publishPicture.pictureList.isEmpty()) {
+                                                uploadImage(responseJson.getString("taskid"));
+                                            }
                                         }
 
                                     } catch (JSONException e) {
@@ -211,23 +227,30 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                 }
                             });
 
-                    // 为了能马上显示出来
-                    Intent intent = new Intent();
-                    intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
-                    intent.putExtra("content", edt_desc.getText().toString());
-                    intent.putExtra("pictureList", adpt_publishPicture.pictureList);
-                    intent.putExtra("create_time",
-                            Calendar.getInstance(Locale.CHINA).getTimeInMillis());
-                    intent.putExtra("executor", Adpt_Member.memberList.get(executor).getMid());
-                    intent.putExtra("supervisor", Adpt_Member.memberList.get(supervisor).getMid());
-                    intent.putExtra("auditor", Adpt_Member.memberList.get(auditor).getMid());
 
-                    Aty_TaskPublish.this.setResult(RESULT_OK, intent);
-                    Aty_TaskPublish.this.finish();
-                    overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
                 }
             }
         });
+    }
+
+    /**
+     * 设置返回结果并关掉当前aty
+     */
+    private void setResultAndFinish(String taskID){
+        Intent intent = new Intent();
+        intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
+        intent.putExtra("content", edt_desc.getText().toString());
+        intent.putExtra("pictureList", adpt_publishPicture.pictureList);
+        intent.putExtra("create_time",
+                Calendar.getInstance(Locale.CHINA).getTimeInMillis());
+        intent.putExtra("executor", Adpt_Member.memberList.get(executor).getMid());
+        intent.putExtra("supervisor", Adpt_Member.memberList.get(supervisor).getMid());
+        intent.putExtra("auditor", Adpt_Member.memberList.get(auditor).getMid());
+        intent.putExtra("taskID", taskID);
+
+        Aty_TaskPublish.this.setResult(RESULT_OK, intent);
+        Aty_TaskPublish.this.finish();
+        overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
     }
 
     @OnClick({R.id.iBtn_back, R.id.tv_deadline, R.id.tv_publishTime,

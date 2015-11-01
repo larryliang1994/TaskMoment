@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
 import com.umeng.analytics.MobclickAgent;
@@ -51,6 +52,8 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_checkpicture);
 

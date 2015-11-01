@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,7 +157,9 @@ public class Adpt_UserInfo extends BaseAdapter {
                         @Override
                         public void onComplete(RippleView rippleView) {
                             Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                            intent.putExtra("request_type", Config.MID);
+                            if(position == 3) {
+                                intent.putExtra("request_type", Config.MID);
+                            }
                             intent.putExtra("mid", Config.MID);
                             context.startActivity(intent);
                             ((Activity) context).overridePendingTransition(
@@ -172,15 +175,19 @@ public class Adpt_UserInfo extends BaseAdapter {
         return convertView;
     }
 
-    private void showNicknameDialog(final TextView tv_nickname, String nickname) {
+    private void showNicknameDialog(final TextView tv_nickname, final String nickname) {
         final View contentView = ((Activity) context).getLayoutInflater()
                 .inflate(R.layout.dialog_input, null);
 
+        TextInputLayout til = (TextInputLayout) contentView.findViewById(R.id.til_input);
+        til.setHint(context.getResources().getString(R.string.nickname));
+
         final EditText et_nickname = ((EditText) contentView
                 .findViewById(R.id.edt_input));
-        et_nickname.setText(nickname);
         et_nickname.setHint(R.string.nickname);
+        et_nickname.setText(nickname);
         et_nickname.setInputType(EditorInfo.TYPE_CLASS_TEXT);
+        et_nickname.requestFocus();
 
         final MaterialDialog dialog = new MaterialDialog(context);
         dialog.setPositiveButton("完成", new View.OnClickListener() {
@@ -204,12 +211,14 @@ public class Adpt_UserInfo extends BaseAdapter {
                             tv.setText("昵称不能为空");
 
                             return;
-                        } else if (newNickname.getBytes().length > 12) {
+                        } else if (newNickname.getBytes().length > 18) {
                             TextView tv = (TextView) contentView
                                     .findViewById(R.id.tv_input);
                             tv.setVisibility(View.VISIBLE);
                             tv.setText("昵称过长");
 
+                            return;
+                        } else if (newNickname.equals(nickname)) {
                             return;
                         }
 
@@ -276,6 +285,7 @@ public class Adpt_UserInfo extends BaseAdapter {
         });
 
         dialog.setContentView(contentView)
+                .setTitle("更改昵称")
                 .setCanceledOnTouchOutside(true)
                 .show();
     }

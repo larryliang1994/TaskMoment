@@ -12,7 +12,7 @@
     <color name="news">#ee424242</color>
 
     <color name="transparent">#00ffffff</color>
-
+    <color name="titleBar">#263238</color>
     <color name="divider">#55767676</color>
 
     <drawable name="clicked">#616161</drawable>

@@ -12,7 +12,9 @@
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginTop="10dp"
-        android:background="#eeeeee"
+        android:background="@drawable/rectangle"
+        android:padding="1.5dp"
+        android:src="@drawable/portrait_default"
         android:scaleType="centerCrop" />
 
     <LinearLayout

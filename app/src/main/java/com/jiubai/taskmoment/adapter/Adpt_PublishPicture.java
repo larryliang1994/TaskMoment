@@ -25,7 +25,7 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 public class Adpt_PublishPicture extends BaseAdapter {
     public ArrayList<String> pictureList;
     private Context context;
-    private int actualCount = 0;
+    public int actualCount = 0;
 
     public Adpt_PublishPicture(Context context, ArrayList<String> pictureList) {
         this.context = context;

@@ -10,6 +10,7 @@ public class Constants {
     public static final String OSSSCRECTKEY = "3BDRee3e109ZzCO4TrofOypSqv3fDw";
     public static final String BUCKET_NAME = "jiubai-app";
     public static final String HOST_ID = "http://jiubai-app.oss-cn-hangzhou.aliyuncs.com/";
+    public static final String API_KEY = "unkDGrSxE8nGEYz7Ne9p0RYG";
 
     public static final int CODE_ADD_COMPANY = 1;
     public static final int CODE_CHANGE_COMPANY = 2;
@@ -17,7 +18,7 @@ public class Constants {
     public static final int CODE_CHECK_PICTURE = 4;
     public static final int CODE_CHOOSE_PICTURE = 5;
     public static final int CODE_PUBLISH_TASK = 6;
-    public static final int CODE_CROP_PICTURE = 7;
+    public static final int CODE_CHECK_TASK = 7;
     public static final int CODE_CHOOSE_PORTRAIT = 8;
     public static final int CODE_CHOOSE_COMPANY_BACKGROUND = 9;
 

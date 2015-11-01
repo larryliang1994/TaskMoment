@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Space;
 import android.widget.TextView;
@@ -67,21 +66,24 @@ import java.util.Locale;
  */
 public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
-    private SwipeRefreshLayout srl;
     private static ListView lv;
+    private static Adpt_Timeline adapter;
+    private static View footerView;
+
+    public static BorderScrollView sv;
     public static LinearLayout ll_comment;
     public static LinearLayout ll_audit;
-    private static Adpt_Timeline adapter;
-    private static BorderScrollView sv;
     public static TextView tv_nickname;
     public static Space space;
-    private static View footerView;
     public static ImageView iv_portrait;
+    public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
+
     private boolean isBottomRefreshing = false;
+    private SwipeRefreshLayout srl;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
+    private LinearLayout ll_news;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
-    public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
     @Nullable
     @Override
@@ -135,29 +137,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         lv = (ListView) view.findViewById(R.id.lv_timeline);
 
         footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
-        lv.addFooterView(footerView);
-
-        lv.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (commentWindowIsShow) {
-                    UtilBox.setViewParams(space, 0, 0);
-
-                    ll_comment.setVisibility(View.GONE);
-                    commentWindowIsShow = false;
-
-                    // 关闭键盘
-                    UtilBox.toggleSoftInput(ll_comment, false);
-                }
-
-                if (auditWindowIsShow) {
-                    ll_audit.setVisibility(View.GONE);
-
-                    auditWindowIsShow = false;
-                }
-                return false;
-            }
-        });
 
         sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
         sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
@@ -170,6 +149,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
             public void onBottom() {
                 // 有footerView并且不是正在加载
                 if (lv.getFooterViewsCount() > 0 && !isBottomRefreshing) {
+
                     isBottomRefreshing = true;
 
                     // 参数应为最后一条任务的时间减1秒
@@ -183,10 +163,40 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         space = (Space) view.findViewById(R.id.space);
 
+        TextView tv_space_comment = (TextView) view.findViewById(R.id.tv_space_comment);
+        tv_space_comment.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (commentWindowIsShow) {
+                    UtilBox.setViewParams(space, 0, 0);
+
+                    ll_comment.setVisibility(View.GONE);
+                    commentWindowIsShow = false;
+
+                    // 关闭键盘
+                    UtilBox.toggleSoftInput(ll_comment, false);
+                }
+                return false;
+            }
+        });
+
+        TextView tv_space_audit = (TextView) view.findViewById(R.id.tv_space_audit);
+        tv_space_audit.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (auditWindowIsShow) {
+                    ll_audit.setVisibility(View.GONE);
+
+                    auditWindowIsShow = false;
+                }
+                return false;
+            }
+        });
+
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
 
-        LinearLayout ll_news = (LinearLayout) view.findViewById(R.id.ll_news);
+        ll_news = (LinearLayout) view.findViewById(R.id.ll_news);
         ll_news.setOnClickListener(this);
 
         GradientDrawable newsBgShape = (GradientDrawable) ll_news.getBackground();
@@ -269,9 +279,11 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
 
                                 if ("refresh".equals(type)) {
-                                    adapter = new Adpt_Timeline(getActivity(), true, response);
+                                    adapter = new Adpt_Timeline(getActivity(), true,
+                                            response, Frag_Timeline.this);
                                 } else {
-                                    adapter = new Adpt_Timeline(getActivity(), false, response);
+                                    adapter = new Adpt_Timeline(getActivity(), false,
+                                            response, Frag_Timeline.this);
                                 }
 
                                 new Handler().postDelayed(new Runnable() {
@@ -286,6 +298,18 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                                                 if ("refresh".equals(type)) {
                                                     srl.setRefreshing(false);
+
+                                                    int svHeight = sv.getHeight();
+
+                                                    int lvHeight = lv.getLayoutParams().height;
+
+                                                    // 312是除去上部其他组件高度后的剩余空间，
+                                                    int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
+                                                    if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
+                                                            && lv.getFooterViewsCount() == 0) {
+                                                        lv.addFooterView(footerView);
+                                                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                                                    }
                                                 } else {
                                                     isBottomRefreshing = false;
                                                 }
@@ -382,7 +406,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 int viewHeight = UtilBox.getHeightPixels(context) - y;
 
                 int finalScroll = keyBoardHeight - viewHeight
-                        + sv.getScrollY() + UtilBox.dip2px(context, 56);
+                        + sv.getScrollY() + UtilBox.dip2px(context, 48);
 
                 sv.smoothScrollTo(0, finalScroll);
             }
@@ -399,7 +423,12 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Config.IS_CONNECTED) {
+                if (edt_content.getText().toString().isEmpty()) {
+                    Toast.makeText(context,
+                            "请填入评论内容",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (!Config.IS_CONNECTED) {
                     Toast.makeText(context,
                             R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
@@ -468,6 +497,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     /**
      * 弹出审核窗口
+     *
+     * @param context 上下文
+     * @param taskID  任务ID
      */
     public static void showAuditWindow(final Context context, final String taskID) {
         auditWindowIsShow = true;
@@ -486,7 +518,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.rb_failed:
                         audit_result[0] = 4;
                         break;
@@ -509,7 +541,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 String[] key = {"id", "level"};
                 String[] value = {taskID, audit_result[0] + ""};
 
-                    VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
+                VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -518,6 +550,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                     String status = responseObject.getString("status");
                                     if ("1".equals(status) || "900001".equals(status)) {
                                         ll_audit.setVisibility(View.GONE);
+
 
                                         Toast.makeText(context,
                                                 responseObject.getString("info"),
@@ -697,17 +730,27 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     String executor = data.getStringExtra("executor");
                     String supervisor = data.getStringExtra("supervisor");
                     String auditor = data.getStringExtra("auditor");
-
+                    String taskID = data.getStringExtra("taskID");
                     ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
-                    pictureList.remove(pictureList.size() - 1);
 
-                    Adpt_Timeline.taskList.add(0, new Task("0",
+                    Adpt_Timeline.taskList.add(0, new Task(taskID,
                             Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg",
-                            "Howell", grade, content,
+                            Config.NICKNAME, Config.MID, grade, content,
                             executor, supervisor, auditor,
                             pictureList, null, 0, 0, create_time, "1"));
 
                     adapter.notifyDataSetChanged();
+                }
+                break;
+
+            case Constants.CODE_CHECK_TASK:
+                if (resultCode == Activity.RESULT_OK) {
+                    int position = data.getIntExtra("taskPosition", -1);
+                    if (position != -1) {
+                        Adpt_Timeline.taskList.remove(position);
+                        adapter.notifyDataSetChanged();
+                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                    }
                 }
                 break;
         }

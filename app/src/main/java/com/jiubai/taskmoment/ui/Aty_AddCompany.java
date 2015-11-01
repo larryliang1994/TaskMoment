@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.RippleView;
 import com.umeng.analytics.MobclickAgent;
 
@@ -48,6 +49,8 @@ public class Aty_AddCompany extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_addcompany);
 

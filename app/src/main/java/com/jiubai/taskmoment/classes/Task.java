@@ -10,6 +10,7 @@ public class Task {
     private String id;
     private String portraitUrl;
     private String nickname;
+    private String mid;
     private String grade;
     private String desc;
     private String executor;
@@ -25,13 +26,14 @@ public class Task {
     public Task() {
     }
 
-    public Task(String id, String portraitUrl, String nickname, String grade, String desc,
-                String executor, String supervisor, String auditor,
+    public Task(String id, String portraitUrl, String nickname, String mid, String grade,
+                String desc, String executor, String supervisor, String auditor,
                 ArrayList<String> pictures, ArrayList<Comment> comments,
                 long deadline, long publish_time, long create_time, String audit_result) {
         this.id = id;
         this.portraitUrl = portraitUrl;
         this.nickname = nickname;
+        this.mid = mid;
         this.grade = grade;
         this.desc = desc;
         this.executor = executor;
@@ -59,6 +61,14 @@ public class Task {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
     }
 
     public String getGrade() {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,7 +37,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * 主activity界面
  */
-public class Aty_Main extends AppCompatActivity {
+public class Aty_Main extends AppCompatActivity implements View.OnClickListener {
     @Bind(R.id.dw_main)
     DrawerLayout dw;
 
@@ -60,11 +61,14 @@ public class Aty_Main extends AppCompatActivity {
     public static NavigationView nv;
     public static CircleImageView iv_navigation;
     public static TextView tv_nickname;
+    private long doubleClickTime = 0;
 
     @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_main);
 
@@ -80,6 +84,7 @@ public class Aty_Main extends AppCompatActivity {
         toolbar = (LinearLayout) findViewById(R.id.toolBar);
 
         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
+        tv_title.setOnClickListener(this);
 
         iBtn_back.setImageResource(R.drawable.navigation);
 
@@ -90,12 +95,27 @@ public class Aty_Main extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.frag_main, frag_timeline).commit();
 
+        // 设置抽屉
         ll_nvHeader = (LinearLayout) LayoutInflater.from(this)
                 .inflate(R.layout.navigation_header, null);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.height = UtilBox.dip2px(this, 192);
+        lp.height = UtilBox.dip2px(this, 212);
         ll_nvHeader.setLayoutParams(lp);
+
+        // 设置昵称
+        tv_nickname = (TextView) ll_nvHeader.findViewById(R.id.tv_navigation_nickname);
+        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+            tv_nickname.setText(Config.NICKNAME);
+        }
+
+        // 获取抽屉的头像
+        iv_navigation = (CircleImageView) ll_nvHeader.findViewById(R.id.iv_navigation);
+        if (Config.PORTRAIT != null) {
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
+        } else {
+            iv_navigation.setImageResource(R.drawable.portrait_default);
+        }
 
         nv = (NavigationView) findViewById(R.id.nv_main);
         nv.addHeaderView(ll_nvHeader);
@@ -117,6 +137,8 @@ public class Aty_Main extends AppCompatActivity {
 
                         switchContent(frag_timeline);
 
+                        tv_title.setOnClickListener(Aty_Main.this);
+
                         currentItem = 0;
 
                         iBtn_publish.setVisibility(View.VISIBLE);
@@ -131,6 +153,8 @@ public class Aty_Main extends AppCompatActivity {
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
                         switchContent(frag_member);
+
+                        tv_title.setOnClickListener(null);
 
                         currentItem = 1;
 
@@ -147,6 +171,8 @@ public class Aty_Main extends AppCompatActivity {
 
                         switchContent(frag_userInfo);
 
+                        tv_title.setOnClickListener(null);
+
                         currentItem = 2;
 
                         iBtn_publish.setVisibility(View.GONE);
@@ -161,6 +187,8 @@ public class Aty_Main extends AppCompatActivity {
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
                         switchContent(frag_preference);
+
+                        tv_title.setOnClickListener(null);
 
                         currentItem = 3;
 
@@ -178,22 +206,7 @@ public class Aty_Main extends AppCompatActivity {
                 return true;
             }
         });
-
-        // 设置昵称
-        tv_nickname = (TextView) findViewById(R.id.tv_navigation_nickname);
-        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
-            tv_nickname.setText(Config.NICKNAME);
-        }
-
-        // 获取抽屉的头像
-        iv_navigation = (CircleImageView) findViewById(R.id.iv_navigation);
-        if (Config.PORTRAIT != null) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
-        } else {
-            iv_navigation.setImageResource(R.drawable.portrait_default);
-        }
     }
-
 
 
     /**
@@ -203,7 +216,7 @@ public class Aty_Main extends AppCompatActivity {
      */
     public void switchContent(Fragment to) {
         Fragment from = null;
-        switch (currentItem){
+        switch (currentItem) {
             case 0:
                 from = frag_timeline;
                 break;
@@ -238,6 +251,19 @@ public class Aty_Main extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.iBtn_back:
                 dw.openDrawer(GravityCompat.START);
+                break;
+
+            case R.id.tv_title:
+                if ((System.currentTimeMillis() - doubleClickTime) > 500) {
+                    doubleClickTime = System.currentTimeMillis();
+                } else {
+                    new Handler().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Frag_Timeline.sv.fullScroll(View.FOCUS_UP);
+                        }
+                    });
+                }
                 break;
         }
     }

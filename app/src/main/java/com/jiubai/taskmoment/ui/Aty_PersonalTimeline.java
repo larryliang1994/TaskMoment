@@ -7,13 +7,14 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,6 +63,12 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     @Bind(R.id.tv_personal_nickname)
     TextView tv_nickname;
 
+    @Bind(R.id.tv_space_comment)
+    TextView tv_space_comment;
+
+    @Bind(R.id.tv_space_audit)
+    TextView tv_space_audit;
+
     @Bind(R.id.iv_companyBackground)
     ImageView iv_companyBackground;
 
@@ -81,6 +88,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_personal_timeline);
 
@@ -134,10 +143,36 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         space = (Space) findViewById(R.id.space);
 
         footerView = LayoutInflater.from(this).inflate(R.layout.load_more, null);
-        lv.addFooterView(footerView);
+
+        tv_space_comment.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (commentWindowIsShow) {
+                    UtilBox.setViewParams(space, 0, 0);
+
+                    ll_comment.setVisibility(View.GONE);
+                    commentWindowIsShow = false;
+
+                    // 关闭键盘
+                    UtilBox.toggleSoftInput(ll_comment, false);
+                }
+                return false;
+            }
+        });
+
+        tv_space_audit.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (auditWindowIsShow) {
+                    ll_audit.setVisibility(View.GONE);
+
+                    auditWindowIsShow = false;
+                }
+                return false;
+            }
+        });
 
         sv = (BorderScrollView) findViewById(R.id.sv_personal);
-
         sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
 
             @Override
@@ -235,11 +270,26 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
                                                 if ("loadMore".equals(type)) {
                                                     isBottomRefreshing = false;
+                                                } else {
+                                                    int svHeight = sv.getHeight();
+
+                                                    int lvHeight = lv.getLayoutParams().height;
+
+                                                    // 312是除去上部其他组件高度后的剩余空间
+                                                    if (lvHeight >
+                                                            svHeight - UtilBox.dip2px(Aty_PersonalTimeline.this, 312)
+                                                            && lv.getFooterViewsCount() == 0) {
+
+                                                        lv.addFooterView(footerView);
+                                                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                                                    }
                                                 }
                                             }
                                         });
                                     }
                                 });
+
+                                System.out.println(isBottomRefreshing);
 
                             } else if ("900900".equals(responseStatus)) {
                                 // 没有更多了，就去掉footerView
@@ -344,7 +394,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 int viewHeight = UtilBox.getHeightPixels(context) - y;
 
                 int finalScroll = keyBoardHeight - viewHeight
-                        + sv.getScrollY() + UtilBox.dip2px(context, 56);
+                        + sv.getScrollY() + UtilBox.dip2px(context, 48);
 
                 sv.smoothScrollTo(0, finalScroll);
             }
@@ -361,7 +411,12 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Config.IS_CONNECTED) {
+                if (edt_content.getText().toString().isEmpty()) {
+                    Toast.makeText(context,
+                            "请填入评论内容",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                } else if (!Config.IS_CONNECTED) {
                     Toast.makeText(context,
                             R.string.cant_access_network,
                             Toast.LENGTH_SHORT).show();
@@ -433,7 +488,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     /**
      * 弹出审核窗口
      */
-    public static void showAuditWindow() {
+    public static void showAuditWindow(final Context context, final String taskID) {
         auditWindowIsShow = true;
 
         if (commentWindowIsShow) {
@@ -444,13 +499,67 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
         ll_audit.setVisibility(View.VISIBLE);
 
-        ((RadioButton) ll_audit.findViewById(R.id.rb_complete)).setChecked(true);
+        final int[] audit_result = {3};
+        RadioGroup radioGroup = (RadioGroup) ll_audit.findViewById(R.id.rg_audit);
+        radioGroup.check(R.id.rb_complete);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_failed:
+                        audit_result[0] = 4;
+                        break;
+
+                    case R.id.rb_complete:
+                        audit_result[0] = 3;
+                        break;
+
+                    case R.id.rb_solved:
+                        audit_result[0] = 2;
+                        break;
+                }
+            }
+        });
 
         Button btn_send = (Button) ll_audit.findViewById(R.id.btn_audit_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ll_audit.setVisibility(View.GONE);
+                String[] key = {"id", "level"};
+                String[] value = {taskID, audit_result[0] + ""};
+
+                VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject responseObject = new JSONObject(response);
+                                    String status = responseObject.getString("status");
+                                    if ("1".equals(status) || "900001".equals(status)) {
+                                        ll_audit.setVisibility(View.GONE);
+
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context,
+                                                responseObject.getString("info"),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError volleyError) {
+                                volleyError.printStackTrace();
+
+                                Toast.makeText(context, R.string.usual_error,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
     }
