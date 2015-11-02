@@ -63,4 +63,5 @@ dependencies {
     compile files('src/main/jniLibs/Volley.jar')
     compile files('src/main/jniLibs/pushservice-4.5.1.8.jar')
     compile files('src/main/jniLibs/easyandroidanimationslibrary-v0.5.jar')
+    compile files('src/main/jniLibs/com.umeng.message.lib_v2.5.0.jar')
 }

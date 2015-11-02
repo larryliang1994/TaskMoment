@@ -26,6 +26,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
 
@@ -50,17 +51,21 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
     @Bind(R.id.iBtn_publish)
     ImageButton iBtn_publish;
 
+    @Bind(R.id.nv_main)
+    NavigationView nv;
+
     private Frag_Timeline frag_timeline = new Frag_Timeline();
     private Frag_Member frag_member = new Frag_Member();
     private Frag_UserInfo frag_userInfo = new Frag_UserInfo();
     private Frag_Preference frag_preference = new Frag_Preference();
-    private int currentItem = 0;
-    private FragmentManager fragmentManager;
+
     public static LinearLayout toolbar;
-    public static LinearLayout ll_nvHeader;
-    public static NavigationView nv;
-    public static CircleImageView iv_navigation;
-    public static TextView tv_nickname;
+    private LinearLayout ll_nvHeader;
+    private FragmentManager fragmentManager;
+    private CircleImageView iv_navigation;
+    private TextView tv_nickname;
+
+    private int currentItem = 0;
     private long doubleClickTime = 0;
 
     @SuppressWarnings("ConstantConditions")
@@ -117,7 +122,6 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
             iv_navigation.setImageResource(R.drawable.portrait_default);
         }
 
-        nv = (NavigationView) findViewById(R.id.nv_main);
         nv.addHeaderView(ll_nvHeader);
         nv.getMenu().getItem(0).setChecked(true);
         nv.setItemTextColor(ColorStateList.valueOf(Color.parseColor("#212121")));
@@ -312,6 +316,34 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onStart() {
+        Receiver_UpdateView nicknameReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg) {
+                        tv_nickname.setText(msg);
+                        nv.removeHeaderView(ll_nvHeader);
+                        nv.addHeaderView(ll_nvHeader);
+                    }
+                });
+        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
+
+        Receiver_UpdateView portraitReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg) {
+                        ImageLoader.getInstance().displayImage(
+                                Config.PORTRAIT, iv_navigation);
+                        nv.removeHeaderView(ll_nvHeader);
+                        nv.addHeaderView(ll_nvHeader);
+                    }
+                });
+        portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
+
+        super.onStart();
     }
 
     @Override

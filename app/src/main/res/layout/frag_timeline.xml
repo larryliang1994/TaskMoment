@@ -83,7 +83,7 @@
                     android:animateLayoutChanges="true"
                     android:background="@drawable/round_button_grade"
                     android:orientation="horizontal"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     android:padding="7dp">
 
                     <ImageView
@@ -95,13 +95,21 @@
                         android:src="@drawable/portrait_default" />
 
                     <TextView
+                        android:id="@+id/tv_news_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:textColor="#ffffff"
+                        android:textSize="16sp"
+                        android:layout_gravity="center" />
+
+                    <TextView
                         android:id="@+id/tv_news"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
-                        android:text="1条新消息"
+                        android:text="@string/news_num"
                         android:textColor="#ffffff"
                         android:textSize="16sp" />
                 </LinearLayout>

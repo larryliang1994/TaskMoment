@@ -31,6 +31,10 @@ public class Constants {
     public static final String SP_KEY_MID = "mid";
     public static final String SP_KEY_NICKNAME = "nickname";
 
+    public static final String ACTION_NEWS = "com.jiubai.action.news";
+    public static final String ACTION_CHANGE_NICKNAME = "com.jiubai.action.change_nickname";
+    public static final String ACTION_CHANGE_PORTRAIT = "com.jiubai.action.change_portrait";
+
     public static final String TEMP_FILE_LOCATION = "file:///"
             + Environment.getExternalStorageDirectory() + "/temp.jpg";
     public static final int SIZE_COMPANY_BACKGROUND = 500;

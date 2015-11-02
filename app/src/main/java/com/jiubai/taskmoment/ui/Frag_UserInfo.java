@@ -138,14 +138,9 @@ public class Frag_UserInfo extends Fragment {
 
                                             adapter.notifyDataSetChanged();
 
-                                            // 把抽屉里的头像也改掉
-                                            ImageLoader.getInstance().displayImage(
-                                                    Config.PORTRAIT, Frag_Timeline.iv_portrait);
-
-                                            ImageLoader.getInstance().displayImage(
-                                                    Config.PORTRAIT, Aty_Main.iv_navigation);
-                                            Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
-                                            Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
+                                            // 发送更新头像广播
+                                            getActivity().sendBroadcast(
+                                                    new Intent(Constants.ACTION_CHANGE_PORTRAIT));
                                         }
                                     });
                                 }

@@ -46,6 +46,7 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.OssUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -53,6 +54,7 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,16 +75,18 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     public static BorderScrollView sv;
     public static LinearLayout ll_comment;
     public static LinearLayout ll_audit;
-    public static TextView tv_nickname;
+    private TextView tv_nickname;
     public static Space space;
-    public static ImageView iv_portrait;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
+    public static ArrayList<Task> taskList;
     private boolean isBottomRefreshing = false;
     private SwipeRefreshLayout srl;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
     private LinearLayout ll_news;
+    private TextView tv_news_num;
+    private ImageView iv_portrait;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
 
     @Nullable
@@ -196,6 +200,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
 
+        tv_news_num = (TextView) view.findViewById(R.id.tv_news_num);
         ll_news = (LinearLayout) view.findViewById(R.id.ll_news);
         ll_news.setOnClickListener(this);
 
@@ -242,6 +247,174 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
             }
         }, 500);
+    }
+
+    /**
+     * 注册广播接收器
+     */
+    @Override
+    public void onStart() {
+        Receiver_UpdateView newsReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg) {
+                        tv_news_num.setText(Config.NEWS_NUM + "");
+
+                        try {
+                            if (taskList == null) {
+                                taskList = new ArrayList<>();
+                            }
+
+                            JSONObject msgJson = new JSONObject(msg);
+
+                            handleNews(msgJson.getString("msg"));
+
+                            // 显示头像
+                            ImageLoader.getInstance().displayImage(
+                                    Constants.HOST_ID + "task_moment/"
+                                            + msgJson.getString("mid") + ".jpg",
+                                    iv_news_portrait);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        ll_news.setVisibility(View.VISIBLE);
+                    }
+                });
+        newsReceiver.registerAction(Constants.ACTION_NEWS);
+
+        Receiver_UpdateView nicknameReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg) {
+                        tv_nickname.setText(msg);
+                    }
+                });
+        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
+
+        Receiver_UpdateView portraitReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg) {
+                        ImageLoader.getInstance().displayImage(
+                                Config.PORTRAIT, iv_portrait);
+                    }
+                });
+        portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
+
+        super.onStart();
+    }
+
+    /**
+     * 处理新消息
+     *
+     * @param msg 消息内容
+     */
+    private void handleNews(String msg) throws JSONException {
+        JSONObject obj = new JSONObject(msg);
+
+        String id = obj.getString("id");
+
+        String mid = obj.getString("mid");
+        String portraitUrl = Constants.HOST_ID + "task_moment/" + mid + ".jpg";
+
+        String nickname = obj.getString("show_name");
+
+        char p1 = obj.getString("p1").charAt(0);
+        String grade = (p1 - 48) == 1 ? "S" : String.valueOf((char) (p1 + 15));
+
+        String desc = obj.getString("comments");
+        String executor = obj.getString("ext1");
+        String supervisor = obj.getString("ext2");
+        String auditor = obj.getString("ext3");
+
+        ArrayList<String> pictures = decodePictureList(obj.getString("works"));
+        ArrayList<Comment> comments
+                = decodeCommentList(taskList.size(), id, obj.getString("member_comment"));
+
+        long deadline = Long.valueOf(obj.getString("time1")) * 1000;
+        long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
+        long create_time = Long.valueOf(obj.getString("create_time")) * 1000;
+
+        String audit_result = obj.getString("p2");
+
+        Task task = new Task(id, portraitUrl, nickname, mid, grade, desc,
+                executor, supervisor, auditor,
+                pictures, comments, deadline, publish_time, create_time, audit_result);
+
+        taskList.add(task);
+    }
+
+    /**
+     * 将json解码成list
+     *
+     * @param pictures 图片Json
+     * @return 图片list
+     */
+    private ArrayList<String> decodePictureList(String pictures) {
+        ArrayList<String> pictureList = new ArrayList<>();
+
+        if (pictures != null && !"null".equals(pictures)) {
+            try {
+                JSONArray jsonArray = new JSONArray(pictures);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    pictureList.add(Constants.HOST_ID + jsonArray.getString(i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return pictureList;
+    }
+
+    /**
+     * 将json解码成list
+     *
+     * @param comments 评论json
+     * @return 图片List
+     */
+    private ArrayList<Comment> decodeCommentList(int taskPosition, String taskID, String comments) {
+        ArrayList<Comment> commentList = new ArrayList<>();
+
+        if (!"".equals(comments) && !"null".equals(comments)) {
+            try {
+
+                JSONArray jsonArray = new JSONArray(comments);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = new JSONObject(jsonArray.getString(i));
+
+                    String sender = "null".equals(object.getString("send_real_name")) ?
+                            object.getString("send_mobile") : object.getString("send_real_name");
+
+                    String receiver = "null".equals(object.getString("receiver_real_name")) ?
+                            object.getString("receiver_mobile") : object.getString("receiver_real_name");
+
+                    if ("null".equals(receiver)) {
+                        Comment comment = new Comment(taskID, taskPosition,
+                                sender, object.getString("send_id"),
+                                object.getString("content"),
+                                Long.valueOf(object.getString("create_time")) * 1000);
+
+                        commentList.add(comment);
+                    } else {
+                        Comment comment = new Comment(taskID, taskPosition,
+                                sender, object.getString("send_id"),
+                                receiver, object.getString("receiver_id"),
+                                object.getString("content"),
+                                Long.valueOf(object.getString("create_time")) * 1000);
+
+                        commentList.add(comment);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return commentList;
     }
 
     /**
@@ -640,6 +813,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.ll_news:
+                Config.NEWS_NUM = 0;
+                ll_news.setVisibility(View.GONE);
                 startActivity(new Intent(getActivity(), Aty_News.class));
                 getActivity().overridePendingTransition(R.anim.in_right_left,
                         R.anim.out_right_left);

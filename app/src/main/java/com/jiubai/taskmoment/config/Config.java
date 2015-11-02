@@ -13,4 +13,6 @@ public class Config {
     public static String MID = null;
     public static String PORTRAIT = null;
     public static String NICKNAME = null;
+
+    public static int NEWS_NUM = 0;
 }

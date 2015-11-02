@@ -237,10 +237,10 @@ public class Adpt_UserInfo extends BaseAdapter {
 
                                                 tv_nickname.setText(newNickname);
 
-                                                Frag_Timeline.tv_nickname.setText(newNickname);
-                                                Aty_Main.tv_nickname.setText(newNickname);
-                                                Aty_Main.nv.removeHeaderView(Aty_Main.ll_nvHeader);
-                                                Aty_Main.nv.addHeaderView(Aty_Main.ll_nvHeader);
+                                                // 发送更新昵称广播
+                                                Intent intent = new Intent(Constants.ACTION_CHANGE_NICKNAME);
+                                                intent.putExtra("nickname", newNickname);
+                                                context.sendBroadcast(intent);
 
                                                 SharedPreferences sp = context.getSharedPreferences(
                                                         Constants.SP_FILENAME, Context.MODE_PRIVATE);

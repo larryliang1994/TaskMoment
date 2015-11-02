@@ -2,12 +2,12 @@ package com.jiubai.taskmoment;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 
-import com.baidu.android.pushservice.PushConstants;
-import com.baidu.android.pushservice.PushManager;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.OssUtil;
@@ -17,6 +17,9 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.umeng.message.PushAgent;
+import com.umeng.message.UmengMessageHandler;
+import com.umeng.message.entity.UMessage;
 
 /**
  * 程序入口
@@ -40,6 +43,17 @@ public class CustomApplication extends Application {
 
         // 初始化图片上传下载OSS
         OssUtil.init(getApplicationContext());
+
+        // 开启推送服务
+        PushAgent pushAgent = PushAgent.getInstance(getApplicationContext());
+        pushAgent.enable();
+
+        // 设置推送服务处理
+        pushAgent.setMessageHandler(getMessHandler());
+
+        // 如果不调用此方法，将会导致按照"几天不活跃"条件来推送失效。
+        // 可以只在应用的主Activity中调用此方法，但是由于SDK的日志发送策略，不能保证一定可以统计到日活数据。
+        PushAgent.getInstance(getApplicationContext()).onAppStart();
     }
 
     private void loadStorageData() {
@@ -75,5 +89,23 @@ public class CustomApplication extends Application {
         NetworkInfo info = cm.getActiveNetworkInfo();
 
         Config.IS_CONNECTED = info != null && info.isAvailable();
+    }
+
+    private UmengMessageHandler getMessHandler(){
+        return new UmengMessageHandler(){
+            @Override
+            public void dealWithCustomMessage(final Context context, final UMessage msg) {
+                new Handler(getMainLooper()).post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // 接收到推送后交给广播处理
+                        Intent intent = new Intent(Constants.ACTION_NEWS);
+                        intent.putExtra("msg", msg.custom);
+                        context.sendOrderedBroadcast(intent, null);
+                    }
+                });
+            }
+        };
     }
 }
