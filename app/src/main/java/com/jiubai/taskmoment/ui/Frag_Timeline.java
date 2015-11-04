@@ -15,8 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -39,6 +39,7 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
@@ -79,7 +80,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     public static Space space;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
-    public static ArrayList<Task> taskList;
+    private ArrayList<News> newsList;
     private boolean isBottomRefreshing = false;
     private SwipeRefreshLayout srl;
     private ImageView iv_companyBackground;
@@ -88,8 +89,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     private TextView tv_news_num;
     private ImageView iv_portrait;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
+    private Receiver_UpdateView newsReceiver, nicknameReceiver,
+            portraitReceiver, deleteTaskReceiver, commentReceiver;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -205,7 +207,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         ll_news.setOnClickListener(this);
 
         GradientDrawable newsBgShape = (GradientDrawable) ll_news.getBackground();
-        newsBgShape.setColor(getResources().getColor(R.color.news));
+        newsBgShape.setColor(ContextCompat.getColor(getActivity(), R.color.news));
 
         iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
         iv_companyBackground.setOnClickListener(this);
@@ -254,20 +256,22 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
      */
     @Override
     public void onStart() {
-        Receiver_UpdateView newsReceiver = new Receiver_UpdateView(getActivity(),
+        newsReceiver = new Receiver_UpdateView(getActivity(),
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
-                    public void updateView(String msg) {
+                    public void updateView(String msg, Object... objects) {
                         tv_news_num.setText(Config.NEWS_NUM + "");
 
                         try {
-                            if (taskList == null) {
-                                taskList = new ArrayList<>();
+                            if (newsList == null) {
+                                newsList = new ArrayList<>();
                             }
 
                             JSONObject msgJson = new JSONObject(msg);
 
-                            handleNews(msgJson.getString("msg"));
+                            handleNews(msgJson.getString("mid"),
+                                    msgJson.getString("type"),
+                                    msgJson.getString("msg"));
 
                             // 显示头像
                             ImageLoader.getInstance().displayImage(
@@ -283,26 +287,83 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 });
         newsReceiver.registerAction(Constants.ACTION_NEWS);
 
-        Receiver_UpdateView nicknameReceiver = new Receiver_UpdateView(getActivity(),
+        nicknameReceiver = new Receiver_UpdateView(getActivity(),
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
-                    public void updateView(String msg) {
+                    public void updateView(String msg, Object... objects) {
                         tv_nickname.setText(msg);
                     }
                 });
         nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
 
-        Receiver_UpdateView portraitReceiver = new Receiver_UpdateView(getActivity(),
+        portraitReceiver = new Receiver_UpdateView(getActivity(),
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
-                    public void updateView(String msg) {
+                    public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
                                 Config.PORTRAIT, iv_portrait);
                     }
                 });
         portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
 
+        deleteTaskReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String taskID, Object... objects) {
+
+                        for (int i = 0; i < Adpt_Timeline.taskList.size(); i++) {
+                            // TODO 如果任务ID是递增的，就可以用二分查找
+                            if (Adpt_Timeline.taskList.get(i).getId().equals(taskID)) {
+                                Adpt_Timeline.taskList.remove(i);
+                                adapter.notifyDataSetChanged();
+                                UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                break;
+                            }
+                        }
+                    }
+                });
+        deleteTaskReceiver.registerAction(Constants.ACTION_DELETE_TASK);
+
+        commentReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String taskID, Object... objects) {
+
+                        for (int i = 0; i < Adpt_Timeline.taskList.size(); i++) {
+                            Task task = Adpt_Timeline.taskList.get(i);
+                            // TODO 如果任务ID是递增的，就可以用二分查找
+                            if (task.getId().equals(taskID)) {
+                                Comment comment = (Comment) objects[0];
+                                // 防止多次添加
+                                if (task.getComments().get(task.getComments().size() - 1).getTime()
+                                        != comment.getTime()) {
+
+                                    Adpt_Timeline.taskList.get(i).getComments().add(comment);
+
+                                    adapter.notifyDataSetChanged();
+                                    UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+        commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
+
         super.onStart();
+    }
+
+    @Override
+    public void onDestroy() {
+        getActivity().unregisterReceiver(newsReceiver);
+        getActivity().unregisterReceiver(nicknameReceiver);
+        getActivity().unregisterReceiver(portraitReceiver);
+        getActivity().unregisterReceiver(deleteTaskReceiver);
+        getActivity().unregisterReceiver(commentReceiver);
+
+        super.onDestroy();
     }
 
     /**
@@ -310,7 +371,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
      *
      * @param msg 消息内容
      */
-    private void handleNews(String msg) throws JSONException {
+    private void handleNews(String senderID, String type, String msg) throws JSONException {
         JSONObject obj = new JSONObject(msg);
 
         String id = obj.getString("id");
@@ -330,7 +391,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         ArrayList<String> pictures = decodePictureList(obj.getString("works"));
         ArrayList<Comment> comments
-                = decodeCommentList(taskList.size(), id, obj.getString("member_comment"));
+                = decodeCommentList(id, obj.getString("member_comment"));
 
         long deadline = Long.valueOf(obj.getString("time1")) * 1000;
         long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
@@ -342,7 +403,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 executor, supervisor, auditor,
                 pictures, comments, deadline, publish_time, create_time, audit_result);
 
-        taskList.add(task);
+        newsList.add(new News(senderID, type, task));
     }
 
     /**
@@ -375,7 +436,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
      * @param comments 评论json
      * @return 图片List
      */
-    private ArrayList<Comment> decodeCommentList(int taskPosition, String taskID, String comments) {
+    private ArrayList<Comment> decodeCommentList(String taskID, String comments) {
         ArrayList<Comment> commentList = new ArrayList<>();
 
         if (!"".equals(comments) && !"null".equals(comments)) {
@@ -393,14 +454,14 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             object.getString("receiver_mobile") : object.getString("receiver_real_name");
 
                     if ("null".equals(receiver)) {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 object.getString("content"),
                                 Long.valueOf(object.getString("create_time")) * 1000);
 
                         commentList.add(comment);
                     } else {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 receiver, object.getString("receiver_id"),
                                 object.getString("content"),
@@ -452,11 +513,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
 
                                 if ("refresh".equals(type)) {
-                                    adapter = new Adpt_Timeline(getActivity(), true,
-                                            response, Frag_Timeline.this);
+                                    adapter = new Adpt_Timeline(getActivity(), true, response);
                                 } else {
-                                    adapter = new Adpt_Timeline(getActivity(), false,
-                                            response, Frag_Timeline.this);
+                                    adapter = new Adpt_Timeline(getActivity(), false, response);
                                 }
 
                                 new Handler().postDelayed(new Runnable() {
@@ -545,14 +604,12 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
      * 弹出评论窗口
      *
      * @param context    上下文
-     * @param position   任务位置
      * @param taskID     任务ID
      * @param receiver   接收者
      * @param receiverID 接收者ID
      * @param y          所点击的组件的y坐标
      */
-    public static void showCommentWindow(final Context context,
-                                         final int position, final String taskID,
+    public static void showCommentWindow(final Context context, final String taskID,
                                          final String receiver, final String receiverID,
                                          final int y) {
         commentWindowIsShow = true;
@@ -567,7 +624,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 56));
+        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
 
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
@@ -631,24 +688,26 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
+                                        // 发送更新评论广播
+                                        Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
+                                        intent.putExtra("taskID", taskID);
+
                                         if (!"".equals(receiver)) {
-                                            Adpt_Timeline.taskList.get(position).getComments().add(
-                                                    new Comment(taskID, position,
-                                                            Config.NICKNAME, Config.MID,
-                                                            receiver, receiverID,
-                                                            edt_content.getText().toString(),
-                                                            Calendar.getInstance(Locale.CHINA)
-                                                                    .getTimeInMillis()));
+                                            intent.putExtra("comment", new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
+                                                    receiver, receiverID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
                                         } else {
-                                            Adpt_Timeline.taskList.get(position).getComments().add(
-                                                    new Comment(taskID, position,
-                                                            Config.NICKNAME, Config.MID,
-                                                            edt_content.getText().toString(),
-                                                            Calendar.getInstance(Locale.CHINA)
-                                                                    .getTimeInMillis()));
+                                            intent.putExtra("comment", new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
                                         }
-                                        adapter.notifyDataSetChanged();
-                                        UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                        context.sendBroadcast(intent);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -723,7 +782,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                     String status = responseObject.getString("status");
                                     if ("1".equals(status) || "900001".equals(status)) {
                                         ll_audit.setVisibility(View.GONE);
-
 
                                         Toast.makeText(context,
                                                 responseObject.getString("info"),
@@ -813,11 +871,15 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.ll_news:
-                Config.NEWS_NUM = 0;
-                ll_news.setVisibility(View.GONE);
-                startActivity(new Intent(getActivity(), Aty_News.class));
+                Intent newsIntent = new Intent(getActivity(), Aty_News.class);
+                newsIntent.putExtra("newsList", newsList);
+                startActivity(newsIntent);
                 getActivity().overridePendingTransition(R.anim.in_right_left,
                         R.anim.out_right_left);
+
+                Config.NEWS_NUM = 0;
+                newsList.clear();
+                ll_news.setVisibility(View.GONE);
                 break;
         }
     }
@@ -915,17 +977,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             pictureList, null, 0, 0, create_time, "1"));
 
                     adapter.notifyDataSetChanged();
-                }
-                break;
-
-            case Constants.CODE_CHECK_TASK:
-                if (resultCode == Activity.RESULT_OK) {
-                    int position = data.getIntExtra("taskPosition", -1);
-                    if (position != -1) {
-                        Adpt_Timeline.taskList.remove(position);
-                        adapter.notifyDataSetChanged();
-                        UtilBox.setListViewHeightBasedOnChildren(lv);
-                    }
                 }
                 break;
         }

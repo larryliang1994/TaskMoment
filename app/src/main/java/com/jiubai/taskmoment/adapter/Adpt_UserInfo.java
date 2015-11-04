@@ -28,9 +28,7 @@ import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.ui.Aty_Main;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
-import com.jiubai.taskmoment.ui.Frag_Timeline;
 import com.jiubai.taskmoment.view.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 

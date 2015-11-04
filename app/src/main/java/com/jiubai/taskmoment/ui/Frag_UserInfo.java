@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import me.drakeet.materialdialog.MaterialDialog;
 
 /**
@@ -59,7 +59,7 @@ public class Frag_UserInfo extends Fragment {
         Button btn_logout = (Button) view.findViewById(R.id.btn_logout);
 
         GradientDrawable logoutBgShape = (GradientDrawable) btn_logout.getBackground();
-        logoutBgShape.setColor(getResources().getColor(R.color.primary));
+        logoutBgShape.setColor(ContextCompat.getColor(getActivity(), R.color.primary));
 
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override

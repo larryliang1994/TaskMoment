@@ -3,6 +3,7 @@ package com.jiubai.taskmoment.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,11 +38,6 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
     public Adpt_Comment commentAdapter;
     private Context context;
 
-    public Adpt_PersonalTimeline(Context context, ArrayList<Task> taskList) {
-        this.context = context;
-        Adpt_PersonalTimeline.taskList = taskList;
-    }
-
     public Adpt_PersonalTimeline(Context context, boolean isRefresh, String response) {
         this.context = context;
 
@@ -75,7 +71,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
 
                     ArrayList<String> pictures = decodePictureList(obj.getString("works"));
                     ArrayList<Comment> comments
-                            = decodeCommentList(taskList.size(), id, obj.getString("member_comment"));
+                            = decodeCommentList(id, obj.getString("member_comment"));
 
                     long deadline = Long.valueOf(obj.getString("time1")) * 1000;
                     long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
@@ -103,23 +99,23 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
     private void setGradeColor(TextView tv_grade, String grade) {
         switch (grade) {
             case "S":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.S));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.S));
                 break;
 
             case "A":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.A));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.A));
                 break;
 
             case "B":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.B));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.B));
                 break;
 
             case "C":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.C));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.C));
                 break;
 
             case "D":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.D));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.D));
                 break;
         }
     }
@@ -152,7 +148,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
      * @param comments 评论json
      * @return 图片List
      */
-    private ArrayList<Comment> decodeCommentList(int taskPosition, String taskID, String comments) {
+    private ArrayList<Comment> decodeCommentList(String taskID, String comments) {
         ArrayList<Comment> commentList = new ArrayList<>();
 
         if (!"".equals(comments) && !"null".equals(comments)) {
@@ -170,14 +166,14 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
                             object.getString("receiver_mobile") : object.getString("receiver_real_name");
 
                     if ("null".equals(receiver)) {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 object.getString("content"),
                                 Long.valueOf(object.getString("create_time")) * 1000);
 
                         commentList.add(comment);
                     } else {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 receiver, object.getString("receiver_id"),
                                 object.getString("content"),
@@ -256,7 +252,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, Aty_TaskInfo.class);
-                intent.putExtra("taskID", task.getId());
+                intent.putExtra("task", task);
 
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
@@ -283,7 +279,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
                 holder.btn_comment.getLocationOnScreen(location);
                 int y = location[1];
 
-                Aty_PersonalTimeline.showCommentWindow(context, position, task.getId(),
+                Aty_PersonalTimeline.showCommentWindow(context, task.getId(),
                         "", "", y + UtilBox.dip2px(context, 15));
             }
         });

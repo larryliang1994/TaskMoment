@@ -1,11 +1,9 @@
 package com.jiubai.taskmoment.receiver;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.Log;
 
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
@@ -17,6 +15,7 @@ public class Receiver_UpdateView extends BroadcastReceiver {
     private UpdateCallBack callBack;
     private Context context;
 
+    @SuppressWarnings("unused")
     public Receiver_UpdateView() {
     }
 
@@ -52,10 +51,19 @@ public class Receiver_UpdateView extends BroadcastReceiver {
             if (callBack != null) {
                 callBack.updateView(null);
             }
+        } else if(Constants.ACTION_DELETE_TASK.equals(intent.getAction())){
+            if (callBack != null) {
+                callBack.updateView(intent.getStringExtra("taskID"));
+            }
+        } else if(Constants.ACTION_SEND_COMMENT.equals(intent.getAction())){
+            if (callBack != null) {
+                callBack.updateView(intent.getStringExtra("taskID"),
+                        intent.getSerializableExtra("comment"));
+            }
         }
     }
 
     public interface UpdateCallBack {
-        void updateView(String msg);
+        void updateView(String msg, Object... object);
     }
 }

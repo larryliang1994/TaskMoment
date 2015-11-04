@@ -56,8 +56,8 @@ package com.jiubai.taskmoment.other;
 /**
  * 发现日期：2015-11-1
  * 问题描述：TaskInfo里点评论不能滑动到合适的位置
- * 解决情况：未解决
- * 解决方案：无
+ * 解决情况：已解决
+ * 解决方案：ToolBar高度改为48dp以后就没问题了，估计是之前没有改为56dp的原因
  */
 
 @SuppressWarnings("unused")

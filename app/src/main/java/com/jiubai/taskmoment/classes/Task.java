@@ -1,12 +1,13 @@
 package com.jiubai.taskmoment.classes;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 任务类
  */
-public class Task {
+public class Task implements Serializable{
     private String id;
     private String portraitUrl;
     private String nickname;

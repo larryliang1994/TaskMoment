@@ -5,7 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,16 +40,9 @@ public class Adpt_Timeline extends BaseAdapter {
     public static ArrayList<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
-    private Fragment fragment;
 
-    public Adpt_Timeline(Context context, ArrayList<Task> taskList) {
+    public Adpt_Timeline(Context context, boolean isRefresh, String response) {
         this.context = context;
-        Adpt_Timeline.taskList = taskList;
-    }
-
-    public Adpt_Timeline(Context context, boolean isRefresh, String response, Fragment fragment) {
-        this.context = context;
-        this.fragment = fragment;
 
         if (isRefresh) {
             taskList = new ArrayList<>();
@@ -82,7 +75,7 @@ public class Adpt_Timeline extends BaseAdapter {
 
                     ArrayList<String> pictures = decodePictureList(obj.getString("works"));
                     ArrayList<Comment> comments
-                            = decodeCommentList(taskList.size(), id, obj.getString("member_comment"));
+                            = decodeCommentList(id, obj.getString("member_comment"));
 
                     long deadline = Long.valueOf(obj.getString("time1")) * 1000;
                     long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
@@ -164,21 +157,21 @@ public class Adpt_Timeline extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 holder.tv_desc.setBackgroundColor(
-                        context.getResources().getColor(R.color.gray));
+                        ContextCompat.getColor(context, R.color.gray));
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         holder.tv_desc.setBackgroundColor(
-                                context.getResources().getColor(R.color.transparent));
+                                ContextCompat.getColor(context, R.color.transparent));
                     }
                 }, 100);
 
                 Intent intent = new Intent(context, Aty_TaskInfo.class);
-                intent.putExtra("taskID", task.getId());
+                intent.putExtra("task", task);
                 intent.putExtra("taskPosition", position);
 
-                fragment.startActivityForResult(intent, Constants.CODE_CHECK_TASK);
+                context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
                         R.anim.in_right_left, R.anim.out_right_left);
             }
@@ -203,7 +196,7 @@ public class Adpt_Timeline extends BaseAdapter {
                 holder.btn_comment.getLocationOnScreen(location);
                 int y = location[1];
 
-                Frag_Timeline.showCommentWindow(context, position, task.getId(),
+                Frag_Timeline.showCommentWindow(context, task.getId(),
                         "", "", y + UtilBox.dip2px(context, 15));
             }
         });
@@ -231,23 +224,23 @@ public class Adpt_Timeline extends BaseAdapter {
     private void setGradeColor(TextView tv_grade, String grade) {
         switch (grade) {
             case "S":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.S));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.S));
                 break;
 
             case "A":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.A));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.A));
                 break;
 
             case "B":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.B));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.B));
                 break;
 
             case "C":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.C));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.C));
                 break;
 
             case "D":
-                tv_grade.setTextColor(context.getResources().getColor(R.color.D));
+                tv_grade.setTextColor(ContextCompat.getColor(context, R.color.D));
                 break;
         }
     }
@@ -282,7 +275,7 @@ public class Adpt_Timeline extends BaseAdapter {
      * @param comments 评论json
      * @return 图片List
      */
-    private ArrayList<Comment> decodeCommentList(int taskPosition, String taskID, String comments) {
+    private ArrayList<Comment> decodeCommentList(String taskID, String comments) {
         ArrayList<Comment> commentList = new ArrayList<>();
 
         if (!"".equals(comments) && !"null".equals(comments)) {
@@ -300,14 +293,14 @@ public class Adpt_Timeline extends BaseAdapter {
                             object.getString("receiver_mobile") : object.getString("receiver_real_name");
 
                     if ("null".equals(receiver)) {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 object.getString("content"),
                                 Long.valueOf(object.getString("create_time")) * 1000);
 
                         commentList.add(comment);
                     } else {
-                        Comment comment = new Comment(taskID, taskPosition,
+                        Comment comment = new Comment(taskID,
                                 sender, object.getString("send_id"),
                                 receiver, object.getString("receiver_id"),
                                 object.getString("content"),

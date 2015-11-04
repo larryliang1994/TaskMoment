@@ -3,6 +3,7 @@ package com.jiubai.taskmoment.ui;
 import android.annotation.SuppressLint;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -70,7 +71,7 @@ public class Aty_AddCompany extends AppCompatActivity
         edt_companyName.addTextChangedListener(this);
 
         final GradientDrawable submitBgShape = (GradientDrawable) btn_submit.getBackground();
-        submitBgShape.setColor(getResources().getColor(R.color.gray));
+        submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
     }
 
     @OnClick({R.id.iBtn_back})
@@ -161,10 +162,10 @@ public class Aty_AddCompany extends AppCompatActivity
 
         if (edt_companyName.getText().length() != 0) {
             rv_btn_submit.setOnRippleCompleteListener(this);
-            submitBgShape.setColor(getResources().getColor(R.color.primary));
+            submitBgShape.setColor(ContextCompat.getColor(this, R.color.primary));
         } else {
             rv_btn_submit.setOnRippleCompleteListener(null);
-            submitBgShape.setColor(getResources().getColor(R.color.gray));
+            submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
         }
     }
 

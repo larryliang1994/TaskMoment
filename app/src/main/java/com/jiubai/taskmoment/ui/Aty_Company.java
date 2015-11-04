@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -15,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -186,8 +186,8 @@ public class Aty_Company extends AppCompatActivity {
                     }
                 });
 
-                popupWindow.setBackgroundDrawable(getResources().getDrawable(
-                        R.drawable.white));
+                popupWindow.setBackgroundDrawable(
+                        ContextCompat.getDrawable(this, R.drawable.white));
 
                 popupWindow.showAsDropDown(view);
                 break;

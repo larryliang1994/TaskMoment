@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -131,13 +132,13 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         // 默认为C级
         changeBtnColor("");
         GradientDrawable gradeBgShape = (GradientDrawable) btn_c.getBackground();
-        gradeBgShape.setColor(getResources().getColor(R.color.C));
+        gradeBgShape.setColor(ContextCompat.getColor(this, R.color.C));
 
         adpt_publishPicture = new Adpt_PublishPicture(this, new ArrayList<String>());
         gv.setAdapter(adpt_publishPicture);
 
         GradientDrawable publishBackground = (GradientDrawable) btn_publish.getBackground();
-        publishBackground.setColor(getResources().getColor(R.color.primary));
+        publishBackground.setColor(ContextCompat.getColor(this, R.color.primary));
 
         rv_btn_publish.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
@@ -528,7 +529,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
             if (i + 1 != grade) {
                 GradientDrawable gradeBgShape
                         = (GradientDrawable) gradeBtnList.get(i).getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.NONE));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.NONE));
             }
         }
 
@@ -536,27 +537,27 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         switch (which) {
             case "S":
                 gradeBgShape = (GradientDrawable) btn_s.getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.S));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.S));
                 break;
 
             case "A":
                 gradeBgShape = (GradientDrawable) btn_a.getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.A));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.A));
                 break;
 
             case "B":
                 gradeBgShape = (GradientDrawable) btn_b.getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.B));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.B));
                 break;
 
             case "C":
                 gradeBgShape = (GradientDrawable) btn_c.getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.C));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.C));
                 break;
 
             case "D":
                 gradeBgShape = (GradientDrawable) btn_d.getBackground();
-                gradeBgShape.setColor(getResources().getColor(R.color.D));
+                gradeBgShape.setColor(ContextCompat.getColor(this, R.color.D));
                 break;
         }
     }

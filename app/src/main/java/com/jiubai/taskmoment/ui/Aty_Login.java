@@ -13,6 +13,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -95,10 +96,10 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         edt_verifyCode.addTextChangedListener(this);
 
         GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
-        verifyBgShape.setColor(getResources().getColor(R.color.gray));
+        verifyBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
 
         GradientDrawable submitBgShape = (GradientDrawable) btn_submit.getBackground();
-        submitBgShape.setColor(getResources().getColor(R.color.gray));
+        submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
     }
 
     /**
@@ -182,21 +183,21 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
         if (UtilBox.isTelephoneNumber(content)) {
             if (!isCounting) {
                 rv_btn_getVerifyCode.setOnRippleCompleteListener(this);
-                verifyBgShape.setColor(getResources().getColor(R.color.primary));
+                verifyBgShape.setColor(ContextCompat.getColor(this, R.color.primary));
             }
 
             if (edt_verifyCode.getText().toString().length() == 6) {
                 rv_btn_submit.setOnRippleCompleteListener(this);
-                submitBgShape.setColor(getResources().getColor(R.color.primary));
+                submitBgShape.setColor(ContextCompat.getColor(this, R.color.primary));
             } else {
                 rv_btn_submit.setOnRippleCompleteListener(null);
-                submitBgShape.setColor(getResources().getColor(R.color.gray));
+                submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
             }
         } else {
             rv_btn_getVerifyCode.setOnRippleCompleteListener(null);
             rv_btn_submit.setOnRippleCompleteListener(null);
-            submitBgShape.setColor(getResources().getColor(R.color.gray));
-            verifyBgShape.setColor(getResources().getColor(R.color.gray));
+            submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
+            verifyBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
         }
     }
 
@@ -391,7 +392,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                     edt_telephone.addTextChangedListener(Aty_Login.this);
 
                     final GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
-                    verifyBgShape.setColor(getResources().getColor(R.color.primary));
+                    verifyBgShape.setColor(ContextCompat.getColor(Aty_Login.this, R.color.primary));
                 }
             });
         }
@@ -408,7 +409,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                     edt_telephone.removeTextChangedListener(Aty_Login.this);
 
                     final GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
-                    verifyBgShape.setColor(getResources().getColor(R.color.gray));
+                    verifyBgShape.setColor(ContextCompat.getColor(Aty_Login.this, R.color.gray));
                 }
             });
         }

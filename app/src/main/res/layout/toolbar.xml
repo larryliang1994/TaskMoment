@@ -2,17 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/toolBar"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="48dp"
     android:animateLayoutChanges="true"
     android:background="@drawable/titleBar"
     android:orientation="horizontal">
 
     <ImageButton
         android:id="@+id/iBtn_back"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
-        android:padding="15dp"
+        android:padding="12dp"
         android:scaleType="centerInside"
         android:src="@drawable/back" />
 
@@ -20,8 +20,8 @@
         android:id="@+id/tv_title"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:layout_marginLeft="5dp"
         android:text="@string/app_name"
         android:textColor="#ffffff"
@@ -29,30 +29,30 @@
 
     <ImageButton
         android:id="@+id/iBtn_more"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
-        android:padding="15dp"
+        android:padding="12dp"
         android:scaleType="centerInside"
         android:src="@drawable/more"
         android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/iBtn_publish"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
-        android:padding="13dp"
+        android:padding="11dp"
         android:scaleType="centerInside"
         android:src="@drawable/add"
         android:visibility="gone" />
 
     <ImageButton
         android:id="@+id/iBtn_delete"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
-        android:padding="15dp"
+        android:padding="12dp"
         android:scaleType="centerInside"
         android:src="@drawable/delete"
         android:visibility="gone" />

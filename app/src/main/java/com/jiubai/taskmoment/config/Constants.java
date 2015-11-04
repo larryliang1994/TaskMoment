@@ -10,7 +10,6 @@ public class Constants {
     public static final String OSSSCRECTKEY = "3BDRee3e109ZzCO4TrofOypSqv3fDw";
     public static final String BUCKET_NAME = "jiubai-app";
     public static final String HOST_ID = "http://jiubai-app.oss-cn-hangzhou.aliyuncs.com/";
-    public static final String API_KEY = "unkDGrSxE8nGEYz7Ne9p0RYG";
 
     public static final int CODE_ADD_COMPANY = 1;
     public static final int CODE_CHANGE_COMPANY = 2;
@@ -34,6 +33,8 @@ public class Constants {
     public static final String ACTION_NEWS = "com.jiubai.action.news";
     public static final String ACTION_CHANGE_NICKNAME = "com.jiubai.action.change_nickname";
     public static final String ACTION_CHANGE_PORTRAIT = "com.jiubai.action.change_portrait";
+    public static final String ACTION_DELETE_TASK = "com.jiubai.action.delete_task";
+    public static final String ACTION_SEND_COMMENT = "com.jiubai.action.send_comment";
 
     public static final String TEMP_FILE_LOCATION = "file:///"
             + Environment.getExternalStorageDirectory() + "/temp.jpg";

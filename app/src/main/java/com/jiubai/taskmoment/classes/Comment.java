@@ -1,11 +1,12 @@
 package com.jiubai.taskmoment.classes;
 
+import java.io.Serializable;
+
 /**
  * 评论类
  */
-public class Comment {
+public class Comment implements Serializable{
     private String taskId;
-    private int taskPosition;
     private String sender;
     private String senderId;
     private String receiver;
@@ -16,21 +17,18 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(String taskId, int taskPosition,
-                   String sender, String senderId, String content, long time) {
+    public Comment(String taskId, String sender, String senderId, String content, long time) {
         this.taskId = taskId;
-        this.taskPosition = taskPosition;
         this.sender = sender;
         this.senderId = senderId;
         this.content = content;
         this.time = time;
     }
 
-    public Comment(String taskId, int taskPosition, String sender, String senderId,
+    public Comment(String taskId, String sender, String senderId,
                    String receiver, String receiverId,
                    String content, long time) {
         this.taskId = taskId;
-        this.taskPosition = taskPosition;
         this.sender = sender;
         this.senderId = senderId;
         this.receiver = receiver;
@@ -45,14 +43,6 @@ public class Comment {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
-    }
-
-    public int getTaskPosition() {
-        return taskPosition;
-    }
-
-    public void setTaskPosition(int taskPosition) {
-        this.taskPosition = taskPosition;
     }
 
     public String getSender() {

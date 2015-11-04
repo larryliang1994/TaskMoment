@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -25,12 +26,12 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Comment;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
-import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.adapter.Adpt_TimelinePicture;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
@@ -106,7 +107,6 @@ public class Aty_TaskInfo extends AppCompatActivity {
     private static ScrollView sv_taskInfo;
     private static Space space;
     private Task task;
-    private int position = -1;
     private static Adpt_Comment adapter_comment;
     private static boolean commentWindowIsShow = false;
     private static boolean auditWindowIsShow = false;
@@ -121,14 +121,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        position = getIntent().getIntExtra("taskPosition", -1);
-        String taskID = getIntent().getStringExtra("taskID");
-        for (int i = 0; i < Adpt_Timeline.taskList.size(); i++) {
-            task = Adpt_Timeline.taskList.get(i);
-            if (taskID.equals(task.getId())) {
-                break;
-            }
-        }
+        task = (Task) getIntent().getSerializableExtra("task");
 
         initView();
     }
@@ -234,13 +227,13 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     tv_delete.setBackgroundColor(
-                            Aty_TaskInfo.this.getResources().getColor(R.color.gray));
+                            ContextCompat.getColor(Aty_TaskInfo.this, R.color.gray));
 
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             tv_delete.setBackgroundColor(
-                                    Aty_TaskInfo.this.getResources().getColor(R.color.transparent));
+                                    ContextCompat.getColor(Aty_TaskInfo.this, R.color.transparent));
                         }
                     }, 100);
 
@@ -276,9 +269,11 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                         if ("900001".equals(jsonObject.getString("status"))) {
                                                             dialog.dismiss();
 
-                                                            Intent intent = new Intent();
-                                                            intent.putExtra("taskPosition", position);
-                                                            Aty_TaskInfo.this.setResult(RESULT_OK, intent);
+                                                            Intent intent = new Intent(Constants.ACTION_DELETE_TASK);
+                                                            intent.putExtra("taskID", task.getId());
+
+                                                            Aty_TaskInfo.this.sendBroadcast(intent);
+
                                                             Aty_TaskInfo.this.finish();
                                                             overridePendingTransition(R.anim.in_left_right,
                                                                     R.anim.out_left_right);
@@ -410,23 +405,23 @@ public class Aty_TaskInfo extends AppCompatActivity {
     private void setGradeColor(TextView tv_grade, String grade) {
         switch (grade) {
             case "S":
-                tv_grade.setTextColor(getResources().getColor(R.color.S));
+                tv_grade.setTextColor(ContextCompat.getColor(this, R.color.S));
                 break;
 
             case "A":
-                tv_grade.setTextColor(getResources().getColor(R.color.A));
+                tv_grade.setTextColor(ContextCompat.getColor(this, R.color.A));
                 break;
 
             case "B":
-                tv_grade.setTextColor(getResources().getColor(R.color.B));
+                tv_grade.setTextColor(ContextCompat.getColor(this, R.color.B));
                 break;
 
             case "C":
-                tv_grade.setTextColor(getResources().getColor(R.color.C));
+                tv_grade.setTextColor(ContextCompat.getColor(this, R.color.C));
                 break;
 
             case "D":
-                tv_grade.setTextColor(getResources().getColor(R.color.D));
+                tv_grade.setTextColor(ContextCompat.getColor(this, R.color.D));
                 break;
         }
     }
@@ -435,7 +430,6 @@ public class Aty_TaskInfo extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iBtn_back:
-                setResult(RESULT_CANCELED);
                 finish();
                 overridePendingTransition(R.anim.in_left_right,
                         R.anim.out_left_right);
@@ -553,25 +547,34 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
+                                        Comment comment;
                                         if (!"".equals(receiver)) {
-                                            adapter_comment.commentList.add(new Comment(
-                                                    taskID, 0, Config.NICKNAME, Config.MID,
+                                            comment = new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
                                                     receiver, receiverID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
-                                                            .getTimeInMillis()));
+                                                            .getTimeInMillis());
+                                            adapter_comment.commentList.add(comment);
                                         } else {
-                                            adapter_comment.commentList.add(new Comment(
-                                                    taskID, 0, Config.NICKNAME, Config.MID,
+                                            comment = new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
-                                                            .getTimeInMillis()));
+                                                            .getTimeInMillis());
+                                            adapter_comment.commentList.add(comment);
                                         }
 
                                         adapter_comment = new Adpt_Comment(context,
                                                 adapter_comment.commentList, "taskInfo");
                                         lv_comment.setAdapter(adapter_comment);
                                         UtilBox.setListViewHeightBasedOnChildren(lv_comment);
+
+                                        // 发送更新评论广播
+                                        Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
+                                        intent.putExtra("taskID", taskID);
+                                        intent.putExtra("comment", comment);
+                                        context.sendBroadcast(intent);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -708,7 +711,6 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 ll_audit.setVisibility(View.GONE);
                 auditWindowIsShow = false;
             } else {
-                setResult(RESULT_CANCELED);
                 finish();
                 overridePendingTransition(R.anim.in_left_right,
                         R.anim.out_left_right);

@@ -1,6 +1,7 @@
 package com.jiubai.taskmoment.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,13 +25,16 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_PersonalTimeline;
+import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Member;
+import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -84,6 +88,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private String mobile;
     private String request_type;
     private boolean isBottomRefreshing = false;
+    private Receiver_UpdateView deleteTaskReceiver, commentReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -360,14 +365,12 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
      * 弹出评论窗口
      *
      * @param context    上下文
-     * @param position   任务位置
      * @param taskID     任务ID
      * @param receiver   接收者
      * @param receiverID 接收者ID
      * @param y          所点击的组件的y坐标
      */
-    public static void showCommentWindow(final Context context,
-                                         final int position, final String taskID,
+    public static void showCommentWindow(final Context context, final String taskID,
                                          final String receiver, final String receiverID,
                                          final int y) {
         commentWindowIsShow = true;
@@ -382,7 +385,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 56));
+        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
 
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
@@ -446,26 +449,26 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
+                                        // 发送更新评论广播
+                                        Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
+                                        intent.putExtra("taskID", taskID);
+
                                         if (!"".equals(receiver)) {
-                                            Adpt_PersonalTimeline.taskList.get(position)
-                                                    .getComments().add(
-                                                    new Comment(taskID, position,
-                                                            Config.NICKNAME, Config.MID,
-                                                            receiver, receiverID,
-                                                            edt_content.getText().toString(),
-                                                            Calendar.getInstance(Locale.CHINA)
-                                                                    .getTimeInMillis()));
+                                            intent.putExtra("comment", new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
+                                                    receiver, receiverID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
                                         } else {
-                                            Adpt_PersonalTimeline.taskList.get(position)
-                                                    .getComments().add(
-                                                    new Comment(taskID, position,
-                                                            Config.NICKNAME, Config.MID,
-                                                            edt_content.getText().toString(),
-                                                            Calendar.getInstance(Locale.CHINA)
-                                                                    .getTimeInMillis()));
+                                            intent.putExtra("comment", new Comment(taskID,
+                                                    Config.NICKNAME, Config.MID,
+                                                    edt_content.getText().toString(),
+                                                    Calendar.getInstance(Locale.CHINA)
+                                                            .getTimeInMillis()));
                                         }
-                                        adapter.notifyDataSetChanged();
-                                        UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                        context.sendBroadcast(intent);
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -586,6 +589,60 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onStart() {
+        deleteTaskReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String taskID, Object... objects) {
+
+                        for (int i = 0; i < Adpt_PersonalTimeline.taskList.size(); i++) {
+                            if (Adpt_Timeline.taskList.get(i).getId().equals(taskID)) {
+                                Adpt_Timeline.taskList.remove(i);
+                                adapter.notifyDataSetChanged();
+                                UtilBox.setListViewHeightBasedOnChildren(lv);
+                                break;
+                            }
+                        }
+                    }
+                });
+        deleteTaskReceiver.registerAction(Constants.ACTION_DELETE_TASK);
+
+        commentReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String taskID, Object... objects) {
+                        for (int i = 0; i < Adpt_PersonalTimeline.taskList.size(); i++) {
+                            Task task = Adpt_PersonalTimeline.taskList.get(i);
+                            if (task.getId().equals(taskID)) {
+                                Comment comment = (Comment) objects[0];
+
+                                if (task.getComments().get(task.getComments().size() - 1).getTime()
+                                        != comment.getTime()) {
+
+                                    Adpt_PersonalTimeline.taskList.get(i).getComments().add(comment);
+                                    adapter.notifyDataSetChanged();
+                                    UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+        commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(deleteTaskReceiver);
+        unregisterReceiver(commentReceiver);
+
+        super.onDestroy();
     }
 
     @Override

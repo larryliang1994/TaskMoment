@@ -3,8 +3,6 @@ package com.jiubai.taskmoment.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +12,8 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.News;
+import com.jiubai.taskmoment.classes.Task;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.view.RippleView;
@@ -71,7 +71,7 @@ public class Adpt_News extends BaseAdapter {
                             @Override
                             public void onComplete(RippleView rippleView) {
                                 Intent intent = new Intent(context, Aty_TaskInfo.class);
-                                intent.putExtra("taskID", newsList.get(position).getTaskID());
+                                intent.putExtra("task", newsList.get(position).getTask());
 
                                 context.startActivity(intent);
                                 ((Activity) context).overridePendingTransition(
@@ -81,26 +81,33 @@ public class Adpt_News extends BaseAdapter {
                 );
 
         final News news = newsList.get(position);
+        final Task task = news.getTask();
 
-        if ("null".equals(news.getPortrait())) {
-            holder.iv_portrait.setImageResource(R.drawable.portrait_default);
-        } else {
-            ImageLoader.getInstance().displayImage(news.getPortrait(), holder.iv_portrait);
+        if("comment".equals(news.getType())){
+            ImageLoader.getInstance().displayImage(
+                    Constants.HOST_ID + "task_moment/" + news.getSenderID() + ".jpg",
+                    holder.iv_portrait);
+
+
+        } else if("task".equals(news.getType())){
+            if ("null".equals(task.getPortraitUrl())) {
+                holder.iv_portrait.setImageResource(R.drawable.portrait_default);
+            } else {
+                ImageLoader.getInstance().displayImage(task.getPortraitUrl(), holder.iv_portrait);
+            }
+
+            holder.tv_sender.setText(task.getNickname());
+
+            holder.tv_content.setText(task.getDesc());
+
+            holder.tv_time.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.TIME));
+
+            if (task.getPictures()!=null && !task.getPictures().isEmpty()) {
+                ImageLoader.getInstance().displayImage(task.getPictures().get(0), holder.iv_picture);
+            } else {
+                holder.iv_picture.setVisibility(View.INVISIBLE);
+            }
         }
-
-        holder.tv_content.setText(news.getContent());
-        holder.tv_time.setText(UtilBox.getDateToString(news.getCreate_time(), UtilBox.TIME));
-
-        if (!"null".equals(news.getPicture())) {
-            ImageLoader.getInstance().displayImage(news.getPicture(), holder.iv_picture);
-        }
-
-        // 发送者
-        final SpannableString senderSpan = new SpannableString(news.getSender());
-        senderSpan.setSpan(senderSpan, 0, news.getSender().length(),
-                Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-
-        holder.tv_sender.setText(senderSpan);
 
         return convertView;
     }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -127,35 +128,35 @@ public class Adpt_Comment extends BaseAdapter {
 
                 if (!Config.MID.equals(comment.getSenderId())) {
                     if ("timeline".equals(which)) {
-                        Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                        Frag_Timeline.showCommentWindow(context,
                                 comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
                     } else if ("taskInfo".equals(which)) {
                         Aty_TaskInfo.showCommentWindow(context,
                                 comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
                     } else {
-                        Aty_PersonalTimeline.showCommentWindow(context, comment.getTaskPosition(),
+                        Aty_PersonalTimeline.showCommentWindow(context,
                                 comment.getTaskId(), comment.getSender(), comment.getSenderId(), y);
                     }
                 } else {
                     if ("timeline".equals(which)) {
-                        Frag_Timeline.showCommentWindow(context, comment.getTaskPosition(),
+                        Frag_Timeline.showCommentWindow(context,
                                 comment.getTaskId(), "", "", y);
                     } else if ("taskInfo".equals(which)) {
                         Aty_TaskInfo.showCommentWindow(context, comment.getTaskId(), "", "", y);
                     } else {
-                        Aty_PersonalTimeline.showCommentWindow(context, comment.getTaskPosition(),
+                        Aty_PersonalTimeline.showCommentWindow(context,
                                 comment.getTaskId(), "", "", y);
                     }
                 }
 
                 holder.tv_comment.setBackgroundColor(
-                        context.getResources().getColor(R.color.gray));
+                        ContextCompat.getColor(context, R.color.gray));
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         holder.tv_comment.setBackgroundColor(
-                                context.getResources().getColor(R.color.transparent));
+                                ContextCompat.getColor(context, R.color.transparent));
                     }
                 }, 100);
             }

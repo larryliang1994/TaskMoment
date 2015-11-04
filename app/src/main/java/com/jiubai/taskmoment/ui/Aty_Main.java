@@ -65,6 +65,8 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
     private CircleImageView iv_navigation;
     private TextView tv_nickname;
 
+    Receiver_UpdateView nicknameReceiver, portraitReceiver;
+
     private int currentItem = 0;
     private long doubleClickTime = 0;
 
@@ -320,10 +322,10 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
 
     @Override
     protected void onStart() {
-        Receiver_UpdateView nicknameReceiver = new Receiver_UpdateView(this,
+        nicknameReceiver = new Receiver_UpdateView(this,
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
-                    public void updateView(String msg) {
+                    public void updateView(String msg, Object... objects) {
                         tv_nickname.setText(msg);
                         nv.removeHeaderView(ll_nvHeader);
                         nv.addHeaderView(ll_nvHeader);
@@ -331,10 +333,10 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                 });
         nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
 
-        Receiver_UpdateView portraitReceiver = new Receiver_UpdateView(this,
+        portraitReceiver = new Receiver_UpdateView(this,
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
-                    public void updateView(String msg) {
+                    public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
                                 Config.PORTRAIT, iv_navigation);
                         nv.removeHeaderView(ll_nvHeader);
@@ -344,6 +346,14 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
 
         super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(nicknameReceiver);
+        unregisterReceiver(portraitReceiver);
+
+        super.onDestroy();
     }
 
     @Override
