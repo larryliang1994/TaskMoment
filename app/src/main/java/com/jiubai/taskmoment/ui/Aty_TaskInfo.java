@@ -238,8 +238,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                     }, 100);
 
                     final MaterialDialog dialog = new MaterialDialog(Aty_TaskInfo.this);
-                    dialog.setTitle(R.string.tips)
-                            .setMessage("真的要删除吗")
+                    dialog.setMessage("真的要删除吗")
                             .setCanceledOnTouchOutside(true)
                             .setNegativeButton("假的", new View.OnClickListener() {
                                 @Override

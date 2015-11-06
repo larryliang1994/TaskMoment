@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -18,13 +17,16 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.aliyun.mbaas.oss.callback.SaveCallback;
-import com.aliyun.mbaas.oss.model.OSSException;
+import com.alibaba.sdk.android.media.upload.UploadListener;
+import com.alibaba.sdk.android.media.upload.UploadTask;
+import com.alibaba.sdk.android.media.utils.FailReason;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_UserInfo;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.net.OssUtil;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.BaseUploadListener;
+import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
@@ -107,63 +109,49 @@ public class Frag_UserInfo extends Fragment {
 
                     final Bitmap bitmap = data.getParcelableExtra("data");
 
-                    final String objectName = "task_moment/" + Config.MID + ".jpg";
+                    final String objectName = Config.MID + ".jpg";
 
-                    OssUtil.uploadImage(
+                    final UploadListener uploadListener = new BaseUploadListener() {
+                        @Override
+                        public void onUploadFailed(UploadTask uploadTask, FailReason failReason) {
+                            System.out.println(failReason.getMessage());
+
+                            Toast.makeText(getActivity(),
+                                    R.string.usual_error,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onUploadComplete(UploadTask uploadTask) {
+                            // 清除原有的cache
+                            MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
+                                    ImageLoader.getInstance().getMemoryCache());
+                            DiskCacheUtils.removeFromCache(Config.PORTRAIT,
+                                    ImageLoader.getInstance().getDiskCache());
+
+
+                            Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + objectName;
+
+                            SharedPreferences sp = getActivity()
+                                    .getSharedPreferences(Constants.SP_FILENAME,
+                                            Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putString(Constants.SP_KEY_PORTRAIT,
+                                    Config.PORTRAIT);
+                            editor.apply();
+
+                            adapter.notifyDataSetChanged();
+
+                            // 发送更新头像广播
+                            getActivity().sendBroadcast(
+                                    new Intent(Constants.ACTION_CHANGE_PORTRAIT));
+
+                        }
+                    };
+
+                    MediaServiceUtil.uploadImage(
                             UtilBox.compressImage(bitmap, Constants.SIZE_PORTRAIT),
-                            objectName,
-                            new SaveCallback() {
-                                @Override
-                                public void onSuccess(final String objectKey) {
-                                    System.out.println(objectKey + " upload success!");
-
-                                    // 清除原有的cache
-                                    MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
-                                            ImageLoader.getInstance().getMemoryCache());
-                                    DiskCacheUtils.removeFromCache(Config.PORTRAIT,
-                                            ImageLoader.getInstance().getDiskCache());
-
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Config.PORTRAIT = Constants.HOST_ID + objectKey;
-
-                                            SharedPreferences sp = getActivity()
-                                                    .getSharedPreferences("config",
-                                                            Context.MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = sp.edit();
-                                            editor.putString(Constants.SP_KEY_PORTRAIT,
-                                                    Config.PORTRAIT);
-                                            editor.apply();
-
-                                            adapter.notifyDataSetChanged();
-
-                                            // 发送更新头像广播
-                                            getActivity().sendBroadcast(
-                                                    new Intent(Constants.ACTION_CHANGE_PORTRAIT));
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onProgress(String objectKey, int i, int i1) {
-
-                                }
-
-                                @Override
-                                public void onFailure(String objectKey, OSSException e) {
-                                    Looper.prepare();
-
-                                    System.out.println(objectKey + " failed..");
-                                    e.printStackTrace();
-
-                                    Toast.makeText(getActivity(),
-                                            R.string.usual_error,
-                                            Toast.LENGTH_SHORT).show();
-
-                                    Looper.loop();
-                                }
-                            });
+                            Constants.DIR_PORTRAIT, objectName, uploadListener);
                 }
                 break;
         }

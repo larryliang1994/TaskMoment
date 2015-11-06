@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -19,6 +20,11 @@ import com.jiubai.taskmoment.ui.Aty_Main;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.umeng.update.UmengDialogButtonListener;
+import com.umeng.update.UmengUpdateAgent;
+import com.umeng.update.UmengUpdateListener;
+import com.umeng.update.UpdateResponse;
+import com.umeng.update.UpdateStatus;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,55 +35,108 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Config.COOKIE == null) {
-            startActivity(new Intent(this, Aty_Login.class));
-        } else if (Config.CID == null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (!Config.IS_CONNECTED) {
-                        Toast.makeText(MainActivity.this, R.string.cant_access_network,
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        // 获取用户信息
-                        getUserInfo();
+        setContentView(R.layout.guidepage);
 
-                        // 清除原有的cache
-                        MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
-                                ImageLoader.getInstance().getMemoryCache());
-                        DiskCacheUtils.removeFromCache(Config.PORTRAIT,
-                                ImageLoader.getInstance().getDiskCache());
-                    }
-                    startActivity(new Intent(MainActivity.this, Aty_Company.class));
+        UmengUpdateAgent.setUpdateOnlyWifi(false);
+        UmengUpdateAgent.setDeltaUpdate(true);
+        UmengUpdateAgent.setUpdateAutoPopup(false);
+        UmengUpdateAgent.setUpdateListener(new UmengUpdateListener() {
+            @Override
+            public void onUpdateReturned(int updateStatus, UpdateResponse updateInfo) {
+                switch (updateStatus) {
+                    case UpdateStatus.NoneWifi:
+                    case UpdateStatus.Yes: // has update
+                        UmengUpdateAgent.showUpdateDialog(MainActivity.this, updateInfo);
+                        break;
+
+                    case UpdateStatus.No: // has no update
+                    case UpdateStatus.Timeout: // time out
+                        getStart();
+                        break;
                 }
-            }).start();
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    if (!Config.IS_CONNECTED) {
-                        Toast.makeText(MainActivity.this, R.string.cant_access_network,
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        // 获取用户信息
-                        getUserInfo();
-                    }
+            }
+        });
+        UmengUpdateAgent.setDialogListener(new UmengDialogButtonListener() {
 
-                    UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
-                        @Override
-                        public void successCallback() {
-                            startActivity(new Intent(MainActivity.this, Aty_Main.class));
-                        }
-
-                        @Override
-                        public void failedCallback() {
-                        }
-                    });
+            @Override
+            public void onClick(int status) {
+                switch (status) {
+                    case UpdateStatus.Update:
+                        Toast.makeText(MainActivity.this, "开始下载更新", Toast.LENGTH_SHORT).show();
+                        break;
+                    case UpdateStatus.Ignore:
+                    case UpdateStatus.NotNow:
+                        getStart();
+                        break;
                 }
-            }).start();
-        }
+            }
+        });
+        UmengUpdateAgent.update(this);
+    }
 
-        finish();
+    // 进入正式页面
+    private void getStart(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (Config.COOKIE == null) {
+                    startActivity(new Intent(MainActivity.this, Aty_Login.class));
+                    finish();
+                } else if (Config.CID == null) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!Config.IS_CONNECTED) {
+                                Toast.makeText(MainActivity.this, R.string.cant_access_network,
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                // 获取用户信息
+                                getUserInfo();
+
+                                // 清除原有的cache
+                                MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
+                                        ImageLoader.getInstance().getMemoryCache());
+                                DiskCacheUtils.removeFromCache(Config.PORTRAIT,
+                                        ImageLoader.getInstance().getDiskCache());
+                            }
+                            startActivity(new Intent(MainActivity.this, Aty_Company.class));
+
+                            finish();
+                        }
+                    }).start();
+                } else {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!Config.IS_CONNECTED) {
+                                Toast.makeText(MainActivity.this,
+                                        R.string.cant_access_network,
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                // 获取用户信息
+                                getUserInfo();
+                            }
+
+                            UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
+                                @Override
+                                public void successCallback() {
+                                    startActivity(new Intent(MainActivity.this, Aty_Main.class));
+
+                                    finish();
+                                }
+
+                                @Override
+                                public void failedCallback() {
+                                    startActivity(new Intent(MainActivity.this, Aty_Main.class));
+
+                                    finish();
+                                }
+                            });
+                        }
+                    }).start();
+                }
+            }
+        }, 1500);
     }
 
     private void getUserInfo() {
@@ -93,7 +152,7 @@ public class MainActivity extends Activity {
 
                                 Config.MID = data.getString("id");
                                 Config.NICKNAME = data.getString("real_name");
-                                Config.PORTRAIT = Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg";
+                                Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg";
 
                                 SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();

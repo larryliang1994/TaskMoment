@@ -16,7 +16,7 @@
         <item
             android:id="@+id/navItem_preference"
             android:icon="@drawable/preference"
-            android:title="@string/setting" />
+            android:title="@string/preference" />
         <item
             android:id="@+id/navItem_chooseCompany"
             android:icon="@drawable/change_company"

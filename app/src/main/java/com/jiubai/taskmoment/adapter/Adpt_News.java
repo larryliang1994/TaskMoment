@@ -13,8 +13,7 @@ import android.widget.TextView;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.classes.Task;
-import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.view.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -83,30 +82,20 @@ public class Adpt_News extends BaseAdapter {
         final News news = newsList.get(position);
         final Task task = news.getTask();
 
-        if("comment".equals(news.getType())){
-            ImageLoader.getInstance().displayImage(
-                    Constants.HOST_ID + "task_moment/" + news.getSenderID() + ".jpg",
-                    holder.iv_portrait);
+        ImageLoader.getInstance().displayImage(
+                Urls.MEDIA_CENTER_PORTRAIT + news.getSenderID() + ".jpg",
+                holder.iv_portrait);
 
+        holder.tv_sender.setText(news.getTitle());
 
-        } else if("task".equals(news.getType())){
-            if ("null".equals(task.getPortraitUrl())) {
-                holder.iv_portrait.setImageResource(R.drawable.portrait_default);
-            } else {
-                ImageLoader.getInstance().displayImage(task.getPortraitUrl(), holder.iv_portrait);
-            }
+        holder.tv_content.setText(news.getContent());
 
-            holder.tv_sender.setText(task.getNickname());
+        holder.tv_time.setText(news.getTime());
 
-            holder.tv_content.setText(task.getDesc());
-
-            holder.tv_time.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.TIME));
-
-            if (task.getPictures()!=null && !task.getPictures().isEmpty()) {
-                ImageLoader.getInstance().displayImage(task.getPictures().get(0), holder.iv_picture);
-            } else {
-                holder.iv_picture.setVisibility(View.INVISIBLE);
-            }
+        if (task.getPictures() != null && !task.getPictures().isEmpty()) {
+            ImageLoader.getInstance().displayImage(task.getPictures().get(0), holder.iv_picture);
+        } else {
+            holder.iv_picture.setVisibility(View.INVISIBLE);
         }
 
         return convertView;

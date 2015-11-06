@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -21,21 +22,23 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aliyun.mbaas.oss.callback.SaveCallback;
-import com.aliyun.mbaas.oss.model.OSSException;
+import com.alibaba.sdk.android.media.upload.UploadListener;
+import com.alibaba.sdk.android.media.upload.UploadTask;
+import com.alibaba.sdk.android.media.utils.FailReason;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.adapter.Adpt_PublishPicture;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.MyDate;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.OssUtil;
+import com.jiubai.taskmoment.net.BaseUploadListener;
+import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.DateDialog;
 import com.jiubai.taskmoment.view.RippleView;
 import com.umeng.analytics.MobclickAgent;
@@ -391,74 +394,74 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 adpt_publishPicture.pictureList.get(uploadedNum),
                 UtilBox.getWidthPixels(this), UtilBox.getHeightPixels(this));
 
-        OssUtil.uploadImage(UtilBox.compressImage(bitmap, Constants.SIZE_TASK_IMAGE),
-                UtilBox.getObjectName(),
-                new SaveCallback() {
-                    @Override
-                    public void onSuccess(String objectKey) {
-                        // 已上传的图片数加一
-                        uploadedNum++;
+        UploadListener uploadListener = new BaseUploadListener() {
+            @Override
+            public void onUploadFailed(UploadTask uploadTask, FailReason failReason) {
+                Looper.prepare();
+                Toast.makeText(Aty_TaskPublish.this,
+                        R.string.usual_error,
+                        Toast.LENGTH_SHORT).show();
+                Log.e("task", failReason.getMessage());
+                Looper.loop();
+            }
 
-                        // 记录已上传的图片的文件名
-                        pictureList.add(objectKey);
+            @Override
+            public void onUploadComplete(UploadTask uploadTask) {
+                System.out.println("success:" + uploadTask.getResult().url);
 
-                        // -1是因为最后一张是本地的加号
-                        if (uploadedNum < adpt_publishPicture.pictureList.size() - 1) {
-                            // 接着上传下一张图片
-                            uploadImage(id);
-                        } else {
-                            String[] key = {"taskid", "works"};
-                            String[] value = {id, new JSONArray(pictureList).toString()};
+                // 已上传的图片数加一
+                uploadedNum++;
 
-                            VolleyUtil.requestWithCookie(Urls.UPDATE_TASK_PICTURE, key, value,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            try {
-                                                JSONObject responseJson = new JSONObject(response);
+                // 记录已上传的图片的文件名
+                pictureList.add(uploadTask.getResult().url);
 
-                                                if (!"1".equals(responseJson.getString("status"))
-                                                        && !"900001".equals(responseJson.getString("status"))) {
-                                                    System.out.println(response);
+                // -1是因为最后一张是本地的加号
+                if (uploadedNum < adpt_publishPicture.pictureList.size() - 1) {
+                    // 接着上传下一张图片
+                    uploadImage(id);
+                } else {
+                    String[] key = {"taskid", "works"};
+                    String[] value = {id, new JSONArray(pictureList).toString()};
 
-                                                    Toast.makeText(Aty_TaskPublish.this,
-                                                            responseJson.getString("info"),
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
+                    VolleyUtil.requestWithCookie(Urls.UPDATE_TASK_PICTURE, key, value,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    try {
+                                        JSONObject responseJson = new JSONObject(response);
 
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    },
-                                    new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError volleyError) {
-                                            volleyError.printStackTrace();
+                                        if (!"1".equals(responseJson.getString("status"))
+                                                && !"900001".equals(responseJson.getString("status"))) {
+                                            System.out.println(response);
 
                                             Toast.makeText(Aty_TaskPublish.this,
-                                                    R.string.usual_error,
+                                                    responseJson.getString("info"),
                                                     Toast.LENGTH_SHORT).show();
                                         }
-                                    });
-                        }
-                    }
 
-                    @Override
-                    public void onProgress(String objectKey, int i, int i1) {
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    volleyError.printStackTrace();
 
-                    }
+                                    Toast.makeText(Aty_TaskPublish.this,
+                                            R.string.usual_error,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        };
 
-                    @Override
-                    public void onFailure(String objectKey, OSSException e) {
-                        Looper.prepare();
-                        Toast.makeText(Aty_TaskPublish.this,
-                                R.string.usual_error,
-                                Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                        Looper.loop();
-                    }
-                });
+        MediaServiceUtil.uploadImage(
+                UtilBox.compressImage(bitmap, Constants.SIZE_TASK_IMAGE), Constants.DIR_TASK,
+                UtilBox.getMD5Str(Calendar.getInstance().getTimeInMillis() + "") + ".jpg",
+                uploadListener);
     }
 
     /**

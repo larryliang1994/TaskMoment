@@ -15,6 +15,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Company;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.ui.Aty_Main;
 import com.jiubai.taskmoment.view.RippleView;
 
@@ -100,7 +101,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                         Config.COMPANY_NAME = companyList.get(position).getName();
                         Config.CID = companyList.get(position).getCid();
                         Config.COMPANY_BACKGROUND
-                                = Constants.HOST_ID + "task_moment/" + Config.CID + ".jpg";
+                                = Urls.MEDIA_CENTER_BACKGROUND + Config.CID + ".jpg";
 
                         // 保存公司信息
                         SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,

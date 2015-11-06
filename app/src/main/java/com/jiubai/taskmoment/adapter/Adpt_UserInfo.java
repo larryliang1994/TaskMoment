@@ -209,7 +209,7 @@ public class Adpt_UserInfo extends BaseAdapter {
                             tv.setText("昵称不能为空");
 
                             return;
-                        } else if (newNickname.getBytes().length > 18) {
+                        } else if (newNickname.getBytes().length > 24) {
                             TextView tv = (TextView) contentView
                                     .findViewById(R.id.tv_input);
                             tv.setVisibility(View.VISIBLE);
@@ -283,7 +283,6 @@ public class Adpt_UserInfo extends BaseAdapter {
         });
 
         dialog.setContentView(contentView)
-                .setTitle("更改昵称")
                 .setCanceledOnTouchOutside(true)
                 .show();
     }

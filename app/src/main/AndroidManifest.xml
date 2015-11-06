@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
     <!-- 必选 -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -103,6 +104,10 @@
             android:name=".ui.Aty_TaskInfo"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.Aty_About"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
@@ -238,6 +243,16 @@
         <!-- 如果不使用本地通知，可以注释掉本地通知服务的配置 -->
         <service android:name="com.umeng.message.local.UmengLocalNotificationService"
             android:exported="false" />
+
+        <service
+            android:name="com.umeng.update.net.DownloadingService"
+            android:process=":DownloadingService" >
+        </service>
+
+        <activity
+            android:name="com.umeng.update.UpdateDialogActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+        </activity>
 
         <meta-data
             android:name="api_key"

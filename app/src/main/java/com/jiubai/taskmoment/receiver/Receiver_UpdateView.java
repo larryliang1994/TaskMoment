@@ -41,7 +41,11 @@ public class Receiver_UpdateView extends BroadcastReceiver {
                 callBack.updateView(intent.getStringExtra("msg"));
             }
 
+            System.out.println(Config.NEWS_NUM);
+
             // 防止多次调用
+            // noinspection deprecation
+            context.removeStickyBroadcast(intent);
             abortBroadcast();
         } else if (Constants.ACTION_CHANGE_NICKNAME.equals(intent.getAction())) {
             if (callBack != null) {
@@ -59,6 +63,10 @@ public class Receiver_UpdateView extends BroadcastReceiver {
             if (callBack != null) {
                 callBack.updateView(intent.getStringExtra("taskID"),
                         intent.getSerializableExtra("comment"));
+            }
+        } else if(Constants.ACTION_CHANGE_BACKGROUND.equals(intent.getAction())){
+            if (callBack != null) {
+                callBack.updateView(null);
             }
         }
     }

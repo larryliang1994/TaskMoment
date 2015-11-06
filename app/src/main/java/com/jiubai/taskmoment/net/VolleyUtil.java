@@ -3,12 +3,14 @@ package com.jiubai.taskmoment.net;
 import android.content.Context;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 
 import java.util.HashMap;
@@ -61,6 +63,8 @@ public class VolleyUtil {
             }
         };
 
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(Constants.REQUEST_TIMEOUT, 1, 1.0f));
+
         // 加入请求队列
         requestQueue.add(stringRequest);
     }
@@ -103,6 +107,8 @@ public class VolleyUtil {
                 }
             }
         };
+
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(Constants.REQUEST_TIMEOUT, 1, 1.0f));
 
         // 加入请求队列
         requestQueue.add(stringRequest);

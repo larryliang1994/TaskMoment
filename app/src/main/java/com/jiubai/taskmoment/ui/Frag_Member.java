@@ -142,7 +142,6 @@ public class Frag_Member extends Fragment {
                     });
 
                     dialog.setContentView(contentView)
-                            .setTitle("添加成员")
                             .setCanceledOnTouchOutside(true)
                             .show();
 
@@ -152,8 +151,7 @@ public class Frag_Member extends Fragment {
                 } else if (!adpt_member.isEmpty && position != 0) {
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());
-                    dialog.setTitle("删除")
-                            .setMessage("真的要删除该成员吗？")
+                    dialog.setMessage("真的要删除该成员吗？")
                             .setPositiveButton("真的", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

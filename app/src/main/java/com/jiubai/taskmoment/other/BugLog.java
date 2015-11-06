@@ -60,6 +60,13 @@ package com.jiubai.taskmoment.other;
  * 解决方案：ToolBar高度改为48dp以后就没问题了，估计是之前没有改为56dp的原因
  */
 
+/**
+ * 发现日期：2015-11-7
+ * 问题描述：发布任务时图片上传有时候会失败，少上传了几张，其他有关图片上传的地方似乎也不大稳定
+ * 解决情况：未解决
+ * 解决方案：无
+ */
+
 @SuppressWarnings("unused")
 public class BugLog {
 }

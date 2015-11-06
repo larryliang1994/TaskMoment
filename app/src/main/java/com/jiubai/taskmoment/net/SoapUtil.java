@@ -1,7 +1,6 @@
 package com.jiubai.taskmoment.net;
 
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 
 import org.json.JSONException;
@@ -66,7 +65,7 @@ public class SoapUtil {
             JSONObject jsonObject = new JSONObject(urlString);
             Config.MID = jsonObject.getString("id");
             Config.NICKNAME = jsonObject.getString("real_name");
-            Config.PORTRAIT = Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg";
+            Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg";
         } catch (JSONException e) {
             e.printStackTrace();
         }

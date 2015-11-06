@@ -215,6 +215,7 @@
                     android:id="@+id/rb_solved"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/solved"
                     android:textColor="#767676" />
 
@@ -227,6 +228,7 @@
                     android:id="@+id/rb_complete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/complete"
                     android:textColor="#767676" />
 
@@ -239,6 +241,7 @@
                     android:id="@+id/rb_failed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/task_failed"
                     android:textColor="#767676" />
             </RadioGroup>

@@ -6,11 +6,6 @@ import android.os.Environment;
  * 常量
  */
 public class Constants {
-    public static final String OSSACCESSKEY = "ATqbBKHty4TJNmLY";
-    public static final String OSSSCRECTKEY = "3BDRee3e109ZzCO4TrofOypSqv3fDw";
-    public static final String BUCKET_NAME = "jiubai-app";
-    public static final String HOST_ID = "http://jiubai-app.oss-cn-hangzhou.aliyuncs.com/";
-
     public static final int CODE_ADD_COMPANY = 1;
     public static final int CODE_CHANGE_COMPANY = 2;
     public static final int CODE_MULTIPLE_PICTURE = 3;
@@ -30,15 +25,23 @@ public class Constants {
     public static final String SP_KEY_MID = "mid";
     public static final String SP_KEY_NICKNAME = "nickname";
 
+    public static final String NAMESPACE = "taskmoment";
+    public static final String DIR_PORTRAIT = "portrait/";
+    public static final String DIR_BACKGROUND = "background/";
+    public static final String DIR_TASK = "task/";
+
     public static final String ACTION_NEWS = "com.jiubai.action.news";
     public static final String ACTION_CHANGE_NICKNAME = "com.jiubai.action.change_nickname";
     public static final String ACTION_CHANGE_PORTRAIT = "com.jiubai.action.change_portrait";
     public static final String ACTION_DELETE_TASK = "com.jiubai.action.delete_task";
     public static final String ACTION_SEND_COMMENT = "com.jiubai.action.send_comment";
+    public static final String ACTION_CHANGE_BACKGROUND = "com.jiubai.action.change_background";
 
     public static final String TEMP_FILE_LOCATION = "file:///"
             + Environment.getExternalStorageDirectory() + "/temp.jpg";
     public static final int SIZE_COMPANY_BACKGROUND = 500;
     public static final int SIZE_TASK_IMAGE = 300;
     public static final int SIZE_PORTRAIT = 100;
+
+    public static final int REQUEST_TIMEOUT = 10000;
 }

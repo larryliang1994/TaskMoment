@@ -83,8 +83,8 @@
                     android:animateLayoutChanges="true"
                     android:background="@drawable/round_button_grade"
                     android:orientation="horizontal"
-                    android:visibility="gone"
-                    android:padding="7dp">
+                    android:padding="7dp"
+                    android:visibility="gone">
 
                     <ImageView
                         android:id="@+id/iv_news_portrait"
@@ -98,10 +98,10 @@
                         android:id="@+id/tv_news_num"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_marginLeft="8dp"
                         android:textColor="#ffffff"
-                        android:textSize="16sp"
-                        android:layout_gravity="center" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tv_news"
@@ -244,6 +244,7 @@
                     android:id="@+id/rb_solved"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/solved"
                     android:textColor="#767676" />
 
@@ -256,6 +257,7 @@
                     android:id="@+id/rb_complete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/complete"
                     android:textColor="#767676" />
 
@@ -268,6 +270,7 @@
                     android:id="@+id/rb_failed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@null"
                     android:text="@string/task_failed"
                     android:textColor="#767676" />
             </RadioGroup>

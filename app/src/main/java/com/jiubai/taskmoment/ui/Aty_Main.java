@@ -20,12 +20,11 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
@@ -109,6 +108,28 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.height = UtilBox.dip2px(this, 212);
         ll_nvHeader.setLayoutParams(lp);
+        ll_nvHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dw.closeDrawer(GravityCompat.START);
+
+                if (currentItem == 2) {
+                    return;
+                }
+
+                nv.getMenu().getItem(2).setChecked(true);
+                tv_title.setText(R.string.userInfo);
+                nv.getMenu().getItem(currentItem).setChecked(false);
+
+                switchContent(frag_userInfo);
+
+                tv_title.setOnClickListener(null);
+
+                currentItem = 2;
+
+                iBtn_publish.setVisibility(View.GONE);
+            }
+        });
 
         // 设置昵称
         tv_nickname = (TextView) ll_nvHeader.findViewById(R.id.tv_navigation_nickname);
@@ -189,7 +210,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                             break;
                         }
                         nv.getMenu().getItem(3).setChecked(true);
-                        tv_title.setText(R.string.timeline);
+                        tv_title.setText(R.string.preference);
                         nv.getMenu().getItem(currentItem).setChecked(false);
 
                         switchContent(frag_preference);
@@ -311,7 +332,6 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
 
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_MENU) { // 小米居然没用。。
-            Toast.makeText(this, "menu", Toast.LENGTH_SHORT).show();
             if (!dw.isDrawerOpen(GravityCompat.START)) {
                 dw.openDrawer(GravityCompat.START);
             }

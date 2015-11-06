@@ -3,6 +3,7 @@ package com.jiubai.taskmoment.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
@@ -57,7 +58,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
                     String id = obj.getString("id");
 
                     String mid = obj.getString("mid");
-                    String portraitUrl = Constants.HOST_ID + "task_moment/" + mid + ".jpg";
+                    String portraitUrl = Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg";
 
                     String nickname = obj.getString("show_name");
 
@@ -133,7 +134,7 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
             JSONArray jsonArray = new JSONArray(pictures);
 
             for (int i = 0; i < jsonArray.length(); i++) {
-                pictureList.add(Constants.HOST_ID + jsonArray.getString(i));
+                pictureList.add(jsonArray.getString(i));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -223,8 +224,9 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
         holder.tv_desc.setText(task.getDesc());
         holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
-        ImageLoader loader = ImageLoader.getInstance();
-        loader.displayImage(task.getPortraitUrl(), holder.iv_portrait);
+        ImageLoader.getInstance().displayImage(
+                UtilBox.getThumbnailImageName(task.getPortraitUrl(), UtilBox.dip2px(context, 45),
+                        UtilBox.dip2px(context, 45)), holder.iv_portrait);
 
         holder.iv_portrait.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -251,6 +253,17 @@ public class Adpt_PersonalTimeline extends BaseAdapter {
         holder.tv_desc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                holder.tv_desc.setBackgroundColor(
+                        ContextCompat.getColor(context, R.color.gray));
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.tv_desc.setBackgroundColor(
+                                ContextCompat.getColor(context, R.color.transparent));
+                    }
+                }, 100);
+
                 Intent intent = new Intent(context, Aty_TaskInfo.class);
                 intent.putExtra("task", task);
 

@@ -1,10 +1,18 @@
 package com.jiubai.taskmoment.ui;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -20,6 +28,8 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.sdk.android.media.upload.UploadListener;
+import com.alibaba.sdk.android.media.upload.UploadTask;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
@@ -29,21 +39,26 @@ import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.Task;
+import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.BaseUploadListener;
+import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -88,6 +103,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private String mobile;
     private String request_type;
     private boolean isBottomRefreshing = false;
+    private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
     private Receiver_UpdateView deleteTaskReceiver, commentReceiver;
 
     @Override
@@ -140,7 +156,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
         ImageLoader.getInstance()
-                .displayImage(Constants.HOST_ID + "task_moment/" + mid + ".jpg", iv_portrait);
+                .displayImage(Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg", iv_portrait);
 
         lv = (ListView) findViewById(R.id.lv_personal);
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
@@ -293,8 +309,6 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                         });
                                     }
                                 });
-
-                                System.out.println(isBottomRefreshing);
 
                             } else if ("900900".equals(responseStatus)) {
                                 // 没有更多了，就去掉footerView
@@ -567,12 +581,128 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         });
     }
 
-    @OnClick({R.id.iBtn_back})
+    @OnClick({R.id.iBtn_back, R.id.iv_companyBackground})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iBtn_back:
                 finish();
                 overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                break;
+
+            case R.id.iv_companyBackground:
+                String[] items = {"更换公司封面"};
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
+
+                        intent.setType("image/*");
+                        intent.putExtra("crop", "true");
+                        intent.putExtra("scale", true);
+                        intent.putExtra("return-data", false);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                        intent.putExtra("output", imageUri);
+                        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+                        intent.putExtra("noFaceDetection", true);
+
+                        int standardWidth = UtilBox.getWidthPixels(Aty_PersonalTimeline.this);
+                        int standardHeight = UtilBox.dip2px(Aty_PersonalTimeline.this, 270);
+
+                        // 裁剪框比例
+                        intent.putExtra("aspectX", standardWidth);
+                        intent.putExtra("aspectY", standardHeight);
+
+                        // 输出值
+                        intent.putExtra("outputX", standardWidth);
+                        intent.putExtra("outputY", standardHeight);
+
+                        startActivityForResult(intent, Constants.CODE_CHOOSE_COMPANY_BACKGROUND);
+
+                        overridePendingTransition(
+                                R.anim.in_right_left, R.anim.out_right_left);
+                    }
+                })
+                        .setCancelable(true);
+
+                Dialog dialog = builder.create();
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case Constants.CODE_CHOOSE_COMPANY_BACKGROUND:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (!Config.IS_CONNECTED) {
+                        Toast.makeText(this,
+                                R.string.cant_access_network,
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // TODO 更换公司背景没有经过服务器
+                    if (imageUri != null) {
+                        try {
+                            final Bitmap bitmap = BitmapFactory.decodeStream(
+                                    this.getContentResolver().openInputStream(imageUri));
+                            iv_companyBackground.setImageBitmap(bitmap);
+
+                            final String objectName = Config.CID + ".jpg";
+
+                            UploadListener listener = new BaseUploadListener() {
+
+                                @Override
+                                public void onUploadFailed(UploadTask uploadTask, com.alibaba.sdk.android.media.utils.FailReason failReason) {
+                                    System.out.println(failReason.getMessage());
+
+                                    Toast.makeText(Aty_PersonalTimeline.this,
+                                            R.string.usual_error,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onUploadComplete(UploadTask uploadTask) {
+                                    Config.COMPANY_BACKGROUND = Urls.MEDIA_CENTER_BACKGROUND + objectName;
+
+                                    // 清除原有的cache
+                                    MemoryCacheUtils.removeFromCache(
+                                            Config.COMPANY_BACKGROUND,
+                                            ImageLoader.getInstance().getMemoryCache());
+                                    DiskCacheUtils.removeFromCache(
+                                            Config.COMPANY_BACKGROUND,
+                                            ImageLoader.getInstance().getDiskCache());
+
+                                    SharedPreferences sp = getSharedPreferences(
+                                            Constants.SP_FILENAME,
+                                            Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sp.edit();
+                                    editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
+                                            Config.COMPANY_BACKGROUND);
+                                    editor.apply();
+
+                                    ImageLoader.getInstance().displayImage(
+                                            Config.COMPANY_BACKGROUND,
+                                            iv_companyBackground);
+                                }
+
+                            };
+
+                            MediaServiceUtil.uploadImage(
+                                    UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
+                                    Constants.DIR_BACKGROUND, objectName, listener);
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 break;
         }
     }

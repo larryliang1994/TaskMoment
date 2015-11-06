@@ -87,7 +87,9 @@ public class Adpt_TimelinePicture extends BaseAdapter {
             String imgUrl = ImageDownloader.Scheme.FILE.wrap(pictureList.get(position));
             ImageLoader.getInstance().displayImage(imgUrl, holder.iv_picture);
         } else {
-            ImageLoader.getInstance().displayImage(pictureList.get(position), holder.iv_picture);
+            ImageLoader.getInstance().displayImage(
+                    UtilBox.getThumbnailImageName(pictureList.get(position),
+                    pictureSize, pictureSize), holder.iv_picture);
         }
 
         return convertView;

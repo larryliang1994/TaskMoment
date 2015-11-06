@@ -20,7 +20,7 @@
     <string name="company_name">公司名称</string>
     <string name="remove">移除</string>
     <string name="user_not_exist">该用户不存在!</string>
-    <string name="setting">设置</string>
+    <string name="preference">设置</string>
     <string name="change_company">切换公司</string>
     <string name="grade">分  级</string>
     <string name="desc">任务描述</string>
@@ -62,4 +62,9 @@
     <string name="delete">删除</string>
     <string name="tips">提示</string>
     <string name="news_num">条新消息</string>
+    <string name="sign">Copyright © 2015&#8211;2015 JIUBAI. All Rights Reserved.</string>
+    <string name="sign_short"> © 2015&#8211;2015 JIUBAI. </string>
+    <string name="title_under">简洁，不简单</string>
+    <string name="version">Version</string>
+    <string name="about">关于</string>
 </resources>

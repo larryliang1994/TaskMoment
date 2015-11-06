@@ -32,21 +32,22 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.aliyun.mbaas.oss.callback.SaveCallback;
-import com.aliyun.mbaas.oss.model.OSSException;
+import com.alibaba.sdk.android.media.upload.UploadListener;
+import com.alibaba.sdk.android.media.upload.UploadTask;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.News;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.OssUtil;
+import com.jiubai.taskmoment.net.BaseUploadListener;
+import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -90,7 +91,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     private ImageView iv_portrait;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
     private Receiver_UpdateView newsReceiver, nicknameReceiver,
-            portraitReceiver, deleteTaskReceiver, commentReceiver;
+            portraitReceiver, deleteTaskReceiver, commentReceiver, changeBackgroundReceiver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -269,14 +270,19 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                             JSONObject msgJson = new JSONObject(msg);
 
-                            handleNews(msgJson.getString("mid"),
-                                    msgJson.getString("type"),
-                                    msgJson.getString("msg"));
+                            JSONObject contentJson = new JSONObject(msgJson.getString("content"));
+
+                            newsList.add(new News(msgJson.getString("mid"),
+                                    decodeTask(msgJson.getString("task")),
+                                    contentJson.getString("title"),
+                                    contentJson.getString("content"),
+                                    UtilBox.getDateToString(
+                                            Long.valueOf(contentJson.getString("time")) * 1000,
+                                            UtilBox.TIME)));
 
                             // 显示头像
                             ImageLoader.getInstance().displayImage(
-                                    Constants.HOST_ID + "task_moment/"
-                                            + msgJson.getString("mid") + ".jpg",
+                                    Urls.MEDIA_CENTER_PORTRAIT + msgJson.getString("mid") + ".jpg",
                                     iv_news_portrait);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -332,7 +338,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                         for (int i = 0; i < Adpt_Timeline.taskList.size(); i++) {
                             Task task = Adpt_Timeline.taskList.get(i);
-                            // TODO 如果任务ID是递增的，就可以用二分查找
                             if (task.getId().equals(taskID)) {
                                 Comment comment = (Comment) objects[0];
                                 // 防止多次添加
@@ -352,32 +357,46 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 });
         commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
 
+        changeBackgroundReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg, Object... objects) {
+                        ImageLoader.getInstance().displayImage(
+                                Config.COMPANY_BACKGROUND, iv_companyBackground);
+                    }
+                });
+        changeBackgroundReceiver.registerAction(Constants.ACTION_CHANGE_BACKGROUND);
+
         super.onStart();
     }
 
     @Override
     public void onDestroy() {
+        // 应该在接收完了以后就注销掉，但根据需求，不应注销
         getActivity().unregisterReceiver(newsReceiver);
         getActivity().unregisterReceiver(nicknameReceiver);
         getActivity().unregisterReceiver(portraitReceiver);
         getActivity().unregisterReceiver(deleteTaskReceiver);
         getActivity().unregisterReceiver(commentReceiver);
+        getActivity().unregisterReceiver(changeBackgroundReceiver);
 
         super.onDestroy();
     }
 
     /**
-     * 处理新消息
+     * 解析Task的Json字符串
      *
-     * @param msg 消息内容
+     * @param taskJson Task的Json字符串
+     * @return 解析出来的任务
+     * @throws JSONException
      */
-    private void handleNews(String senderID, String type, String msg) throws JSONException {
-        JSONObject obj = new JSONObject(msg);
+    private Task decodeTask(String taskJson) throws JSONException {
+        JSONObject obj = new JSONObject(taskJson);
 
         String id = obj.getString("id");
 
         String mid = obj.getString("mid");
-        String portraitUrl = Constants.HOST_ID + "task_moment/" + mid + ".jpg";
+        String portraitUrl = Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg";
 
         String nickname = obj.getString("show_name");
 
@@ -399,11 +418,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         String audit_result = obj.getString("p2");
 
-        Task task = new Task(id, portraitUrl, nickname, mid, grade, desc,
+        return new Task(id, portraitUrl, nickname, mid, grade, desc,
                 executor, supervisor, auditor,
                 pictures, comments, deadline, publish_time, create_time, audit_result);
-
-        newsList.add(new News(senderID, type, task));
     }
 
     /**
@@ -420,7 +437,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 JSONArray jsonArray = new JSONArray(pictures);
 
                 for (int i = 0; i < jsonArray.length(); i++) {
-                    pictureList.add(Constants.HOST_ID + jsonArray.getString(i));
+                    pictureList.add(Urls.MEDIA_CENTER_TASK + jsonArray.getString(i));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -884,7 +901,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -899,58 +915,56 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         return;
                     }
 
+                    // TODO 更换公司背景没有经过服务器
                     if (imageUri != null) {
                         try {
                             final Bitmap bitmap = BitmapFactory.decodeStream(
                                     getActivity().getContentResolver().openInputStream(imageUri));
                             iv_companyBackground.setImageBitmap(bitmap);
 
-                            final String objectName = "task_moment/" + Config.CID + ".jpg";
+                            final String objectName = Config.CID + ".jpg";
 
-                            OssUtil.uploadImage(
-                                    UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
-                                    objectName,
-                                    new SaveCallback() {
-                                        @Override
-                                        public void onSuccess(String objectKey) {
-                                            Config.COMPANY_BACKGROUND = Constants.HOST_ID + objectKey;
+                            UploadListener listener = new BaseUploadListener() {
 
-                                            // 清除原有的cache
-                                            MemoryCacheUtils.removeFromCache(
-                                                    Config.COMPANY_BACKGROUND,
-                                                    ImageLoader.getInstance().getMemoryCache());
-                                            DiskCacheUtils.removeFromCache(
-                                                    Config.COMPANY_BACKGROUND,
-                                                    ImageLoader.getInstance().getDiskCache());
+                                @Override
+                                public void onUploadFailed(UploadTask uploadTask, com.alibaba.sdk.android.media.utils.FailReason failReason) {
+                                    System.out.println(failReason.getMessage());
 
-                                            SharedPreferences sp = getActivity()
-                                                    .getSharedPreferences("config",
-                                                            Context.MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = sp.edit();
-                                            editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
-                                                    Config.COMPANY_BACKGROUND);
-                                            editor.apply();
-
-                                            ImageLoader.getInstance().displayImage(
-                                                    Config.COMPANY_BACKGROUND,
-                                                    iv_companyBackground);
-                                        }
-
-                                        @Override
-                                        public void onProgress(String objectKey, int i, int i1) {
-
-                                        }
-
-                                        @Override
-                                        public void onFailure(String objectKey, OSSException e) {
-                                            System.out.println(objectKey + " failed..");
-                                            e.printStackTrace();
-
-                                            Toast.makeText(getActivity(),
+                                    Toast.makeText(getActivity(),
                                                     R.string.usual_error,
                                                     Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                }
+
+                                @Override
+                                public void onUploadComplete(UploadTask uploadTask) {
+                                    Config.COMPANY_BACKGROUND = Urls.MEDIA_CENTER_BACKGROUND + objectName;
+
+                                    // 清除原有的cache
+                                    MemoryCacheUtils.removeFromCache(
+                                            Config.COMPANY_BACKGROUND,
+                                            ImageLoader.getInstance().getMemoryCache());
+                                    DiskCacheUtils.removeFromCache(
+                                            Config.COMPANY_BACKGROUND,
+                                            ImageLoader.getInstance().getDiskCache());
+
+                                    SharedPreferences sp = getActivity()
+                                            .getSharedPreferences(Constants.SP_FILENAME,
+                                                    Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sp.edit();
+                                    editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
+                                            Config.COMPANY_BACKGROUND);
+                                    editor.apply();
+
+                                    ImageLoader.getInstance().displayImage(
+                                            Config.COMPANY_BACKGROUND,
+                                            iv_companyBackground);
+                                }
+
+                            };
+
+                            MediaServiceUtil.uploadImage(
+                                    UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
+                                    Constants.DIR_BACKGROUND, objectName, listener);
 
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -971,7 +985,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
 
                     Adpt_Timeline.taskList.add(0, new Task(taskID,
-                            Constants.HOST_ID + "task_moment/" + Config.MID + ".jpg",
+                            Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg",
                             Config.NICKNAME, Config.MID, grade, content,
                             executor, supervisor, auditor,
                             pictureList, null, 0, 0, create_time, "1"));

@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +43,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -444,12 +443,12 @@ public class UtilBox {
     }
 
     /**
-     * 获取一个唯一的文件名
+     * 获取缩略图文件名
      *
-     * @return 唯一的文件名
+     * @return 缩略图文件名
      */
-    public static String getObjectName() {
-        return "task_moment/" + getMD5Str(Calendar.getInstance().getTimeInMillis() + "") + ".jpg";
+    public static String getThumbnailImageName(String url, int width, int height) {
+        return url + "@" + width + "w_" + height + "h_100Q";
     }
 
     /**
@@ -592,9 +591,9 @@ public class UtilBox {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.setStatusBarColor(activity.getResources().getColor(color));
+            window.setStatusBarColor(ContextCompat.getColor(activity, color));
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
-            tintManager.setTintColor(activity.getResources().getColor(color));
+            tintManager.setTintColor(ContextCompat.getColor(activity, color));
         }
     }
 }
