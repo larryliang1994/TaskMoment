@@ -155,8 +155,12 @@ public class Adpt_UserInfo extends BaseAdapter {
                         @Override
                         public void onComplete(RippleView rippleView) {
                             Intent intent = new Intent(context, Aty_PersonalTimeline.class);
-                            if(position == 3) {
-                                intent.putExtra("request_type", Config.MID);
+                            if (position == 3) {
+                                // 我审核的任务
+                                intent.putExtra("isAudit", true);
+                            } else if (position == 2) {
+                                // 我发布的任务
+                                intent.putExtra("isInvolved", true);
                             }
                             intent.putExtra("mid", Config.MID);
                             context.startActivity(intent);
@@ -165,8 +169,9 @@ public class Adpt_UserInfo extends BaseAdapter {
                         }
                     });
 
+            // 去掉最后一条分割线
             if (position == getCount() - 1) {
-                convertView.findViewById(R.id.iv_item_body).setVisibility(View.GONE);
+                convertView.findViewById(R.id.iv_item_divider).setVisibility(View.GONE);
             }
         }
 

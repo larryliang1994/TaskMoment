@@ -6,8 +6,9 @@ package com.jiubai.taskmoment.classes;
 public class Company {
     private String name;
     private String cid;
+    private String creator;
 
-    public Company(String name, String cid) {
+    public Company(String name, String cid, String creator) {
         this.name = name;
         this.cid = cid;
     }
@@ -26,5 +27,13 @@ public class Company {
 
     public void setCid(String cid) {
         this.cid = cid;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 }

@@ -19,10 +19,12 @@
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="0dp"
-        android:layout_weight="1"
         android:layout_height="match_parent"
-        android:gravity="center_vertical"
         android:layout_marginLeft="5dp"
+        android:layout_weight="1"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:singleLine="true"
         android:text="@string/app_name"
         android:textColor="#ffffff"
         android:textSize="18sp" />

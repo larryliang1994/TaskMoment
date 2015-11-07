@@ -40,7 +40,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
             this.context = context;
 
             companyList = new ArrayList<>();
-            companyList.add(new Company("", ""));
+            companyList.add(new Company("", "", ""));
 
             JSONObject companyJson = new JSONObject(companyInfo);
 
@@ -49,11 +49,12 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                 JSONArray companyArray = companyJson.getJSONArray("info");
                 for (int i = 0; i < companyArray.length(); i++) {
                     JSONObject obj = new JSONObject(companyArray.getString(i));
-                    companyList.add(new Company(obj.getString("name"), obj.getString("cid")));
+                    companyList.add(new Company(obj.getString("name"),
+                            obj.getString("cid"), obj.getString("mid")));
                 }
             } else {
                 isEmpty = true;
-                companyList.add(new Company("你还没有加入任何公司", ""));
+                companyList.add(new Company("你还没有加入任何公司", "", ""));
             }
 
         } catch (JSONException e) {
@@ -90,7 +91,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
             tv.setText(companyList.get(position).getName());
 
             if (isEmpty || position == getCount() - 1) {
-                convertView.findViewById(R.id.iv_item_body).setVisibility(View.GONE);
+                convertView.findViewById(R.id.iv_item_divider).setVisibility(View.GONE);
             }
 
             if (!isEmpty) {
@@ -102,6 +103,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                         Config.CID = companyList.get(position).getCid();
                         Config.COMPANY_BACKGROUND
                                 = Urls.MEDIA_CENTER_BACKGROUND + Config.CID + ".jpg";
+                        Config.COMPANY_CREATOR = companyList.get(position).getCreator();
 
                         // 保存公司信息
                         SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
@@ -110,6 +112,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                         editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
                         editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
                         editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND, Config.COMPANY_BACKGROUND);
+                        editor.putString(Constants.SP_KEY_COMPANY_CREATOR, Config.COMPANY_CREATOR);
                         editor.apply();
 
                         Intent intent = new Intent(context, Aty_Main.class);

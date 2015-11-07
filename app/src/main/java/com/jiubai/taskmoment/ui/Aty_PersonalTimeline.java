@@ -101,7 +101,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private String mid;
     private String name;
     private String mobile;
-    private String request_type;
+    private String isAudit, isInvolved;
     private boolean isBottomRefreshing = false;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
     private Receiver_UpdateView deleteTaskReceiver, commentReceiver;
@@ -116,10 +116,10 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        mid = getIntent().getStringExtra("mid");
-
-        String rt = getIntent().getStringExtra("request_type");
-        request_type = rt == null ? "0" : rt;
+        Intent intent = getIntent();
+        mid = intent.getStringExtra("mid");
+        isAudit = intent.getBooleanExtra("isAudit", false) ? "1" : "0";
+        isInvolved = intent.getBooleanExtra("isInvolved", false) ? "1" : "0";
 
         if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
             UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
@@ -157,6 +157,24 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         iv_portrait.requestFocus();
         ImageLoader.getInstance()
                 .displayImage(Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg", iv_portrait);
+        iv_portrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Aty_PersonalTimeline.this, Aty_PersonalInfo.class);
+
+                String nickname;
+                if (!"null".equals(name) && !"".equals(name)) {
+                    nickname = name;
+                } else {
+                    nickname = mobile.substring(0, 3) + "***" + mobile.substring(7);
+                }
+                intent.putExtra("nickname", nickname);
+                intent.putExtra("mid", mid);
+
+                startActivity(intent);
+                overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
 
         lv = (ListView) findViewById(R.id.lv_personal);
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
@@ -254,8 +272,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
             return;
         }
 
-        String[] key = {"len", "cid", "create_time", "mid", "shenhe"};
-        String[] value = {"2", Config.CID, request_time, mid, request_type};
+        String[] key = {"len", "cid", "create_time", "mid", "shenhe", "canyu"};
+        String[] value = {"2", Config.CID, request_time, mid, isAudit, isInvolved};
 
         VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
                 new Response.Listener<String>() {
@@ -467,16 +485,23 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                         Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
                                         intent.putExtra("taskID", taskID);
 
+                                        String nickname;
+                                        if("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)){
+                                            nickname = "你";
+                                        } else {
+                                            nickname = Config.NICKNAME;
+                                        }
+
                                         if (!"".equals(receiver)) {
                                             intent.putExtra("comment", new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     receiver, receiverID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
                                                             .getTimeInMillis()));
                                         } else {
                                             intent.putExtra("comment", new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
                                                             .getTimeInMillis()));
@@ -596,6 +621,13 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if (!Config.MID.equals(Config.COMPANY_CREATOR)) {
+                            Toast.makeText(Aty_PersonalTimeline.this,
+                                    "你不是管理员，不能更换公司封面",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
 
                         intent.setType("image/*");

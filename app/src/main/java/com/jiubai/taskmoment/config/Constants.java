@@ -20,6 +20,7 @@ public class Constants {
     public static final String SP_KEY_COOKIE = "cookie";
     public static final String SP_KEY_COMPANY_NAME = "companyName";
     public static final String SP_KEY_COMPANY_ID = "companyId";
+    public static final String SP_KEY_COMPANY_CREATOR = "companyCreator";
     public static final String SP_KEY_COMPANY_BACKGROUND = "companyBackground";
     public static final String SP_KEY_PORTRAIT = "portrait";
     public static final String SP_KEY_MID = "mid";

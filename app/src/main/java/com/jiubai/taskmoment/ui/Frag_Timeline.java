@@ -709,16 +709,23 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                         Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
                                         intent.putExtra("taskID", taskID);
 
+                                        String nickname;
+                                        if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
+                                            nickname = "你";
+                                        } else {
+                                            nickname = Config.NICKNAME;
+                                        }
+
                                         if (!"".equals(receiver)) {
                                             intent.putExtra("comment", new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     receiver, receiverID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
                                                             .getTimeInMillis()));
                                         } else {
                                             intent.putExtra("comment", new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
                                                             .getTimeInMillis()));
@@ -836,6 +843,13 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if (!Config.MID.equals(Config.COMPANY_CREATOR)) {
+                            Toast.makeText(getActivity(),
+                                    "你不是管理员，不能更换公司封面",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
 
                         intent.setType("image/*");
@@ -931,8 +945,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                     System.out.println(failReason.getMessage());
 
                                     Toast.makeText(getActivity(),
-                                                    R.string.usual_error,
-                                                    Toast.LENGTH_SHORT).show();
+                                            R.string.usual_error,
+                                            Toast.LENGTH_SHORT).show();
                                 }
 
                                 @Override
@@ -991,6 +1005,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             pictureList, null, 0, 0, create_time, "1"));
 
                     adapter.notifyDataSetChanged();
+
+                    UtilBox.setListViewHeightBasedOnChildren(lv);
                 }
                 break;
         }

@@ -21,16 +21,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
-
-    <!-- 必选 -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!--【必选】用以设置前台是否显示通知-->
     <uses-permission android:name="android.permission.GET_TASKS" />
-
-    <!-- 可选 -->
     <uses-permission android:name="android.permission.BROADCAST_PACKAGE_ADDED" />
     <uses-permission android:name="android.permission.BROADCAST_PACKAGE_CHANGED" />
     <uses-permission android:name="android.permission.BROADCAST_PACKAGE_INSTALL" />
@@ -69,7 +63,7 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light.NoActionBar"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        anz
+        
         <activity
             android:name=".ui.Aty_AddCompany"
             android:screenOrientation="portrait"
@@ -108,6 +102,11 @@
         <activity
             android:name=".ui.Aty_About"
             android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ui.Aty_PersonalInfo"
+            android:screenOrientation="portrait" />
+
 
         <activity
             android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"

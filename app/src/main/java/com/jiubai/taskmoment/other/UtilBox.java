@@ -197,6 +197,7 @@ public class UtilBox {
         Config.CID = null;
         Config.COMPANY_NAME = null;
         Config.COOKIE = null;
+        Config.COMPANY_CREATOR = null;
         Config.MID = null;
         Config.NICKNAME = null;
         Config.RANDOM = null;
@@ -537,12 +538,14 @@ public class UtilBox {
                                     for (int i = 0; i < memberArray.length(); i++) {
                                         JSONObject obj
                                                 = new JSONObject(memberArray.getString(i));
-                                        Adpt_Member.memberList.add(
-                                                new Member(
-                                                        obj.getString("real_name"),
-                                                        obj.getString("mobile"),
-                                                        obj.getString("id"),
-                                                        obj.getString("mid")));
+                                        Member member = new Member(
+                                                obj.getString("real_name"),
+                                                obj.getString("mobile"),
+                                                obj.getString("id"),
+                                                obj.getString("mid"));
+
+                                        Adpt_Member.memberList.add(member);
+
                                     }
 
                                     Adpt_Member.memberList.add(new Member("", "", "", ""));

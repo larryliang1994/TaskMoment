@@ -218,7 +218,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         });
 
-        if(!Config.MID.equals(task.getMid())){
+        if (!Config.MID.equals(task.getMid())) {
             tv_delete.setVisibility(View.GONE);
         } else {
             tv_delete.setVisibility(View.VISIBLE);
@@ -354,7 +354,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     executor = member.getName();
                 } else {
-                    executor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
+                    executor = member.getMobile().substring(0, 3)
+                            + "***" + member.getMobile().substring(7);
                 }
             }
 
@@ -362,7 +363,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     supervisor = member.getName();
                 } else {
-                    supervisor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
+                    supervisor = member.getMobile().substring(0, 3)
+                            + "***" + member.getMobile().substring(7);
                 }
             }
 
@@ -370,7 +372,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
                     auditor = member.getName();
                 } else {
-                    auditor = "*" + Integer.getInteger(member.getMobile()) % 10000 + "";
+                    auditor = member.getMobile().substring(0, 3)
+                            + "***" + member.getMobile().substring(7);
                 }
             }
 
@@ -379,12 +382,12 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         }
 
-        if(executor!=null) {
+        if (executor != null) {
             tv_executor.append("：");
             tv_executor.append(executor);
         }
 
-        if(supervisor!=null) {
+        if (supervisor != null) {
             tv_supervisor.append("：");
             tv_supervisor.append(supervisor);
         }
@@ -511,7 +514,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(edt_content.getText().toString().isEmpty()){
+                if (edt_content.getText().toString().isEmpty()) {
                     Toast.makeText(context,
                             "请填入评论内容",
                             Toast.LENGTH_SHORT).show();
@@ -546,10 +549,17 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                 R.string.usual_error,
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
+                                        String nickname;
+                                        if("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)){
+                                            nickname = "你";
+                                        } else {
+                                            nickname = Config.NICKNAME;
+                                        }
+
                                         Comment comment;
                                         if (!"".equals(receiver)) {
                                             comment = new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     receiver, receiverID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
@@ -557,7 +567,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                             adapter_comment.commentList.add(comment);
                                         } else {
                                             comment = new Comment(taskID,
-                                                    Config.NICKNAME, Config.MID,
+                                                    nickname, Config.MID,
                                                     edt_content.getText().toString(),
                                                     Calendar.getInstance(Locale.CHINA)
                                                             .getTimeInMillis());

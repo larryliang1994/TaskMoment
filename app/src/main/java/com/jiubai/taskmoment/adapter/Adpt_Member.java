@@ -26,7 +26,7 @@ public class Adpt_Member extends BaseAdapter {
 
     public static List<Member> memberList;
     private Context context;
-    public boolean isEmpty = false;
+    public static boolean isEmpty = false;
 
     public Adpt_Member(Context context, String memberInfo) {
         try {

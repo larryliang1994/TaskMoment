@@ -148,7 +148,7 @@ public class Frag_Member extends Fragment {
                     contentView.requestFocus();
 
                     //UtilBox.toggleSoftInput(contentView.findViewById(R.id.edt_input), true);
-                } else if (!adpt_member.isEmpty && position != 0) {
+                } else if (!Adpt_Member.isEmpty && position != 0) {
 
                     final MaterialDialog dialog = new MaterialDialog(getActivity());
                     dialog.setMessage("真的要删除该成员吗？")

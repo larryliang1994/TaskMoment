@@ -211,7 +211,13 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                             // 上传图片
                                             if (adpt_publishPicture.pictureList != null
                                                     && !adpt_publishPicture.pictureList.isEmpty()) {
-                                                uploadImage(responseJson.getString("taskid"));
+                                                try {
+                                                    uploadImage(responseJson.getString("taskid"));
+                                                } catch (Exception exception) {
+                                                    Toast.makeText(Aty_TaskPublish.this,
+                                                            "图片上传失败，请重试",
+                                                            Toast.LENGTH_SHORT).show();
+                                                }
                                             }
                                         }
 
@@ -240,7 +246,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     /**
      * 设置返回结果并关掉当前aty
      */
-    private void setResultAndFinish(String taskID){
+    private void setResultAndFinish(String taskID) {
         Intent intent = new Intent();
         intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
         intent.putExtra("content", edt_desc.getText().toString());
@@ -388,7 +394,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
      * 完成后上传其他相关信息
      */
     @SuppressWarnings("deprecation")
-    private void uploadImage(final String id) {
+    private void uploadImage(final String id) throws Exception {
         // 压缩图片
         final Bitmap bitmap = UtilBox.getLocalBitmap(
                 adpt_publishPicture.pictureList.get(uploadedNum),
@@ -407,18 +413,21 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
 
             @Override
             public void onUploadComplete(UploadTask uploadTask) {
-                System.out.println("success:" + uploadTask.getResult().url);
-
                 // 已上传的图片数加一
                 uploadedNum++;
 
                 // 记录已上传的图片的文件名
                 pictureList.add(uploadTask.getResult().url);
 
-                // -1是因为最后一张是本地的加号
-                if (uploadedNum < adpt_publishPicture.pictureList.size() - 1) {
+                if (uploadedNum < adpt_publishPicture.pictureList.size()) {
                     // 接着上传下一张图片
-                    uploadImage(id);
+                    try {
+                        uploadImage(id);
+                    } catch (Exception exception) {
+                        Toast.makeText(Aty_TaskPublish.this,
+                                "图片上传失败，请重试",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     String[] key = {"taskid", "works"};
                     String[] value = {id, new JSONArray(pictureList).toString()};
@@ -472,6 +481,11 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
      * @param whichExt 正在选择哪个
      */
     private void showMemberList(final int viewID, final String whichExt) {
+        if (Adpt_Member.isEmpty) {
+            Toast.makeText(this, "暂无成员", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String[] members = new String[Adpt_Member.memberList.size() - 2];
         for (int i = 1; i < Adpt_Member.memberList.size() - 1; i++) {
 

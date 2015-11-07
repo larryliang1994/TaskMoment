@@ -51,7 +51,7 @@
             </LinearLayout>
 
             <ImageView
-                android:id="@+id/iv_item_body"
+                android:id="@+id/iv_item_divider"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginLeft="14dp"

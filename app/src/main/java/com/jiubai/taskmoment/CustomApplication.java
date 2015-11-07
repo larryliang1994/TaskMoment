@@ -55,6 +55,7 @@ public class CustomApplication extends Application {
         Config.COMPANY_NAME = sp.getString(Constants.SP_KEY_COMPANY_NAME, null);
         Config.CID = sp.getString(Constants.SP_KEY_COMPANY_ID, null);
         Config.COMPANY_BACKGROUND = sp.getString(Constants.SP_KEY_COMPANY_BACKGROUND, null);
+        Config.COMPANY_CREATOR = sp.getString(Constants.SP_KEY_COMPANY_CREATOR, null);
         Config.PORTRAIT = sp.getString(Constants.SP_KEY_PORTRAIT, null);
         Config.MID = sp.getString(Constants.SP_KEY_MID, null);
         Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "null");

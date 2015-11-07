@@ -1,6 +1,7 @@
 package com.jiubai.taskmoment.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
@@ -11,12 +12,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -70,7 +76,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
      * 初始化界面
      */
     private void initView() {
-        // net则来自timeline，不需要toolbar
+        // net则不需要toolbar
         if ("local".equals(fromWhere)) {
             tv_title.setText(R.string.checkPicture);
             iBtn_delete.setVisibility(View.VISIBLE);
@@ -170,12 +176,42 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
 
         @Override
         public View instantiateItem(ViewGroup container, int position) {
-            PhotoView photoView = new PhotoView(container.getContext());
+            final RelativeLayout layout = new RelativeLayout(Aty_CheckPicture.this);
+
+            final RelativeLayout.LayoutParams photoRlp = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+            photoRlp.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+            final ProgressBar progressBar = new ProgressBar(Aty_CheckPicture.this);
+            final PhotoView photoView = new PhotoView(container.getContext());
+
             if (!pictureList.get(position).contains("http")) {
+                progressBar.setVisibility(View.GONE);
                 String imgUrl = ImageDownloader.Scheme.FILE.wrap(pictureList.get(position));
                 ImageLoader.getInstance().displayImage(imgUrl, photoView);
             } else {
-                ImageLoader.getInstance().displayImage(pictureList.get(position), photoView);
+                ImageLoader.getInstance().displayImage(pictureList.get(position), photoView,
+                        new ImageLoadingListener() {
+                            @Override
+                            public void onLoadingStarted(String s, View view) {
+                            }
+
+                            @Override
+                            public void onLoadingFailed(String s, View view, FailReason failReason) {
+                                progressBar.setVisibility(View.GONE);
+                                Toast.makeText(Aty_CheckPicture.this,
+                                        R.string.usual_error, Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onLoadingCancelled(String s, View view) {
+                            }
+                        });
             }
 
             // 单击退出
@@ -194,11 +230,17 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                     overridePendingTransition(R.anim.scale_stay, R.anim.zoom_out_quick);
                 }
             });
+            layout.addView(photoView, photoRlp);
 
-            container.addView(photoView,
+            RelativeLayout.LayoutParams progressRlp = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            progressRlp.addRule(RelativeLayout.CENTER_IN_PARENT);
+            layout.addView(progressBar, progressRlp);
+
+            container.addView(layout,
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-            return photoView;
+            return layout;
         }
 
         @Override

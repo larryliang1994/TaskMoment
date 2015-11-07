@@ -20,6 +20,7 @@ import com.jiubai.taskmoment.ui.Aty_Main;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengDialogButtonListener;
 import com.umeng.update.UmengUpdateAgent;
 import com.umeng.update.UmengUpdateListener;
@@ -147,7 +148,7 @@ public class MainActivity extends Activity {
                         try {
                             JSONObject object = new JSONObject(response);
 
-                            if("900001".equals(object.getString("status"))){
+                            if ("900001".equals(object.getString("status"))) {
                                 JSONObject data = new JSONObject(object.getString("data"));
 
                                 Config.MID = data.getString("id");
@@ -178,5 +179,17 @@ public class MainActivity extends Activity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }

@@ -41,7 +41,7 @@ public class Adpt_MyCompany extends BaseAdapter {
             this.context = context;
 
             companyList = new ArrayList<>();
-            companyList.add(new Company("", ""));
+            companyList.add(new Company("", "", ""));
 
             JSONObject companyJson = new JSONObject(companyInfo);
 
@@ -51,14 +51,15 @@ public class Adpt_MyCompany extends BaseAdapter {
 
                 for (int i = 0; i < companyArray.length(); i++) {
                     JSONObject obj = new JSONObject(companyArray.getString(i));
-                    companyList.add(new Company(obj.getString("name"), obj.getString("cid")));
+                    companyList.add(new Company(obj.getString("name"),
+                            obj.getString("cid"), obj.getString("mid")));
                 }
             } else {
                 isEmpty = true;
-                companyList.add(new Company("你还没有创建过公司", ""));
+                companyList.add(new Company("你还没有创建过公司", "", ""));
             }
 
-            companyList.add(new Company("", ""));
+            companyList.add(new Company("", "", ""));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -111,30 +112,35 @@ public class Adpt_MyCompany extends BaseAdapter {
             tv.setText(companyList.get(position).getName());
 
             RippleView rv = (RippleView) convertView.findViewById(R.id.rv_item_body);
-            rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    Config.COMPANY_NAME = companyList.get(position).getName();
-                    Config.CID = companyList.get(position).getCid();
-                    Config.COMPANY_BACKGROUND
-                            = Urls.MEDIA_CENTER_BACKGROUND + Config.CID + ".jpg";
 
-                    // 保存公司信息
-                    SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
-                            Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sp.edit();
-                    editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
-                    editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
-                    editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND, Config.COMPANY_BACKGROUND);
-                    editor.apply();
+            if (!isEmpty) {
+                rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
+                    @Override
+                    public void onComplete(RippleView rippleView) {
+                        Config.COMPANY_NAME = companyList.get(position).getName();
+                        Config.CID = companyList.get(position).getCid();
+                        Config.COMPANY_BACKGROUND
+                                = Urls.MEDIA_CENTER_BACKGROUND + Config.CID + ".jpg";
+                        Config.COMPANY_CREATOR = companyList.get(position).getCreator();
 
-                    Intent intent = new Intent(context, Aty_Main.class);
-                    context.startActivity(intent);
-                    ((Activity) context).finish();
-                    ((Activity) context).overridePendingTransition(
-                            R.anim.in_right_left, R.anim.out_right_left);
-                }
-            });
+                        // 保存公司信息
+                        SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME,
+                                Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putString(Constants.SP_KEY_COMPANY_NAME, Config.COMPANY_NAME);
+                        editor.putString(Constants.SP_KEY_COMPANY_ID, Config.CID);
+                        editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND, Config.COMPANY_BACKGROUND);
+                        editor.putString(Constants.SP_KEY_COMPANY_CREATOR, Config.COMPANY_CREATOR);
+                        editor.apply();
+
+                        Intent intent = new Intent(context, Aty_Main.class);
+                        context.startActivity(intent);
+                        ((Activity) context).finish();
+                        ((Activity) context).overridePendingTransition(
+                                R.anim.in_right_left, R.anim.out_right_left);
+                    }
+                });
+            }
         }
 
         return convertView;
