@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
@@ -40,6 +41,7 @@ public class Adpt_Timeline extends BaseAdapter {
     public static ArrayList<Task> taskList;
     public Adpt_Comment commentAdapter;
     private Context context;
+    private String executor = null, supervisor = null, auditor = null;
 
     public Adpt_Timeline(Context context, boolean isRefresh, String response) {
         this.context = context;
@@ -73,7 +75,16 @@ public class Adpt_Timeline extends BaseAdapter {
                     String supervisor = obj.getString("ext2");
                     String auditor = obj.getString("ext3");
 
-                    ArrayList<String> pictures = decodePictureList(obj.getString("works"));
+                    ArrayList<String> pictures;
+
+                    // 如果有任务附图上传中，先显示本地图片
+                    if (id.equals(Frag_Timeline.taskID) && Frag_Timeline.pictureList != null
+                            && !Frag_Timeline.pictureList.isEmpty()) {
+                        pictures = Frag_Timeline.pictureList;
+                    } else {
+                        pictures = decodePictureList(obj.getString("works"));
+                    }
+
                     ArrayList<Comment> comments
                             = decodeCommentList(id, obj.getString("member_comment"));
 
@@ -126,11 +137,12 @@ public class Adpt_Timeline extends BaseAdapter {
         holder.tv_grade.setText(task.getGrade());
         setGradeColor(holder.tv_grade, task.getGrade());
         holder.tv_desc.setText(task.getDesc());
-        holder.tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
 
         ImageLoader.getInstance().displayImage(
-                UtilBox.getThumbnailImageName(task.getPortraitUrl(), UtilBox.dip2px(context, 45),
-                        UtilBox.dip2px(context, 45)), holder.iv_portrait);
+                UtilBox.getThumbnailImageName(task.getPortraitUrl(),
+                        UtilBox.dip2px(context, 45),
+                        UtilBox.dip2px(context, 45))
+                        + "?t=" + Config.TIME, holder.iv_portrait);
 
         holder.iv_portrait.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,7 +225,70 @@ public class Adpt_Timeline extends BaseAdapter {
             holder.btn_audit.setVisibility(View.GONE);
         }
 
+        // 设置执行者、监督者、审核者
+        setESA(task);
+        if (executor != null) {
+            holder.tv_executor.append(executor);
+        }
+
+        if (supervisor != null) {
+            holder.tv_supervisor.append(supervisor);
+        }
+
+        if (auditor != null) {
+            holder.tv_auditor.append(auditor);
+        }
+
+        holder.tv_deadline.append(UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
+        holder.tv_startTime.append(UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
+        holder.tv_publishTime.append(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
+
         return convertView;
+    }
+
+    /**
+     * 设置执行者，监督者，审核者
+     */
+    private void setESA(Task task) {
+        String executorID = task.getExecutor();
+        String supervisorID = task.getSupervisor();
+        String auditorID = task.getAuditor();
+
+        // TODO 这里应该可以更高效
+        for (int i = 1; i < Adpt_Member.memberList.size() - 1; i++) {
+            Member member = Adpt_Member.memberList.get(i);
+
+            if (executorID.equals(member.getMid())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    executor = member.getName();
+                } else {
+                    executor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+            }
+
+            if (supervisorID.equals(member.getMid())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    supervisor = member.getName();
+                } else {
+                    supervisor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+            }
+
+            if (auditorID.equals(member.getMid())) {
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    auditor = member.getName();
+                } else {
+                    auditor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+            }
+
+            if (executor != null && supervisor != null && auditor != null) {
+                break;
+            }
+        }
     }
 
     /**
@@ -325,10 +400,15 @@ public class Adpt_Timeline extends BaseAdapter {
         public TextView tv_grade;
         public TextView tv_desc;
         public GridView gv_picture;
-        public TextView tv_date;
         public ListView lv_comment;
         public Button btn_comment;
         public Button btn_audit;
+        public TextView tv_executor;
+        public TextView tv_supervisor;
+        public TextView tv_auditor;
+        public TextView tv_deadline;
+        public TextView tv_startTime;
+        public TextView tv_publishTime;
 
         public ViewHolder(View itemView) {
             iv_portrait = (ImageView) itemView.findViewById(R.id.iv_item_portrait);
@@ -336,10 +416,15 @@ public class Adpt_Timeline extends BaseAdapter {
             tv_grade = (TextView) itemView.findViewById(R.id.tv_item_grade);
             tv_desc = (TextView) itemView.findViewById(R.id.tv_item_desc);
             gv_picture = (GridView) itemView.findViewById(R.id.gv_item_picture);
-            tv_date = (TextView) itemView.findViewById(R.id.tv_item_date);
             lv_comment = (ListView) itemView.findViewById(R.id.lv_item_comment);
             btn_comment = (Button) itemView.findViewById(R.id.btn_item_comment);
             btn_audit = (Button) itemView.findViewById(R.id.btn_item_audit);
+            tv_executor = (TextView) itemView.findViewById(R.id.tv_executor);
+            tv_supervisor = (TextView) itemView.findViewById(R.id.tv_supervisor);
+            tv_auditor = (TextView) itemView.findViewById(R.id.tv_auditor);
+            tv_deadline = (TextView) itemView.findViewById(R.id.tv_deadline);
+            tv_startTime = (TextView) itemView.findViewById(R.id.tv_startTime);
+            tv_publishTime = (TextView) itemView.findViewById(R.id.tv_publishTime);
         }
     }
 }

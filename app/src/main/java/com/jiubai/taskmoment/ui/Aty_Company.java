@@ -2,6 +2,8 @@ package com.jiubai.taskmoment.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,14 +26,15 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_JoinedCompany;
 import com.jiubai.taskmoment.adapter.Adpt_MyCompany;
-import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.RotateLoading;
 import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
@@ -63,6 +66,9 @@ public class Aty_Company extends AppCompatActivity {
 
     @Bind(R.id.iBtn_more)
     ImageButton iBtn_more;
+
+    private static Dialog dialog;
+    private static RotateLoading rl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,7 +226,7 @@ public class Aty_Company extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, R.string.usual_error_refresh,
+                        Toast.makeText(Aty_Company.this, "获取公司列表失败，下拉重试一下吧？",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -239,7 +245,7 @@ public class Aty_Company extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, R.string.usual_error_refresh,
+                        Toast.makeText(Aty_Company.this, "获取公司列表失败，下拉重试一下吧？",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -292,6 +298,40 @@ public class Aty_Company extends AppCompatActivity {
                 srl.setRefreshing(false);
             }
         }, 1000);
+    }
+
+    /**
+     * 显示或隐藏旋转进度条
+     *
+     * @param which show代表显示, dismiss代表隐藏
+     */
+    public static void changeLoadingState(Context context, String which) {
+        if (dialog == null) {
+            dialog = new Dialog(context, R.style.dialog);
+            dialog.setContentView(R.layout.dialog_rotate_loading);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+
+            rl = (RotateLoading) dialog.findViewById(R.id.rl_dialog);
+        }
+
+        if ("show".equals(which)) {
+            ((Activity)context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                    rl.start();
+                }
+            });
+        } else if ("dismiss".equals(which)) {
+            ((Activity)context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rl.stop();
+                    dialog.dismiss();
+                }
+            });
+        }
     }
 
     @Override

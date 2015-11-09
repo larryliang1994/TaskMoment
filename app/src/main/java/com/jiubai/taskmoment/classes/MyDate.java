@@ -14,6 +14,13 @@ public class MyDate implements Serializable, Comparable<MyDate> {
     public MyDate() {
     }
 
+    public MyDate(int year, int month, int day) {
+        super();
+        this.year = year;
+        this.month = month;
+        this.day = day;
+    }
+
     public int getYear() {
         return year;
     }
@@ -38,16 +45,9 @@ public class MyDate implements Serializable, Comparable<MyDate> {
         this.day = day;
     }
 
-    public MyDate(int year, int month, int day) {
-        super();
-        this.year = year;
-        this.month = month;
-        this.day = day;
-    }
-
     @Override
     public String toString() {
-            return year + "-" + month + "-" + day;
+            return year + "/" + month + "/" + day;
     }
 
     @Override

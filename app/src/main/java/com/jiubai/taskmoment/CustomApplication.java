@@ -22,6 +22,8 @@ import com.umeng.message.PushAgent;
 import com.umeng.message.UmengMessageHandler;
 import com.umeng.message.entity.UMessage;
 
+import java.util.Calendar;
+
 /**
  * 程序入口
  */
@@ -59,6 +61,13 @@ public class CustomApplication extends Application {
         Config.PORTRAIT = sp.getString(Constants.SP_KEY_PORTRAIT, null);
         Config.MID = sp.getString(Constants.SP_KEY_MID, null);
         Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "null");
+        Config.TIME = sp.getLong(Constants.SP_KEY_TIME, 0);
+        if (Config.TIME == 0) {
+            Calendar.getInstance().getTimeInMillis();
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
+            editor.apply();
+        }
     }
 
     private void initImageLoader() {
@@ -85,7 +94,7 @@ public class CustomApplication extends Application {
         Config.IS_CONNECTED = info != null && info.isAvailable();
     }
 
-    private void initPushAgent(){
+    private void initPushAgent() {
         PushAgent pushAgent = PushAgent.getInstance(getApplicationContext());
         pushAgent.enable();
 

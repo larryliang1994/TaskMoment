@@ -119,7 +119,7 @@ public class Aty_AddCompany extends AppCompatActivity
                             public void onErrorResponse(VolleyError volleyError) {
                                 btn_submit.setText(R.string.addCompany);
                                 rv_btn_submit.setOnRippleCompleteListener(Aty_AddCompany.this);
-                                Toast.makeText(Aty_AddCompany.this, R.string.usual_error,
+                                Toast.makeText(Aty_AddCompany.this, "创建失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });

@@ -53,8 +53,6 @@ import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.utils.DiskCacheUtils;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,13 +75,15 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     public static BorderScrollView sv;
     public static LinearLayout ll_comment;
     public static LinearLayout ll_audit;
-    private TextView tv_nickname;
     public static Space space;
+    public static ArrayList<String> pictureList; // 供任务附图上传中时使用
+    public static String taskID;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
     private ArrayList<News> newsList;
     private boolean isBottomRefreshing = false;
     private SwipeRefreshLayout srl;
+    private TextView tv_nickname;
     private ImageView iv_companyBackground;
     private ImageView iv_news_portrait;
     private LinearLayout ll_news;
@@ -119,7 +119,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }
 
         if (Config.PORTRAIT != null) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
         } else {
             iv_portrait.setImageResource(R.drawable.portrait_default);
         }
@@ -136,6 +136,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                 refreshTimeline("refresh",
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "");
+
             }
         });
 
@@ -159,11 +160,11 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                     isBottomRefreshing = true;
 
-                    // 参数应为最后一条任务的时间减1秒
                     refreshTimeline("loadMore",
                             (Adpt_Timeline.taskList
                                     .get(Adpt_Timeline.taskList.size() - 1)
-                                    .getCreate_time() / 1000 - 1) + "");
+                                    .getCreateTime() / 1000 - 1) + "");
+
                 }
             }
         });
@@ -217,7 +218,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         if (Config.COMPANY_BACKGROUND != null) {
             ImageLoader.getInstance().displayImage(
-                    Config.COMPANY_BACKGROUND, iv_companyBackground, new ImageLoadingListener() {
+                    Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME, iv_companyBackground,
+                    new ImageLoadingListener() {
                         @Override
                         public void onLoadingStarted(String s, View view) {
                         }
@@ -238,7 +240,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }
 
         iv_news_portrait = (ImageView) view.findViewById(R.id.iv_news_portrait);
-        ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_news_portrait);
+        ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_news_portrait);
 
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
 
@@ -246,6 +248,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+
                 refreshTimeline("refresh",
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
             }
@@ -282,7 +285,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                             // 显示头像
                             ImageLoader.getInstance().displayImage(
-                                    Urls.MEDIA_CENTER_PORTRAIT + msgJson.getString("mid") + ".jpg",
+                                    Urls.MEDIA_CENTER_PORTRAIT + msgJson.getString("mid") + ".jpg"
+                                            + "?t=" + Config.TIME,
                                     iv_news_portrait);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -307,7 +311,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.PORTRAIT, iv_portrait);
+                                Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
                     }
                 });
         portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
@@ -362,7 +366,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.COMPANY_BACKGROUND, iv_companyBackground);
+                                Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME, iv_companyBackground);
                     }
                 });
         changeBackgroundReceiver.registerAction(Constants.ACTION_CHANGE_BACKGROUND);
@@ -609,7 +613,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         }
                         volleyError.printStackTrace();
                         Toast.makeText(getActivity(),
-                                R.string.usual_error,
+                                "刷新失败，请重试",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -702,7 +706,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                         System.out.println(response);
 
                                         Toast.makeText(context,
-                                                R.string.usual_error,
+                                                "发送失败，请重试",
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         // 发送更新评论广播
@@ -743,7 +747,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
                                 Toast.makeText(context,
-                                        R.string.usual_error,
+                                        "评论发送失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -825,7 +829,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
 
-                                Toast.makeText(context, R.string.usual_error,
+                                Toast.makeText(context, "审核失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -945,21 +949,20 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                     System.out.println(failReason.getMessage());
 
                                     Toast.makeText(getActivity(),
-                                            R.string.usual_error,
+                                            "图片上传失败，请重试",
                                             Toast.LENGTH_SHORT).show();
+
+                                    ImageLoader.getInstance().displayImage(
+                                            Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME,
+                                            iv_companyBackground);
                                 }
 
                                 @Override
                                 public void onUploadComplete(UploadTask uploadTask) {
                                     Config.COMPANY_BACKGROUND = Urls.MEDIA_CENTER_BACKGROUND + objectName;
 
-                                    // 清除原有的cache
-                                    MemoryCacheUtils.removeFromCache(
-                                            Config.COMPANY_BACKGROUND,
-                                            ImageLoader.getInstance().getMemoryCache());
-                                    DiskCacheUtils.removeFromCache(
-                                            Config.COMPANY_BACKGROUND,
-                                            ImageLoader.getInstance().getDiskCache());
+                                    // 更新时间戳
+                                    Config.TIME = Calendar.getInstance().getTimeInMillis();
 
                                     SharedPreferences sp = getActivity()
                                             .getSharedPreferences(Constants.SP_FILENAME,
@@ -967,10 +970,11 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
                                             Config.COMPANY_BACKGROUND);
+                                    editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
                                     editor.apply();
 
                                     ImageLoader.getInstance().displayImage(
-                                            Config.COMPANY_BACKGROUND,
+                                            Config.COMPANY_BACKGROUND + "?t=" + Config.TIME,
                                             iv_companyBackground);
                                 }
 
@@ -991,18 +995,29 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 if (resultCode == Activity.RESULT_OK) {
                     String grade = data.getStringExtra("grade");
                     String content = data.getStringExtra("content");
-                    long create_time = data.getLongExtra("create_time", 0);
                     String executor = data.getStringExtra("executor");
                     String supervisor = data.getStringExtra("supervisor");
                     String auditor = data.getStringExtra("auditor");
-                    String taskID = data.getStringExtra("taskID");
-                    ArrayList<String> pictureList = data.getStringArrayListExtra("pictureList");
+
+                    taskID = data.getStringExtra("taskID");
+                    pictureList = data.getStringArrayListExtra("pictureList");
+
+                    long deadline = data.getLongExtra("deadline", 0);
+                    long publish_time = data.getLongExtra("publish_time", 0);
+                    long create_time = data.getLongExtra("create_time", 0);
+
+                    String nickname;
+                    if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
+                        nickname = "你";
+                    } else {
+                        nickname = Config.NICKNAME;
+                    }
 
                     Adpt_Timeline.taskList.add(0, new Task(taskID,
                             Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg",
-                            Config.NICKNAME, Config.MID, grade, content,
+                            nickname, Config.MID, grade, content,
                             executor, supervisor, auditor,
-                            pictureList, null, 0, 0, create_time, "1"));
+                            pictureList, null, deadline, publish_time, create_time, "1"));
 
                     adapter.notifyDataSetChanged();
 

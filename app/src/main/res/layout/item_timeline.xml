@@ -87,20 +87,61 @@
             android:scrollbars="none"
             android:verticalSpacing="4dp" />
 
+        <TextView
+            android:id="@+id/tv_executor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="@string/_executor"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_supervisor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="@string/_supervisor"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_auditor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="@string/_auditor"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_deadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="@string/_deadline"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_startTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:text="@string/_startTime"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_publishTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="2dp"
+            android:gravity="center_vertical"
+            android:text="@string/_publishTime"
+            android:textSize="16sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tv_item_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:text="@string/time_example"
-                android:textSize="16sp" />
 
             <Space
                 android:layout_width="0dp"
@@ -111,6 +152,7 @@
                 android:id="@+id/btn_item_audit"
                 android:layout_width="45dp"
                 android:layout_height="30dp"
+                android:layout_gravity="bottom"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/round_button_gray"
                 android:text="@string/audit"
@@ -120,6 +162,7 @@
                 android:id="@+id/btn_item_comment"
                 android:layout_width="45dp"
                 android:layout_height="30dp"
+                android:layout_gravity="bottom"
                 android:background="@drawable/round_button_gray"
                 android:text="@string/comment"
                 android:textColor="#9e9e9e" />

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.alibaba.sdk.android.media.upload.UploadListener;
@@ -32,6 +34,7 @@ import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_PublishPicture;
 import com.jiubai.taskmoment.classes.Member;
 import com.jiubai.taskmoment.classes.MyDate;
+import com.jiubai.taskmoment.classes.MyTime;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
@@ -41,6 +44,7 @@ import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.DateDialog;
 import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.view.TimeDialog;
 import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONArray;
@@ -60,7 +64,8 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 /**
  * 发布任务
  */
-public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class Aty_TaskPublish extends AppCompatActivity
+        implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -98,14 +103,17 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
     Button btn_d;
 
     private int grade = 4;
+    private String date;
     private List<Button> gradeBtnList = new ArrayList<>();
-    private boolean isDeadline = false, isPublishTime = false;
+    private boolean isDeadline = false, isStartTime = false;
     private ArrayList<String> pictureList = new ArrayList<>();
     private Adpt_PublishPicture adpt_publishPicture;
     private int uploadedNum = 0;
     private int executor = -1, supervisor = -1, auditor = -1;
     private int year_deadline = 0, month_deadline = 0, day_deadline = 0,
-            year_publishTime = 0, month_publishTime = 0, day_publishTime = 0;
+            hour_deadline = 0, minute_deadline = 0,
+            year_startTime = 0, month_startTime = 0, day_startTime = 0,
+            hour_startTime = 0, minute_startTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +164,8 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                     Toast.makeText(Aty_TaskPublish.this, "请选择审核者", Toast.LENGTH_SHORT).show();
                 } else if (year_deadline == 0) {
                     Toast.makeText(Aty_TaskPublish.this, "请填入完成期限", Toast.LENGTH_SHORT).show();
-                } else if (year_publishTime == 0) {
-                    Toast.makeText(Aty_TaskPublish.this, "请填入发布时间", Toast.LENGTH_SHORT).show();
+                } else if (year_startTime == 0) {
+                    Toast.makeText(Aty_TaskPublish.this, "请填入开始时间", Toast.LENGTH_SHORT).show();
                 } else {
                     // 先把多余的添加图片入口删掉
                     if (adpt_publishPicture.pictureList != null
@@ -214,6 +222,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                                 try {
                                                     uploadImage(responseJson.getString("taskid"));
                                                 } catch (Exception exception) {
+                                                    exception.printStackTrace();
                                                     Toast.makeText(Aty_TaskPublish.this,
                                                             "图片上传失败，请重试",
                                                             Toast.LENGTH_SHORT).show();
@@ -223,10 +232,6 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
-
-                                        Toast.makeText(Aty_TaskPublish.this,
-                                                R.string.usual_error,
-                                                Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             },
@@ -234,6 +239,10 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                 @Override
                                 public void onErrorResponse(VolleyError volleyError) {
                                     volleyError.printStackTrace();
+
+                                    Toast.makeText(Aty_TaskPublish.this,
+                                            "图片上传失败，请重试",
+                                            Toast.LENGTH_SHORT).show();
                                 }
                             });
 
@@ -251,12 +260,16 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         intent.putExtra("grade", gradeBtnList.get(grade - 1).getText().toString());
         intent.putExtra("content", edt_desc.getText().toString());
         intent.putExtra("pictureList", adpt_publishPicture.pictureList);
-        intent.putExtra("create_time",
-                Calendar.getInstance(Locale.CHINA).getTimeInMillis());
         intent.putExtra("executor", Adpt_Member.memberList.get(executor).getMid());
         intent.putExtra("supervisor", Adpt_Member.memberList.get(supervisor).getMid());
         intent.putExtra("auditor", Adpt_Member.memberList.get(auditor).getMid());
         intent.putExtra("taskID", taskID);
+        intent.putExtra("deadline",
+                UtilBox.getStringToDate(tv_deadline.getText().toString()) + "");
+        intent.putExtra("publish_time",
+                UtilBox.getStringToDate(tv_publishTime.getText().toString()) + "");
+        intent.putExtra("create_time",
+                Calendar.getInstance(Locale.CHINA).getTimeInMillis());
 
         Aty_TaskPublish.this.setResult(RESULT_OK, intent);
         Aty_TaskPublish.this.finish();
@@ -290,7 +303,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 break;
 
             case R.id.tv_publishTime:
-                isPublishTime = true;
+                isStartTime = true;
 
                 myDate = getMyDate();
                 dateDialog = new DateDialog(this, this,
@@ -394,7 +407,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
      * 完成后上传其他相关信息
      */
     @SuppressWarnings("deprecation")
-    private void uploadImage(final String id) throws Exception {
+    private void uploadImage(final String taskID) throws Exception {
         // 压缩图片
         final Bitmap bitmap = UtilBox.getLocalBitmap(
                 adpt_publishPicture.pictureList.get(uploadedNum),
@@ -405,7 +418,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
             public void onUploadFailed(UploadTask uploadTask, FailReason failReason) {
                 Looper.prepare();
                 Toast.makeText(Aty_TaskPublish.this,
-                        R.string.usual_error,
+                        "图片上传失败，请重试",
                         Toast.LENGTH_SHORT).show();
                 Log.e("task", failReason.getMessage());
                 Looper.loop();
@@ -422,20 +435,23 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                 if (uploadedNum < adpt_publishPicture.pictureList.size()) {
                     // 接着上传下一张图片
                     try {
-                        uploadImage(id);
+                        uploadImage(taskID);
                     } catch (Exception exception) {
+                        exception.printStackTrace();
                         Toast.makeText(Aty_TaskPublish.this,
                                 "图片上传失败，请重试",
                                 Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     String[] key = {"taskid", "works"};
-                    String[] value = {id, new JSONArray(pictureList).toString()};
+                    String[] value = {taskID, new JSONArray(pictureList).toString()};
 
                     VolleyUtil.requestWithCookie(Urls.UPDATE_TASK_PICTURE, key, value,
                             new Response.Listener<String>() {
                                 @Override
                                 public void onResponse(String response) {
+
+
                                     try {
                                         JSONObject responseJson = new JSONObject(response);
 
@@ -446,6 +462,10 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                             Toast.makeText(Aty_TaskPublish.this,
                                                     responseJson.getString("info"),
                                                     Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            // TODO 都要清空还是只这里清空？
+                                            // 清空缓存的图片列表
+                                            Frag_Timeline.pictureList = null;
                                         }
 
                                     } catch (JSONException e) {
@@ -459,7 +479,7 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
                                     volleyError.printStackTrace();
 
                                     Toast.makeText(Aty_TaskPublish.this,
-                                            R.string.usual_error,
+                                            "图片上传失败，请重试",
                                             Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -588,45 +608,92 @@ public class Aty_TaskPublish extends AppCompatActivity implements DatePickerDial
         int year, month, day;
 
         if ((isDeadline && year_deadline != 0)
-                || (isPublishTime && year_deadline != 0 && year_publishTime == 0)) {
+                || (isStartTime && year_deadline != 0 && year_startTime == 0)) {
             year = year_deadline;
             month = month_deadline;
             day = day_deadline;
-        } else if ((isDeadline) || (isPublishTime && year_publishTime == 0)) {
+        } else if ((isDeadline) || (isStartTime && year_startTime == 0)) {
             final Calendar c = Calendar.getInstance();
             year = c.get(Calendar.YEAR);
             month = c.get(Calendar.MONTH);
             day = c.get(Calendar.DAY_OF_MONTH);
         } else {
-            year = year_publishTime;
-            month = month_publishTime;
-            day = day_publishTime;
+            year = year_startTime;
+            month = month_startTime;
+            day = day_startTime;
         }
 
         return new MyDate(year, month, day);
     }
 
+    /**
+     * 获取时间
+     *
+     * @return 当前时间或已设定的时间
+     */
+    private MyTime getMyTime() {
+        int hour, minute;
+
+        if ((isDeadline && hour_deadline != 0)
+                || (isStartTime && hour_deadline != 0 && hour_startTime == 0)) {
+            hour = hour_deadline;
+            minute = minute_deadline;
+        } else if ((isDeadline) || (isStartTime && hour_startTime == 0)) {
+            final Calendar c = Calendar.getInstance();
+            hour = c.get(Calendar.HOUR_OF_DAY);
+            minute = c.get(Calendar.MINUTE);
+        } else {
+            hour = hour_startTime;
+            minute = minute_startTime;
+        }
+
+        return new MyTime(hour, minute);
+    }
+
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        String date = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+        date = year + "/" + (monthOfYear + 1) + "/" + dayOfMonth;
 
         if (isDeadline) {
             year_deadline = year;
             month_deadline = monthOfYear;
             day_deadline = dayOfMonth;
+        } else if (isStartTime) {
+            year_startTime = year;
+            month_startTime = monthOfYear;
+            day_startTime = dayOfMonth;
+        }
+
+        MyTime myTime = getMyTime();
+        TimeDialog timeDialog = new TimeDialog(this, this, myTime.getHour(), myTime.getMinute(), true);
+        timeDialog.show();
+    }
+
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        if(minute < 10){
+            date += " " + hourOfDay + ":0" + minute;
+        } else {
+            date += " " + hourOfDay + ":" + minute;
+        }
+
+        if (isDeadline) {
+            hour_deadline = hourOfDay;
+            minute_deadline = minute;
 
             isDeadline = false;
 
             tv_deadline.setText(date);
-        } else if (isPublishTime) {
-            year_publishTime = year;
-            month_publishTime = monthOfYear;
-            day_publishTime = dayOfMonth;
+        } else if (isStartTime) {
+            hour_startTime = hourOfDay;
+            minute_startTime = minute;
 
-            isPublishTime = false;
+            isStartTime = false;
 
             tv_publishTime.setText(date);
         }
+
+        date = null;
     }
 
     @Override

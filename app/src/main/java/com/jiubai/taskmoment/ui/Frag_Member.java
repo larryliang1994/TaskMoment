@@ -126,7 +126,7 @@ public class Frag_Member extends Fragment {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
                                                     Toast.makeText(getActivity(),
-                                                            R.string.usual_error,
+                                                            "创建失败，请重试",
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -179,7 +179,7 @@ public class Frag_Member extends Fragment {
                                                 @Override
                                                 public void onErrorResponse(VolleyError volleyError) {
                                                     Toast.makeText(getActivity(),
-                                                            R.string.usual_error,
+                                                            "删除失败，请重试",
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -272,7 +272,7 @@ public class Frag_Member extends Fragment {
                     public void onErrorResponse(VolleyError volleyError) {
                         srl.setRefreshing(false);
                         Toast.makeText(getActivity(),
-                                R.string.usual_error_refresh,
+                                "获取成员列表失败，请重试",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -294,7 +294,7 @@ public class Frag_Member extends Fragment {
                 lv_member.setAdapter(adpt_member);
             } else {
                 Toast.makeText(getActivity(),
-                        R.string.usual_error_refresh,
+                        "数据有误，请重试",
                         Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {
@@ -324,7 +324,7 @@ public class Frag_Member extends Fragment {
                 Toast.makeText(getActivity(), "删除成功", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(),
-                        R.string.usual_error,
+                        "删除失败，请重试",
                         Toast.LENGTH_SHORT).show();
             }
         } catch (JSONException e) {

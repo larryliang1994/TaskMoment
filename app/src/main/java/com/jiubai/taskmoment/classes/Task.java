@@ -20,7 +20,7 @@ public class Task implements Serializable{
     private ArrayList<String> pictures;
     private ArrayList<Comment> comments;
     private long deadline;
-    private long publish_time;
+    private long start_time;
     private long create_time;
     private String audit_result;
 
@@ -30,7 +30,7 @@ public class Task implements Serializable{
     public Task(String id, String portraitUrl, String nickname, String mid, String grade,
                 String desc, String executor, String supervisor, String auditor,
                 ArrayList<String> pictures, ArrayList<Comment> comments,
-                long deadline, long publish_time, long create_time, String audit_result) {
+                long deadline, long start_time, long create_time, String audit_result) {
         this.id = id;
         this.portraitUrl = portraitUrl;
         this.nickname = nickname;
@@ -43,7 +43,7 @@ public class Task implements Serializable{
         this.pictures = pictures;
         this.comments = comments;
         this.deadline = deadline;
-        this.publish_time = publish_time;
+        this.start_time = start_time;
         this.create_time = create_time;
         this.audit_result = audit_result;
     }
@@ -136,19 +136,19 @@ public class Task implements Serializable{
         this.deadline = deadline;
     }
 
-    public long getPublish_time() {
-        return publish_time;
+    public long getStartTime() {
+        return start_time;
     }
 
-    public void setPublish_time(long publish_time) {
-        this.publish_time = publish_time;
+    public void setStartTime(long start_time) {
+        this.start_time = start_time;
     }
 
-    public long getCreate_time() {
+    public long getCreateTime() {
         return create_time;
     }
 
-    public void setCreate_time(long create_time) {
+    public void setCreateTime(long create_time) {
         this.create_time = create_time;
     }
 

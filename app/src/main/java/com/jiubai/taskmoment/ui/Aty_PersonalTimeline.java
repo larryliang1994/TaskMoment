@@ -51,8 +51,6 @@ import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.utils.DiskCacheUtils;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
@@ -104,7 +102,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private String isAudit, isInvolved;
     private boolean isBottomRefreshing = false;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
-    private Receiver_UpdateView deleteTaskReceiver, commentReceiver;
+    private Receiver_UpdateView deleteTaskReceiver, commentReceiver,
+            nicknameReceiver, portraitReceiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,8 +154,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         iv_portrait.setFocusable(true);
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
-        ImageLoader.getInstance()
-                .displayImage(Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg", iv_portrait);
+        ImageLoader.getInstance().displayImage(
+                Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg" + "?t=" + Config.TIME, iv_portrait);
         iv_portrait.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,7 +226,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                     // 参数应为最后一条任务的时间减1秒
                     refreshTimeline("loadMore", (Adpt_PersonalTimeline.taskList
                             .get(Adpt_PersonalTimeline.taskList.size() - 1)
-                            .getCreate_time() / 1000 - 1) + "");
+                            .getCreateTime() / 1000 - 1) + "");
                 }
             }
         });
@@ -236,7 +235,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
         if (Config.COMPANY_BACKGROUND != null) {
             ImageLoader.getInstance().displayImage(
-                    Config.COMPANY_BACKGROUND, iv_companyBackground, new ImageLoadingListener() {
+                    Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME, iv_companyBackground,
+                    new ImageLoadingListener() {
                         @Override
                         public void onLoadingStarted(String s, View view) {
                         }
@@ -371,7 +371,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
                         volleyError.printStackTrace();
                         Toast.makeText(Aty_PersonalTimeline.this,
-                                R.string.usual_error,
+                                "刷新失败，请重试",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -478,7 +478,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                         System.out.println(response);
 
                                         Toast.makeText(context,
-                                                R.string.usual_error,
+                                                "评论失败，请重试",
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         // 发送更新评论广播
@@ -486,7 +486,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                         intent.putExtra("taskID", taskID);
 
                                         String nickname;
-                                        if("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)){
+                                        if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
                                             nickname = "你";
                                         } else {
                                             nickname = Config.NICKNAME;
@@ -519,7 +519,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
                                 Toast.makeText(context,
-                                        R.string.usual_error,
+                                        "评论失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -598,7 +598,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
 
-                                Toast.makeText(context, R.string.usual_error,
+                                Toast.makeText(context, "审核失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -695,21 +695,20 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                     System.out.println(failReason.getMessage());
 
                                     Toast.makeText(Aty_PersonalTimeline.this,
-                                            R.string.usual_error,
+                                            "图片上传失败，请重试",
                                             Toast.LENGTH_SHORT).show();
+
+                                    ImageLoader.getInstance().displayImage(
+                                            Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME,
+                                            iv_companyBackground);
                                 }
 
                                 @Override
                                 public void onUploadComplete(UploadTask uploadTask) {
                                     Config.COMPANY_BACKGROUND = Urls.MEDIA_CENTER_BACKGROUND + objectName;
 
-                                    // 清除原有的cache
-                                    MemoryCacheUtils.removeFromCache(
-                                            Config.COMPANY_BACKGROUND,
-                                            ImageLoader.getInstance().getMemoryCache());
-                                    DiskCacheUtils.removeFromCache(
-                                            Config.COMPANY_BACKGROUND,
-                                            ImageLoader.getInstance().getDiskCache());
+                                    // 更新时间戳
+                                    Config.TIME = Calendar.getInstance().getTimeInMillis();
 
                                     SharedPreferences sp = getSharedPreferences(
                                             Constants.SP_FILENAME,
@@ -717,10 +716,11 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                     SharedPreferences.Editor editor = sp.edit();
                                     editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
                                             Config.COMPANY_BACKGROUND);
+                                    editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
                                     editor.apply();
 
                                     ImageLoader.getInstance().displayImage(
-                                            Config.COMPANY_BACKGROUND,
+                                            Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME,
                                             iv_companyBackground);
                                 }
 
@@ -796,6 +796,26 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 });
         commentReceiver.registerAction(Constants.ACTION_SEND_COMMENT);
 
+        nicknameReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg, Object... objects) {
+                        tv_title.setText(Config.NICKNAME);
+                        tv_nickname.setText(Config.NICKNAME);
+                    }
+                });
+        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
+
+        portraitReceiver = new Receiver_UpdateView(this,
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg, Object... objects) {
+                        ImageLoader.getInstance().displayImage(
+                                Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
+                    }
+                });
+        portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
+
         super.onStart();
     }
 
@@ -803,6 +823,8 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     protected void onDestroy() {
         unregisterReceiver(deleteTaskReceiver);
         unregisterReceiver(commentReceiver);
+        unregisterReceiver(nicknameReceiver);
+        unregisterReceiver(portraitReceiver);
 
         super.onDestroy();
     }

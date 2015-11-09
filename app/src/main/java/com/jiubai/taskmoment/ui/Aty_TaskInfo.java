@@ -86,8 +86,14 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.tv_auditor)
     TextView tv_auditor;
 
-    @Bind(R.id.tv_date)
-    TextView tv_date;
+    @Bind(R.id.tv_publishTime)
+    TextView tv_publishTime;
+
+    @Bind(R.id.tv_deadline)
+    TextView tv_deadline;
+
+    @Bind(R.id.tv_startTime)
+    TextView tv_startTime;
 
     @Bind(R.id.tv_delete)
     TextView tv_delete;
@@ -132,7 +138,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
     private void initView() {
         tv_title.setText("任务详情");
 
-        ImageLoader.getInstance().displayImage(task.getPortraitUrl(), iv_portrait);
+        ImageLoader.getInstance().displayImage(task.getPortraitUrl()+ "?t=" + Config.TIME, iv_portrait);
 
         tv_desc.setText(task.getDesc());
 
@@ -182,7 +188,11 @@ public class Aty_TaskInfo extends AppCompatActivity {
             }
         }
 
-        tv_date.setText(UtilBox.getDateToString(task.getCreate_time(), UtilBox.DATE));
+        tv_deadline.append(UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
+
+        tv_startTime.append(UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
+
+        tv_publishTime.append(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
 
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
@@ -292,7 +302,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                     volleyError.printStackTrace();
 
                                                     Toast.makeText(Aty_TaskInfo.this,
-                                                            R.string.usual_error,
+                                                            "删除失败，请重试",
                                                             Toast.LENGTH_SHORT).show();
                                                 }
                                             });
@@ -355,7 +365,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                     executor = member.getName();
                 } else {
                     executor = member.getMobile().substring(0, 3)
-                            + "***" + member.getMobile().substring(7);
+                            + "****" + member.getMobile().substring(7);
                 }
             }
 
@@ -364,7 +374,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                     supervisor = member.getName();
                 } else {
                     supervisor = member.getMobile().substring(0, 3)
-                            + "***" + member.getMobile().substring(7);
+                            + "****" + member.getMobile().substring(7);
                 }
             }
 
@@ -373,7 +383,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                     auditor = member.getName();
                 } else {
                     auditor = member.getMobile().substring(0, 3)
-                            + "***" + member.getMobile().substring(7);
+                            + "****" + member.getMobile().substring(7);
                 }
             }
 
@@ -546,7 +556,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                         System.out.println(response);
 
                                         Toast.makeText(context,
-                                                R.string.usual_error,
+                                                "评论失败，请重试",
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         String nickname;
@@ -595,7 +605,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
                                 Toast.makeText(context,
-                                        R.string.usual_error,
+                                        "评论失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -699,7 +709,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                             public void onErrorResponse(VolleyError volleyError) {
                                 volleyError.printStackTrace();
 
-                                Toast.makeText(context, R.string.usual_error,
+                                Toast.makeText(context, "审核失败，请重试",
                                         Toast.LENGTH_SHORT).show();
                             }
                         });

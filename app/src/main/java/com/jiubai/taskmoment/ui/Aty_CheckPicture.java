@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -190,7 +191,9 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                 String imgUrl = ImageDownloader.Scheme.FILE.wrap(pictureList.get(position));
                 ImageLoader.getInstance().displayImage(imgUrl, photoView);
             } else {
-                ImageLoader.getInstance().displayImage(pictureList.get(position), photoView,
+                ImageLoader.getInstance().displayImage(
+                        pictureList.get(position)+ "?t=" + Config.TIME,
+                        photoView,
                         new ImageLoadingListener() {
                             @Override
                             public void onLoadingStarted(String s, View view) {
@@ -200,7 +203,7 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
                             public void onLoadingFailed(String s, View view, FailReason failReason) {
                                 progressBar.setVisibility(View.GONE);
                                 Toast.makeText(Aty_CheckPicture.this,
-                                        R.string.usual_error, Toast.LENGTH_SHORT).show();
+                                        "图片加载出错", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override

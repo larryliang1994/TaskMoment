@@ -140,7 +140,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         // 获取抽屉的头像
         iv_navigation = (CircleImageView) ll_nvHeader.findViewById(R.id.iv_navigation);
         if (Config.PORTRAIT != null) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_navigation);
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_navigation);
         } else {
             iv_navigation.setImageResource(R.drawable.portrait_default);
         }
@@ -223,6 +223,8 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                         break;
 
                     case R.id.navItem_chooseCompany:
+                        nv.getMenu().getItem(currentItem).setChecked(true);
+
                         Intent intent = new Intent(Aty_Main.this, Aty_Company.class);
                         intent.putExtra("hide", true);
                         startActivityForResult(intent, Constants.CODE_CHANGE_COMPANY);
@@ -358,7 +360,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.PORTRAIT, iv_navigation);
+                                Config.PORTRAIT+ "?t=" + Config.TIME, iv_navigation);
                         nv.removeHeaderView(ll_nvHeader);
                         nv.addHeaderView(ll_nvHeader);
                     }

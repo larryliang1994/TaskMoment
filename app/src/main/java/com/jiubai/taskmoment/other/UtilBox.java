@@ -359,13 +359,15 @@ public class UtilBox {
         }
     }
 
-    public static String DATE = "MM-dd";
+    public static String DATE = "MM/dd";
     public static String TIME = "HH:mm";
+    public static String DATE_TIME = "MM/dd HH:mm";
 
     /**
      * 时间戳转换成字符串
      *
      * @param time 时间戳
+     * @param type 返回类型
      * @return 日期字符串
      */
     public static String getDateToString(long time, String type) {
@@ -381,7 +383,7 @@ public class UtilBox {
      * @return 时间戳
      */
     public static long getStringToDate(String time) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm", Locale.CHINA);
         Date date = new Date();
         try {
             date = sdf.parse(time);
@@ -501,10 +503,12 @@ public class UtilBox {
                 (int) height, matrix, true);
     }
 
-    public interface GetMemberCallBack{
+    public interface GetMemberCallBack {
         void successCallback();
+
         void failedCallback();
     }
+
     /**
      * 获取成员列表
      */
@@ -555,7 +559,7 @@ public class UtilBox {
                             } else {
                                 callBack.failedCallback();
                                 Toast.makeText(context,
-                                        R.string.usual_error,
+                                        "获取成员列表失败",
                                         Toast.LENGTH_SHORT).show();
                             }
                         } catch (JSONException e) {
@@ -568,7 +572,7 @@ public class UtilBox {
                     public void onErrorResponse(VolleyError volleyError) {
                         callBack.failedCallback();
                         Toast.makeText(context,
-                                R.string.usual_error,
+                                "获取成员列表失败",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -579,7 +583,7 @@ public class UtilBox {
      *
      * @param activity 需要设置的activity
      */
-    public static void setStatusBarTint(Activity activity, int color){
+    public static void setStatusBarTint(Activity activity, int color) {
         Window window = activity.getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -595,7 +599,7 @@ public class UtilBox {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.setStatusBarColor(ContextCompat.getColor(activity, color));
-        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             tintManager.setTintColor(ContextCompat.getColor(activity, color));
         }
     }

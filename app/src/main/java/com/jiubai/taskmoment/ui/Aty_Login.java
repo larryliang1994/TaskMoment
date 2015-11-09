@@ -275,7 +275,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                                     System.out.println(volleyError.getMessage());
                                                 }
                                                 Toast.makeText(Aty_Login.this,
-                                                        R.string.usual_error,
+                                                        "获取失败，请重试",
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });
@@ -360,7 +360,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                             public void onErrorResponse(VolleyError volleyError) {
                                                 changeLoadingState("dismiss");
                                                 Toast.makeText(Aty_Login.this,
-                                                        R.string.usual_error,
+                                                        "登录失败，请重试",
                                                         Toast.LENGTH_SHORT).show();
                                             }
                                         });

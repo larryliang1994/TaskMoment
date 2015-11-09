@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -28,9 +27,9 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.DiskCacheUtils;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
+
+import java.util.Calendar;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -39,8 +38,8 @@ import me.drakeet.materialdialog.MaterialDialog;
  */
 public class Frag_UserInfo extends Fragment {
     private Adpt_UserInfo adapter;
+    private Receiver_UpdateView nicknameReceiver;
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_userinfo, container, false);
@@ -95,6 +94,27 @@ public class Frag_UserInfo extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        nicknameReceiver = new Receiver_UpdateView(getActivity(),
+                new Receiver_UpdateView.UpdateCallBack() {
+                    @Override
+                    public void updateView(String msg, Object... objects) {
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+        nicknameReceiver.registerAction(Constants.ACTION_CHANGE_NICKNAME);
+
+        super.onStart();
+    }
+
+    @Override
+    public void onDestroy() {
+        getActivity().unregisterReceiver(nicknameReceiver);
+
+        super.onDestroy();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -117,18 +137,14 @@ public class Frag_UserInfo extends Fragment {
                             System.out.println(failReason.getMessage());
 
                             Toast.makeText(getActivity(),
-                                    R.string.usual_error,
+                                    "头像上传失败，请重试",
                                     Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onUploadComplete(UploadTask uploadTask) {
-                            // 清除原有的cache
-                            MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
-                                    ImageLoader.getInstance().getMemoryCache());
-                            DiskCacheUtils.removeFromCache(Config.PORTRAIT,
-                                    ImageLoader.getInstance().getDiskCache());
-
+                            // 更新时间戳
+                            Config.TIME = Calendar.getInstance().getTimeInMillis();
 
                             Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + objectName;
 
@@ -138,6 +154,7 @@ public class Frag_UserInfo extends Fragment {
                             SharedPreferences.Editor editor = sp.edit();
                             editor.putString(Constants.SP_KEY_PORTRAIT,
                                     Config.PORTRAIT);
+                            editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
                             editor.apply();
 
                             adapter.notifyDataSetChanged();

@@ -175,7 +175,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         Toast.makeText(MainActivity.this,
-                                R.string.usual_error,
+                                "获取用户信息失败，请重试",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

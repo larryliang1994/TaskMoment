@@ -11,6 +11,7 @@ public class Company {
     public Company(String name, String cid, String creator) {
         this.name = name;
         this.cid = cid;
+        this.creator = creator;
     }
 
     public String getName() {

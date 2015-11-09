@@ -226,7 +226,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
-            android:background="#ffffff"
+            android:background="#767676"
             android:orientation="vertical"
             android:padding="5dp">
 
@@ -246,7 +246,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:text="@string/solved"
-                    android:textColor="#767676" />
+                    android:textColor="#ffffff" />
 
                 <Space
                     android:layout_width="0dp"
@@ -259,7 +259,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:text="@string/complete"
-                    android:textColor="#767676" />
+                    android:textColor="#ffffff" />
 
                 <Space
                     android:layout_width="0dp"
@@ -272,7 +272,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:text="@string/task_failed"
-                    android:textColor="#767676" />
+                    android:textColor="#ffffff" />
             </RadioGroup>
 
             <Button

@@ -15,5 +15,6 @@ public class Config {
     public static String PORTRAIT = null;
     public static String NICKNAME = null;
 
+    public static long TIME = 0;
     public static int NEWS_NUM = 0;
 }

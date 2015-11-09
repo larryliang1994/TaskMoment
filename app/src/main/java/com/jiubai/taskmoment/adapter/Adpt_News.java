@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.classes.Task;
+import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
 import com.jiubai.taskmoment.view.RippleView;
@@ -83,7 +84,7 @@ public class Adpt_News extends BaseAdapter {
         final Task task = news.getTask();
 
         ImageLoader.getInstance().displayImage(
-                Urls.MEDIA_CENTER_PORTRAIT + news.getSenderID() + ".jpg",
+                Urls.MEDIA_CENTER_PORTRAIT + news.getSenderID() + ".jpg" + "?t=" +Config.TIME,
                 holder.iv_portrait);
 
         holder.tv_sender.setText(news.getTitle());

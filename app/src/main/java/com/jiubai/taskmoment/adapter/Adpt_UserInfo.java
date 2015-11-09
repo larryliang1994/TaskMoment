@@ -99,7 +99,7 @@ public class Adpt_UserInfo extends BaseAdapter {
             ImageView iv_portrait = (ImageView) convertView.findViewById(R.id.iv_portrait);
 
             if (Config.PORTRAIT != null) {
-                ImageLoader.getInstance().displayImage(Config.PORTRAIT, iv_portrait);
+                ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
             } else {
                 iv_portrait.setImageResource(R.drawable.portrait_default);
             }
@@ -272,7 +272,7 @@ public class Adpt_UserInfo extends BaseAdapter {
                                     public void onErrorResponse(VolleyError volleyError) {
                                         volleyError.printStackTrace();
 
-                                        Toast.makeText(context, R.string.usual_error,
+                                        Toast.makeText(context, "修改失败，请重试",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 });
