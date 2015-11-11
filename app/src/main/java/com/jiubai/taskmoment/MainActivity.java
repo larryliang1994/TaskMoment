@@ -1,10 +1,14 @@
 package com.jiubai.taskmoment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -17,9 +21,7 @@ import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
 import com.jiubai.taskmoment.ui.Aty_Main;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.utils.DiskCacheUtils;
-import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
+import com.jiubai.taskmoment.view.RotateLoading;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengDialogButtonListener;
 import com.umeng.update.UmengUpdateAgent;
@@ -30,13 +32,25 @@ import com.umeng.update.UpdateStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MainActivity extends Activity {
+
+    @Bind(R.id.btn_reconnect)
+    Button btn_reconnect;
+
+    private Dialog dialog;
+    private RotateLoading rl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.guidepage);
+
+        ButterKnife.bind(this);
 
         UmengUpdateAgent.setUpdateOnlyWifi(false);
         UmengUpdateAgent.setDeltaUpdate(true);
@@ -73,6 +87,13 @@ public class MainActivity extends Activity {
             }
         });
         UmengUpdateAgent.update(this);
+
+        dialog = new Dialog(this, R.style.dialog);
+        dialog.setContentView(R.layout.dialog_rotate_loading);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+
+        rl = (RotateLoading) dialog.findViewById(R.id.rl_dialog);
     }
 
     // 进入正式页面
@@ -88,18 +109,21 @@ public class MainActivity extends Activity {
                         @Override
                         public void run() {
                             if (!Config.IS_CONNECTED) {
-                                Toast.makeText(MainActivity.this, R.string.cant_access_network,
-                                        Toast.LENGTH_SHORT).show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        changeLoadingState("dismiss");
+                                        btn_reconnect.setVisibility(View.VISIBLE);
+                                        Toast.makeText(MainActivity.this,
+                                                R.string.cant_access_network,
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             } else {
                                 // 获取用户信息
                                 getUserInfo();
-
-                                // 清除原有的cache
-                                MemoryCacheUtils.removeFromCache(Config.PORTRAIT,
-                                        ImageLoader.getInstance().getMemoryCache());
-                                DiskCacheUtils.removeFromCache(Config.PORTRAIT,
-                                        ImageLoader.getInstance().getDiskCache());
                             }
+                            changeLoadingState("dismiss");
                             startActivity(new Intent(MainActivity.this, Aty_Company.class));
 
                             finish();
@@ -110,9 +134,18 @@ public class MainActivity extends Activity {
                         @Override
                         public void run() {
                             if (!Config.IS_CONNECTED) {
-                                Toast.makeText(MainActivity.this,
-                                        R.string.cant_access_network,
-                                        Toast.LENGTH_SHORT).show();
+                                Looper.prepare();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        btn_reconnect.setVisibility(View.VISIBLE);
+                                        Toast.makeText(MainActivity.this,
+                                                R.string.cant_access_network,
+                                                Toast.LENGTH_SHORT).show();
+                                        changeLoadingState("dismiss");
+                                    }
+                                });
+                                Looper.loop();
                             } else {
                                 // 获取用户信息
                                 getUserInfo();
@@ -121,6 +154,7 @@ public class MainActivity extends Activity {
                             UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
                                 @Override
                                 public void successCallback() {
+                                    changeLoadingState("dismiss");
                                     startActivity(new Intent(MainActivity.this, Aty_Main.class));
 
                                     finish();
@@ -128,6 +162,7 @@ public class MainActivity extends Activity {
 
                                 @Override
                                 public void failedCallback() {
+                                    changeLoadingState("dismiss");
                                     startActivity(new Intent(MainActivity.this, Aty_Main.class));
 
                                     finish();
@@ -138,6 +173,37 @@ public class MainActivity extends Activity {
                 }
             }
         }, 1500);
+    }
+
+    @OnClick(R.id.btn_reconnect)
+    public void onClick(View v){
+        getStart();
+        changeLoadingState("show");
+    }
+
+    /**
+     * 显示或隐藏旋转进度条
+     *
+     * @param which show代表显示, dismiss代表隐藏
+     */
+    private void changeLoadingState(String which) {
+        if ("show".equals(which)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                    rl.start();
+                }
+            });
+        } else if ("dismiss".equals(which)) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rl.stop();
+                    dialog.dismiss();
+                }
+            });
+        }
     }
 
     private void getUserInfo() {

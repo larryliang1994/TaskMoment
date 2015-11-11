@@ -9,21 +9,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,11 +93,15 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     @Bind(R.id.iv_companyBackground)
     ImageView iv_companyBackground;
 
+    @Bind(R.id.rl_timeline)
+    RelativeLayout rl_timeline;
+
     private static LinearLayout ll_comment, ll_audit;
     private static Space space;
     private static BorderScrollView sv;
     private static ListView lv;
     private static Adpt_PersonalTimeline adapter;
+    private static int keyBoardHeight;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
     private View footerView;
     private String mid;
@@ -256,6 +264,22 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                     });
         }
 
+        rl_timeline.getViewTreeObserver().
+                addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        Rect r = new Rect();
+                        rl_timeline.getWindowVisibleDisplayFrame(r);
+
+                        int screenHeight = rl_timeline.getRootView().getHeight();
+                        int difference = screenHeight - (r.bottom - r.top);
+
+                        if (difference > 100) {
+                            keyBoardHeight = difference;
+                        }
+                    }
+                });
+
         refreshTimeline("refresh", Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
     }
 
@@ -417,23 +441,48 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
-
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
 
-        new Handler().post(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                int keyBoardHeight = UtilBox.dip2px(context, 360);
-                int viewHeight = UtilBox.getHeightPixels(context) - y;
+                boolean flag = false;
+                while(!flag) {
+                    if (keyBoardHeight == 0) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        flag = true;
 
-                int finalScroll = keyBoardHeight - viewHeight
-                        + sv.getScrollY() + UtilBox.dip2px(context, 48);
+                        Looper.prepare();
 
-                sv.smoothScrollTo(0, finalScroll);
+                        ((Activity)context).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
+                            }
+                        });
+
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                                int finalScroll = keyBoardHeight - viewHeight
+                                        + sv.getScrollY() + UtilBox.dip2px(context, 50);
+
+                                sv.smoothScrollTo(0, finalScroll);
+                            }
+                        });
+                        Looper.loop();
+                    }
+                }
             }
-        });
+        }).start();
 
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");

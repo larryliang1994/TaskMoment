@@ -228,20 +228,25 @@ public class Adpt_Timeline extends BaseAdapter {
         // 设置执行者、监督者、审核者
         setESA(task);
         if (executor != null) {
-            holder.tv_executor.append(executor);
+            holder.tv_executor.setText(context.getResources().getString(R.string._executor) + executor);
         }
 
         if (supervisor != null) {
-            holder.tv_supervisor.append(supervisor);
+            holder.tv_supervisor.setText(context.getResources().getString(R.string._supervisor) + supervisor);
         }
 
         if (auditor != null) {
-            holder.tv_auditor.append(auditor);
+            holder.tv_auditor.setText(context.getResources().getString(R.string._auditor) + auditor);
         }
 
-        holder.tv_deadline.append(UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
-        holder.tv_startTime.append(UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
-        holder.tv_publishTime.append(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
+        holder.tv_deadline.setText(context.getResources().getString(R.string._deadline)
+                + UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
+
+        holder.tv_startTime.setText(context.getResources().getString(R.string._startTime)
+                + UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
+
+        holder.tv_publishTime.setText(context.getResources().getString(R.string._publishTime)
+                + UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
 
         return convertView;
     }

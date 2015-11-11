@@ -2,6 +2,7 @@ package com.jiubai.taskmoment.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -16,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Space;
 import android.widget.TextView;
@@ -107,10 +110,14 @@ public class Aty_TaskInfo extends AppCompatActivity {
     @Bind(R.id.tv_space_audit)
     TextView tv_space_audit;
 
+    @Bind(R.id.rl_taskInfo)
+    RelativeLayout rl_taskInfo;
+
     private static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
     private static ListView lv_comment;
     private static ScrollView sv_taskInfo;
+    private static int keyBoardHeight;
     private static Space space;
     private Task task;
     private static Adpt_Comment adapter_comment;
@@ -138,7 +145,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
     private void initView() {
         tv_title.setText("任务详情");
 
-        ImageLoader.getInstance().displayImage(task.getPortraitUrl()+ "?t=" + Config.TIME, iv_portrait);
+        ImageLoader.getInstance().displayImage(task.getPortraitUrl() + "?t=" + Config.TIME, iv_portrait);
 
         tv_desc.setText(task.getDesc());
 
@@ -204,7 +211,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (commentWindowIsShow) {
-                    UtilBox.setViewParams(space, 0, 0);
+                    UtilBox.setViewParams(space, 1, 1);
 
                     ll_comment.setVisibility(View.GONE);
                     commentWindowIsShow = false;
@@ -325,6 +332,22 @@ public class Aty_TaskInfo extends AppCompatActivity {
         } else {
             lv_comment.setVisibility(View.GONE);
         }
+
+        rl_taskInfo.getViewTreeObserver().
+                addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        Rect r = new Rect();
+                        rl_taskInfo.getWindowVisibleDisplayFrame(r);
+
+                        int screenHeight = rl_taskInfo.getRootView().getHeight();
+                        int difference = screenHeight - (r.bottom - r.top);
+
+                        if (difference > 100) {
+                            keyBoardHeight = difference;
+                        }
+                    }
+                });
     }
 
     /**
@@ -496,23 +519,42 @@ public class Aty_TaskInfo extends AppCompatActivity {
         edt_content.setText(null);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
+        if (keyBoardHeight == 0) {
+            UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
 
-        // 弹出键盘
-        UtilBox.toggleSoftInput(ll_comment, true);
+            // 弹出键盘
+            UtilBox.toggleSoftInput(ll_comment, true);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                int keyBoardHeight = UtilBox.dip2px(context, 360);
-                int viewHeight = UtilBox.getHeightPixels(context) - y;
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    int keyBoardHeight = UtilBox.dip2px(context, 360);
+                    int viewHeight = UtilBox.getHeightPixels(context) - y;
 
-                int finalScroll = keyBoardHeight - viewHeight
-                        + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 48);
+                    int finalScroll = keyBoardHeight - viewHeight
+                            + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 48);
 
-                sv_taskInfo.smoothScrollTo(0, finalScroll);
-            }
-        });
+                    sv_taskInfo.smoothScrollTo(0, finalScroll);
+                }
+            });
+        } else {
+            UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
+
+            // 弹出键盘
+            UtilBox.toggleSoftInput(ll_comment, true);
+
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                    int finalScroll = keyBoardHeight - viewHeight
+                            + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 50);
+
+                    sv_taskInfo.smoothScrollTo(0, finalScroll);
+                }
+            });
+        }
 
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
@@ -538,7 +580,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
                 ll_comment.setVisibility(View.GONE);
 
-                UtilBox.setViewParams(space, 0, 0);
+                UtilBox.setViewParams(space, 1, 1);
 
                 UtilBox.toggleSoftInput(ll_comment, false);
 
@@ -560,7 +602,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         String nickname;
-                                        if("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)){
+                                        if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
                                             nickname = "你";
                                         } else {
                                             nickname = Config.NICKNAME;

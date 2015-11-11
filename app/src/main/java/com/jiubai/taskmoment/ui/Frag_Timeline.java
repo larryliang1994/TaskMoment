@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,12 +24,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,6 +75,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     private static ListView lv;
     private static Adpt_Timeline adapter;
     private static View footerView;
+    private static int keyBoardHeight;
 
     public static BorderScrollView sv;
     public static LinearLayout ll_comment;
@@ -82,6 +87,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
     private ArrayList<News> newsList;
     private boolean isBottomRefreshing = false;
+    private RelativeLayout rl_timeline;
     private SwipeRefreshLayout srl;
     private TextView tv_nickname;
     private ImageView iv_companyBackground;
@@ -119,7 +125,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }
 
         if (Config.PORTRAIT != null) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
         } else {
             iv_portrait.setImageResource(R.drawable.portrait_default);
         }
@@ -218,7 +224,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         if (Config.COMPANY_BACKGROUND != null) {
             ImageLoader.getInstance().displayImage(
-                    Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME, iv_companyBackground,
+                    Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground,
                     new ImageLoadingListener() {
                         @Override
                         public void onLoadingStarted(String s, View view) {
@@ -240,9 +246,26 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         }
 
         iv_news_portrait = (ImageView) view.findViewById(R.id.iv_news_portrait);
-        ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_news_portrait);
+        ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_news_portrait);
 
         Aty_Main.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
+
+        rl_timeline = (RelativeLayout) view.findViewById(R.id.rl_timeline);
+        rl_timeline.getViewTreeObserver().
+                addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        Rect r = new Rect();
+                        rl_timeline.getWindowVisibleDisplayFrame(r);
+
+                        int screenHeight = rl_timeline.getRootView().getHeight();
+                        int difference = screenHeight - (r.bottom - r.top);
+
+                        if (difference > 100) {
+                            keyBoardHeight = difference;
+                        }
+                    }
+                });
 
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
@@ -311,7 +334,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.PORTRAIT+ "?t=" + Config.TIME, iv_portrait);
+                                Config.PORTRAIT + "?t=" + Config.TIME, iv_portrait);
                     }
                 });
         portraitReceiver.registerAction(Constants.ACTION_CHANGE_PORTRAIT);
@@ -345,8 +368,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                             if (task.getId().equals(taskID)) {
                                 Comment comment = (Comment) objects[0];
                                 // 防止多次添加
-                                if (task.getComments().get(task.getComments().size() - 1).getTime()
-                                        != comment.getTime()) {
+                                if (task.getComments().isEmpty() ||
+                                        task.getComments().get(task.getComments().size() - 1).getTime()
+                                                != comment.getTime()) {
 
                                     Adpt_Timeline.taskList.get(i).getComments().add(comment);
 
@@ -366,7 +390,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME, iv_companyBackground);
+                                Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground);
                     }
                 });
         changeBackgroundReceiver.registerAction(Constants.ACTION_CHANGE_BACKGROUND);
@@ -645,23 +669,48 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
         edt_content.requestFocus();
 
-        UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
-
         // 弹出键盘
         UtilBox.toggleSoftInput(ll_comment, true);
 
-        new Handler().post(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                int keyBoardHeight = UtilBox.dip2px(context, 360);
-                int viewHeight = UtilBox.getHeightPixels(context) - y;
+                boolean flag = false;
+                while(!flag) {
+                    if (keyBoardHeight == 0) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        flag = true;
 
-                int finalScroll = keyBoardHeight - viewHeight
-                        + sv.getScrollY() + UtilBox.dip2px(context, 48);
+                        Looper.prepare();
 
-                sv.smoothScrollTo(0, finalScroll);
+                        ((Activity)context).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
+                            }
+                        });
+
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                                int finalScroll = keyBoardHeight - viewHeight
+                                        + sv.getScrollY() + UtilBox.dip2px(context, 50);
+
+                                sv.smoothScrollTo(0, finalScroll);
+                            }
+                        });
+                        Looper.loop();
+                    }
+                }
             }
-        });
+        }).start();
 
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
@@ -953,7 +1002,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                                             Toast.LENGTH_SHORT).show();
 
                                     ImageLoader.getInstance().displayImage(
-                                            Config.COMPANY_BACKGROUND+ "?t=" + Config.TIME,
+                                            Config.COMPANY_BACKGROUND + "?t=" + Config.TIME,
                                             iv_companyBackground);
                                 }
 

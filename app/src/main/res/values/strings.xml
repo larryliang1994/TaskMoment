@@ -72,4 +72,5 @@
     <string name="title_under">简洁，不简单</string>
     <string name="version">Version</string>
     <string name="about">关于</string>
+    <string name="reconnect">重新连接</string>
 </resources>

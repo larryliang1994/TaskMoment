@@ -19,17 +19,18 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.other.SmsContentUtil;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.net.SoapUtil;
+import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.other.SmsContentUtil;
+import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.RippleView;
 import com.jiubai.taskmoment.view.RotateLoading;
 import com.umeng.analytics.MobclickAgent;
@@ -61,6 +62,9 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
     @Bind(R.id.rv_btn_submit)
     RippleView rv_btn_submit;
+
+    @Bind(R.id.ll_login)
+    LinearLayout ll_login;
 
     private RotateLoading rl;
     private Dialog dialog = null;
