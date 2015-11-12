@@ -53,21 +53,20 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
     @Bind(R.id.nv_main)
     NavigationView nv;
 
+    private LinearLayout ll_nvHeader;
+    private CircleImageView iv_navigation;
+    private TextView tv_nickname;
+    public static LinearLayout toolbar;
+
+    private Receiver_UpdateView nicknameReceiver, portraitReceiver;
+    private FragmentManager fragmentManager;
+    private int currentItem = 0;
+    private long doubleClickTime = 0;
+
     private Frag_Timeline frag_timeline = new Frag_Timeline();
     private Frag_Member frag_member = new Frag_Member();
     private Frag_UserInfo frag_userInfo = new Frag_UserInfo();
     private Frag_Preference frag_preference = new Frag_Preference();
-
-    public static LinearLayout toolbar;
-    private LinearLayout ll_nvHeader;
-    private FragmentManager fragmentManager;
-    private CircleImageView iv_navigation;
-    private TextView tv_nickname;
-
-    Receiver_UpdateView nicknameReceiver, portraitReceiver;
-
-    private int currentItem = 0;
-    private long doubleClickTime = 0;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -90,7 +89,6 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         toolbar = (LinearLayout) findViewById(R.id.toolBar);
 
         tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
-        tv_title.setOnClickListener(this);
 
         iBtn_back.setImageResource(R.drawable.navigation);
 
@@ -102,6 +100,30 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         fragmentTransaction.add(R.id.frag_main, frag_timeline).commit();
 
         // 设置抽屉
+        initNavigationHeader();
+
+        // 设置昵称
+        tv_nickname = (TextView) ll_nvHeader.findViewById(R.id.tv_navigation_nickname);
+        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
+            tv_nickname.setText(Config.NICKNAME);
+        }
+
+        // 获取抽屉的头像
+        iv_navigation = (CircleImageView) ll_nvHeader.findViewById(R.id.iv_navigation);
+        if (Config.PORTRAIT != null) {
+            ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
+        } else {
+            iv_navigation.setImageResource(R.drawable.portrait_default);
+        }
+
+        // 设置NavigationView
+        initNavigationView();
+    }
+
+    /**
+     * 初始化NavigationHeader
+     */
+    private void initNavigationHeader() {
         ll_nvHeader = (LinearLayout) LayoutInflater.from(this)
                 .inflate(R.layout.navigation_header, null);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -130,21 +152,12 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                 iBtn_publish.setVisibility(View.GONE);
             }
         });
+    }
 
-        // 设置昵称
-        tv_nickname = (TextView) ll_nvHeader.findViewById(R.id.tv_navigation_nickname);
-        if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
-            tv_nickname.setText(Config.NICKNAME);
-        }
-
-        // 获取抽屉的头像
-        iv_navigation = (CircleImageView) ll_nvHeader.findViewById(R.id.iv_navigation);
-        if (Config.PORTRAIT != null) {
-            ImageLoader.getInstance().displayImage(Config.PORTRAIT+ "?t=" + Config.TIME, iv_navigation);
-        } else {
-            iv_navigation.setImageResource(R.drawable.portrait_default);
-        }
-
+    /**
+     * 初始化NavigationView
+     */
+    private void initNavigationView() {
         nv.addHeaderView(ll_nvHeader);
         nv.getMenu().getItem(0).setChecked(true);
         nv.setItemTextColor(ColorStateList.valueOf(Color.parseColor("#212121")));
@@ -237,13 +250,12 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
-
     /**
      * 切换fragment
      *
      * @param to 需要切换到的fragment
      */
-    public void switchContent(Fragment to) {
+    private void switchContent(Fragment to) {
         Fragment from = null;
         switch (currentItem) {
             case 0:
@@ -267,15 +279,17 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         FragmentTransaction transaction = fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.zoom_in, R.anim.zoom_out);
 
-        if (!to.isAdded()) {    // 先判断是否被add过
-            transaction.hide(from).add(R.id.frag_main, to).commit(); // 隐藏当前的fragment，add下一个到Activity中
+        // 先判断是否被add过
+        if (!to.isAdded()) {
+            // 隐藏当前的fragment，add下一个到Activity中
+            transaction.hide(from).add(R.id.frag_main, to).commit();
         } else {
             transaction.hide(from).show(to).commit(); // 隐藏当前的fragment，显示下一个
         }
     }
 
 
-    @OnClick({R.id.iBtn_back})
+    @OnClick({R.id.iBtn_back, R.id.tv_title})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iBtn_back:
@@ -333,7 +347,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
             }
 
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_MENU) { // 小米居然没用。。
+        } else if (keyCode == KeyEvent.KEYCODE_MENU) {
             if (!dw.isDrawerOpen(GravityCompat.START)) {
                 dw.openDrawer(GravityCompat.START);
             }
@@ -360,7 +374,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                     @Override
                     public void updateView(String msg, Object... objects) {
                         ImageLoader.getInstance().displayImage(
-                                Config.PORTRAIT+ "?t=" + Config.TIME, iv_navigation);
+                                Config.PORTRAIT + "?t=" + Config.TIME, iv_navigation);
                         nv.removeHeaderView(ll_nvHeader);
                         nv.addHeaderView(ll_nvHeader);
                     }

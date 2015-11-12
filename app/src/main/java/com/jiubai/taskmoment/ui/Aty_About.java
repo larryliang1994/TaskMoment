@@ -47,8 +47,9 @@ public class Aty_About extends AppCompatActivity {
 
         // 获取PackageManager的实例
         PackageManager packageManager = getPackageManager();
-        // getPackageName()是你当前类的包名，0代表是获取版本信息
+
         try {
+            // getPackageName()是当前类的包名，0代表是获取版本信息
             PackageInfo packInfo = packageManager.getPackageInfo(getPackageName(), 0);
             tv_version.setText(packInfo.versionName);
         } catch (PackageManager.NameNotFoundException e) {

@@ -676,7 +676,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
             @Override
             public void run() {
                 boolean flag = false;
-                while(!flag) {
+                while (!flag) {
                     if (keyBoardHeight == 0) {
                         try {
                             Thread.sleep(1);
@@ -688,7 +688,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                         Looper.prepare();
 
-                        ((Activity)context).runOnUiThread(new Runnable() {
+                        ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
@@ -847,6 +847,13 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(context,
+                            R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 String[] key = {"id", "level"};
                 String[] value = {taskID, audit_result[0] + ""};
 
@@ -962,7 +969,9 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         R.anim.out_right_left);
 
                 Config.NEWS_NUM = 0;
-                newsList.clear();
+                if (newsList != null) {
+                    newsList.clear();
+                }
                 ll_news.setVisibility(View.GONE);
                 break;
         }

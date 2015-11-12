@@ -19,7 +19,6 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -62,9 +61,6 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
     @Bind(R.id.rv_btn_submit)
     RippleView rv_btn_submit;
-
-    @Bind(R.id.ll_login)
-    LinearLayout ll_login;
 
     private RotateLoading rl;
     private Dialog dialog = null;
@@ -218,174 +214,194 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
     public void onComplete(RippleView rippleView) {
         switch (rippleView.getId()) {
             case R.id.rv_btn_getVerifyCode:
-                new Handler().post(new Runnable() {
-
-                    public void run() {
-
-                        final String tele = edt_telephone.getText().toString();
-
-                        if (!Config.IS_CONNECTED) {
-                            Toast.makeText(Aty_Login.this, R.string.cant_access_network,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        // 注册短信变化监听
-                        SmsContentUtil smsContent = new SmsContentUtil(Aty_Login.this,
-                                new Handler(), edt_verifyCode);
-                        Aty_Login.this.getContentResolver().registerContentObserver(
-                                Uri.parse("content://sms/"), true, smsContent);
-
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-
-                                new TimeCount(60000, 1000).start();
-
-                                changeLoadingState("show");
-
-                                if (Config.RANDOM == null) {
-                                    UtilBox.getRandom();
-                                }
-
-                                String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                                String[] soapValue = {"sms_send_verifycode", Config.RANDOM, "", "1"};
-                                String[] httpKey = {"mobile"};
-                                String[] httpValue = {tele};
-                                VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
-                                        new Response.Listener<String>() {
-                                            @Override
-                                            public void onResponse(String response) {
-                                                changeLoadingState("dismiss");
-
-                                                try {
-                                                    JSONObject obj = new JSONObject(response);
-                                                    Toast.makeText(Aty_Login.this,
-                                                            obj.getString("info"),
-                                                            Toast.LENGTH_SHORT).show();
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        },
-                                        new Response.ErrorListener() {
-                                            @Override
-                                            public void onErrorResponse(VolleyError volleyError) {
-                                                changeLoadingState("dismiss");
-
-                                                if (volleyError != null
-                                                        && volleyError.getMessage() != null) {
-                                                    System.out.println(volleyError.getMessage());
-                                                }
-                                                Toast.makeText(Aty_Login.this,
-                                                        "获取失败，请重试",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-
-                                Looper.loop();
-                            }
-                        }).start();
-                    }
-                });
+                getVerifyCode();
                 break;
 
             case R.id.rv_btn_submit:
-                new Handler().post(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        final String tele = edt_telephone.getText().toString();
-                        final String verify = edt_verifyCode.getText().toString();
-
-                        if (!Config.IS_CONNECTED) {
-                            Toast.makeText(Aty_Login.this, R.string.cant_access_network,
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-
-                                changeLoadingState("show");
-
-                                String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                                String[] soapValue = {"mobile_login", Config.RANDOM, "", "1"};
-                                String[] httpKey = {"mobile", "check_code"};
-                                String[] httpValue = {tele, verify};
-                                VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
-                                        new Response.Listener<String>() {
-                                            @Override
-                                            public void onResponse(final String response) {
-                                                changeLoadingState("dismiss");
-
-                                                new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Looper.prepare();
-                                                        try {
-                                                            JSONObject responseJson = new JSONObject(response);
-                                                            // 若登录成功，则延长cookie寿命，并跳转
-                                                            if ("900001".equals(responseJson.getString("status"))) {
-                                                                handleLoginResponse(responseJson.getString("memberCookie"));
-
-                                                                Toast.makeText(Aty_Login.this, "登录成功",
-                                                                        Toast.LENGTH_SHORT).show();
-
-                                                                Intent intent = new Intent(Aty_Login.this,
-                                                                        Aty_Company.class);
-                                                                intent.putExtra("isLogin", true);
-                                                                startActivity(intent);
-                                                                Aty_Login.this.finish();
-                                                                overridePendingTransition(R.anim.in_right_left,
-                                                                        R.anim.out_right_left);
-
-                                                            } else {
-                                                                Toast.makeText(Aty_Login.this,
-                                                                        responseJson.getString("info"),
-                                                                        Toast.LENGTH_SHORT).show();
-                                                            }
-
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                        Looper.loop();
-                                                    }
-                                                }).start();
-
-                                            }
-                                        },
-                                        new Response.ErrorListener() {
-                                            @Override
-                                            public void onErrorResponse(VolleyError volleyError) {
-                                                changeLoadingState("dismiss");
-                                                Toast.makeText(Aty_Login.this,
-                                                        "登录失败，请重试",
-                                                        Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-
-                                Looper.loop();
-                            }
-                        }).start();
-                    }
-                });
+                login();
                 break;
         }
     }
 
-    /* 倒计时的内部类 */
+    /**
+     * 获取验证码
+     */
+    private void getVerifyCode() {
+        new Handler().post(new Runnable() {
+
+            public void run() {
+
+                final String tele = edt_telephone.getText().toString();
+
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // 注册短信变化监听
+                SmsContentUtil smsContent = new SmsContentUtil(Aty_Login.this,
+                        new Handler(), edt_verifyCode);
+                Aty_Login.this.getContentResolver().registerContentObserver(
+                        Uri.parse("content://sms/"), true, smsContent);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+
+                        new TimeCount(60000, 1000).start();
+
+                        changeLoadingState("show");
+
+                        if (Config.RANDOM == null) {
+                            UtilBox.getRandom();
+                        }
+
+                        String[] soapKey = {"type", "table_name", "feedback_url", "return"};
+                        String[] soapValue = {"sms_send_verifycode", Config.RANDOM, "", "1"};
+                        String[] httpKey = {"mobile"};
+                        String[] httpValue = {tele};
+                        VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(String response) {
+                                        changeLoadingState("dismiss");
+
+                                        try {
+                                            JSONObject obj = new JSONObject(response);
+                                            Toast.makeText(Aty_Login.this,
+                                                    obj.getString("info"),
+                                                    Toast.LENGTH_SHORT).show();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError volleyError) {
+                                        changeLoadingState("dismiss");
+
+                                        if (volleyError != null
+                                                && volleyError.getMessage() != null) {
+                                            System.out.println(volleyError.getMessage());
+                                        }
+                                        Toast.makeText(Aty_Login.this,
+                                                "获取失败，请重试",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                        Looper.loop();
+                    }
+                }).start();
+            }
+        });
+    }
+
+    /**
+     * 登录
+     */
+    private void login() {
+        new Handler().post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                final String tele = edt_telephone.getText().toString();
+                final String verify = edt_verifyCode.getText().toString();
+
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+
+                        changeLoadingState("show");
+
+                        String[] soapKey = {"type", "table_name", "feedback_url", "return"};
+                        String[] soapValue = {"mobile_login", Config.RANDOM, "", "1"};
+                        String[] httpKey = {"mobile", "check_code"};
+                        String[] httpValue = {tele, verify};
+                        VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
+                                new Response.Listener<String>() {
+                                    @Override
+                                    public void onResponse(final String response) {
+                                        changeLoadingState("dismiss");
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Looper.prepare();
+                                                try {
+                                                    JSONObject responseJson = new JSONObject(response);
+                                                    // 若登录成功，则延长cookie寿命，并跳转
+                                                    if ("900001".equals(responseJson.getString("status"))) {
+                                                        handleLoginResponse(
+                                                                responseJson.getString("memberCookie"));
+
+                                                        Toast.makeText(Aty_Login.this, "登录成功",
+                                                                Toast.LENGTH_SHORT).show();
+
+                                                        Intent intent = new Intent(Aty_Login.this,
+                                                                Aty_Company.class);
+                                                        intent.putExtra("isLogin", true);
+                                                        startActivity(intent);
+                                                        Aty_Login.this.finish();
+                                                        overridePendingTransition(
+                                                                R.anim.in_right_left,
+                                                                R.anim.out_right_left);
+
+                                                    } else {
+                                                        Toast.makeText(Aty_Login.this,
+                                                                responseJson.getString("info"),
+                                                                Toast.LENGTH_SHORT).show();
+                                                    }
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                Looper.loop();
+                                            }
+                                        }).start();
+
+                                    }
+                                },
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError volleyError) {
+                                        changeLoadingState("dismiss");
+                                        Toast.makeText(Aty_Login.this,
+                                                "登录失败，请重试",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                        Looper.loop();
+                    }
+                }).start();
+            }
+        });
+    }
+
+    /**
+     * 倒计时
+     */
     class TimeCount extends CountDownTimer {
+        // 参数依次为总时长,和计时的时间间隔
         public TimeCount(long millisInFuture, long countDownInterval) {
-            super(millisInFuture, countDownInterval);//参数依次为总时长,和计时的时间间隔
+            super(millisInFuture, countDownInterval);
         }
 
+        // 计时完毕时触发
         @Override
-        public void onFinish() {//计时完毕时触发
+        public void onFinish() {
             isCounting = false;
             runOnUiThread(new Runnable() {
                 @Override
@@ -395,14 +411,16 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
                     edt_telephone.addTextChangedListener(Aty_Login.this);
 
-                    final GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
+                    final GradientDrawable verifyBgShape
+                            = (GradientDrawable) btn_getVerifyCode.getBackground();
                     verifyBgShape.setColor(ContextCompat.getColor(Aty_Login.this, R.color.primary));
                 }
             });
         }
 
+        // 计时过程显示
         @Override
-        public void onTick(final long millisUntilFinished) {//计时过程显示
+        public void onTick(final long millisUntilFinished) {
             isCounting = true;
             runOnUiThread(new Runnable() {
                 @Override
@@ -412,7 +430,8 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
                     edt_telephone.removeTextChangedListener(Aty_Login.this);
 
-                    final GradientDrawable verifyBgShape = (GradientDrawable) btn_getVerifyCode.getBackground();
+                    final GradientDrawable verifyBgShape
+                            = (GradientDrawable) btn_getVerifyCode.getBackground();
                     verifyBgShape.setColor(ContextCompat.getColor(Aty_Login.this, R.color.gray));
                 }
             });

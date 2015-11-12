@@ -1,1 +1,1 @@
-include ':app', ':multi-image-selector', ':MediaSDK'
+include ':MediaSDK', ':app', ':multi-image-selector'

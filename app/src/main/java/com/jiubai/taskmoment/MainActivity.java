@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
@@ -38,8 +38,8 @@ import butterknife.OnClick;
 
 public class MainActivity extends Activity {
 
-    @Bind(R.id.btn_reconnect)
-    Button btn_reconnect;
+    @Bind(R.id.ll_no_network)
+    LinearLayout ll_no_network;
 
     private Dialog dialog;
     private RotateLoading rl;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.guidepage);
+        setContentView(R.layout.aty_welcome);
 
         ButterKnife.bind(this);
 
@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
     }
 
     // 进入正式页面
-    private void getStart(){
+    private void getStart() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -105,78 +105,75 @@ public class MainActivity extends Activity {
                     startActivity(new Intent(MainActivity.this, Aty_Login.class));
                     finish();
                 } else if (Config.CID == null) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!Config.IS_CONNECTED) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        changeLoadingState("dismiss");
-                                        btn_reconnect.setVisibility(View.VISIBLE);
-                                        Toast.makeText(MainActivity.this,
-                                                R.string.cant_access_network,
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            } else {
-                                // 获取用户信息
-                                getUserInfo();
-                            }
-                            changeLoadingState("dismiss");
-                            startActivity(new Intent(MainActivity.this, Aty_Company.class));
+                    if (!Config.IS_CONNECTED) {
+                        changeLoadingState("dismiss");
+                        ll_no_network.setVisibility(View.VISIBLE);
 
-                            finish();
-                        }
-                    }).start();
-                } else {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!Config.IS_CONNECTED) {
+                        Toast.makeText(MainActivity.this,
+                                R.string.cant_access_network,
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
                                 Looper.prepare();
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        btn_reconnect.setVisibility(View.VISIBLE);
-                                        Toast.makeText(MainActivity.this,
-                                                R.string.cant_access_network,
-                                                Toast.LENGTH_SHORT).show();
-                                        changeLoadingState("dismiss");
-                                    }
-                                });
-                                Looper.loop();
-                            } else {
+
                                 // 获取用户信息
                                 getUserInfo();
+
+                                changeLoadingState("dismiss");
+                                startActivity(new Intent(MainActivity.this, Aty_Company.class));
+
+                                finish();
+
+                                Looper.loop();
                             }
+                        }).start();
+                    }
+                } else {
+                    if (!Config.IS_CONNECTED) {
+                        changeLoadingState("dismiss");
+                        ll_no_network.setVisibility(View.VISIBLE);
 
-                            UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
-                                @Override
-                                public void successCallback() {
-                                    changeLoadingState("dismiss");
-                                    startActivity(new Intent(MainActivity.this, Aty_Main.class));
+                        Toast.makeText(MainActivity.this,
+                                R.string.cant_access_network,
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Looper.prepare();
 
-                                    finish();
-                                }
+                                // 获取用户信息
+                                getUserInfo();
 
-                                @Override
-                                public void failedCallback() {
-                                    changeLoadingState("dismiss");
-                                    startActivity(new Intent(MainActivity.this, Aty_Main.class));
+                                UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
+                                    @Override
+                                    public void successCallback() {
+                                        changeLoadingState("dismiss");
+                                        startActivity(new Intent(MainActivity.this, Aty_Main.class));
 
-                                    finish();
-                                }
-                            });
-                        }
-                    }).start();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void failedCallback() {
+                                        changeLoadingState("dismiss");
+                                        ll_no_network.setVisibility(View.VISIBLE);
+                                    }
+                                });
+
+                                Looper.loop();
+                            }
+                        }).start();
+                    }
                 }
             }
         }, 1500);
     }
 
     @OnClick(R.id.btn_reconnect)
-    public void onClick(View v){
+    public void onClick(View v) {
         getStart();
         changeLoadingState("show");
     }
@@ -221,7 +218,8 @@ public class MainActivity extends Activity {
                                 Config.NICKNAME = data.getString("real_name");
                                 Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg";
 
-                                SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, MODE_PRIVATE);
+                                SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME,
+                                        MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();
                                 editor.putString(Constants.SP_KEY_MID, Config.MID);
                                 editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);

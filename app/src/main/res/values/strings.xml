@@ -73,4 +73,5 @@
     <string name="version">Version</string>
     <string name="about">关于</string>
     <string name="reconnect">重新连接</string>
+    <string name="load_more_news">查看更早的消息...</string>
 </resources>

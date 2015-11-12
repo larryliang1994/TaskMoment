@@ -103,11 +103,9 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     private static Adpt_PersonalTimeline adapter;
     private static int keyBoardHeight;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
+
     private View footerView;
-    private String mid;
-    private String name;
-    private String mobile;
-    private String isAudit, isInvolved;
+    private String mid, name, mobile, isAudit, isInvolved;
     private boolean isBottomRefreshing = false;
     private Uri imageUri = Uri.parse(Constants.TEMP_FILE_LOCATION); // 用于存放背景图
     private Receiver_UpdateView deleteTaskReceiver, commentReceiver,
@@ -159,34 +157,13 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
             tv_nickname.setText(mobile);
         }
 
-        iv_portrait.setFocusable(true);
-        iv_portrait.setFocusableInTouchMode(true);
-        iv_portrait.requestFocus();
-        ImageLoader.getInstance().displayImage(
-                Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg" + "?t=" + Config.TIME, iv_portrait);
-        iv_portrait.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Aty_PersonalTimeline.this, Aty_PersonalInfo.class);
-
-                String nickname;
-                if (!"null".equals(name) && !"".equals(name)) {
-                    nickname = name;
-                } else {
-                    nickname = mobile.substring(0, 3) + "***" + mobile.substring(7);
-                }
-                intent.putExtra("nickname", nickname);
-                intent.putExtra("mid", mid);
-
-                startActivity(intent);
-                overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
-            }
-        });
+        initPortrait();
 
         lv = (ListView) findViewById(R.id.lv_personal);
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
         space = (Space) findViewById(R.id.space);
+
 
         footerView = LayoutInflater.from(this).inflate(R.layout.load_more, null);
 
@@ -284,6 +261,35 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     }
 
     /**
+     * 初始化头像
+     */
+    private void initPortrait(){
+        iv_portrait.setFocusable(true);
+        iv_portrait.setFocusableInTouchMode(true);
+        iv_portrait.requestFocus();
+        ImageLoader.getInstance().displayImage(
+                Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg" + "?t=" + Config.TIME, iv_portrait);
+        iv_portrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Aty_PersonalTimeline.this, Aty_PersonalInfo.class);
+
+                String nickname;
+                if (!"null".equals(name) && !"".equals(name)) {
+                    nickname = name;
+                } else {
+                    nickname = mobile.substring(0, 3) + "***" + mobile.substring(7);
+                }
+                intent.putExtra("nickname", nickname);
+                intent.putExtra("mid", mid);
+
+                startActivity(intent);
+                overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+            }
+        });
+    }
+
+    /**
      * 获取时间线
      *
      * @param type         类别 refresh或loadMore
@@ -312,6 +318,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
                             if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
 
+                                // 先实例出适配器
                                 if ("refresh".equals(type)) {
                                     adapter = new Adpt_PersonalTimeline(
                                             Aty_PersonalTimeline.this, true, response);
@@ -321,34 +328,11 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                                             Aty_PersonalTimeline.this, false, response);
                                 }
 
+                                // 设置适配器，并重新设置ListView的高度
                                 new Handler().post(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                lv.setAdapter(adapter);
-                                                UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                                                if ("loadMore".equals(type)) {
-                                                    isBottomRefreshing = false;
-                                                } else {
-                                                    int svHeight = sv.getHeight();
-
-                                                    int lvHeight = lv.getLayoutParams().height;
-
-                                                    // 312是除去上部其他组件高度后的剩余空间
-                                                    if (lvHeight >
-                                                            svHeight - UtilBox.dip2px(Aty_PersonalTimeline.this, 312)
-                                                            && lv.getFooterViewsCount() == 0) {
-
-                                                        lv.addFooterView(footerView);
-                                                        UtilBox.setListViewHeightBasedOnChildren(lv);
-                                                    }
-                                                }
-                                            }
-                                        });
+                                        resetListViewHeight(type);
                                     }
                                 });
 
@@ -401,6 +385,38 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 }
 
         );
+    }
+
+    /**
+     * 设置适配器，并重新设置ListView的高度
+     *
+     * @param type 刷新类型
+     */
+    private void resetListViewHeight(final String type){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                lv.setAdapter(adapter);
+                UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                if ("loadMore".equals(type)) {
+                    isBottomRefreshing = false;
+                } else {
+                    int svHeight = sv.getHeight();
+
+                    int lvHeight = lv.getLayoutParams().height;
+
+                    // 312是除去上部其他组件高度后的剩余空间
+                    if (lvHeight >
+                            svHeight - UtilBox.dip2px(Aty_PersonalTimeline.this, 312)
+                            && lv.getFooterViewsCount() == 0) {
+
+                        lv.addFooterView(footerView);
+                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                    }
+                }
+            }
+        });
     }
 
     /**

@@ -148,13 +148,14 @@ public class Aty_TaskInfo extends AppCompatActivity {
         ImageLoader.getInstance().displayImage(task.getPortraitUrl() + "?t=" + Config.TIME, iv_portrait);
 
         tv_desc.setText(task.getDesc());
-
+        tv_nickname.setText(task.getNickname());
+        tv_audit_result.setText(task.getAuditResult());
         tv_grade.setText(task.getGrade());
         setGradeColor(tv_grade, task.getGrade());
 
-        tv_nickname.setText(task.getNickname());
-
-        tv_audit_result.setText(task.getAuditResult());
+        tv_deadline.append(UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
+        tv_startTime.append(UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
+        tv_publishTime.append(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
 
         gv_picture.setAdapter(new Adpt_TimelinePicture(this, task.getPictures()));
         UtilBox.setGridViewHeightBasedOnChildren(gv_picture, true);
@@ -194,12 +195,6 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 setAuditResult();
             }
         }
-
-        tv_deadline.append(UtilBox.getDateToString(task.getDeadline(), UtilBox.DATE_TIME));
-
-        tv_startTime.append(UtilBox.getDateToString(task.getStartTime(), UtilBox.DATE_TIME));
-
-        tv_publishTime.append(UtilBox.getDateToString(task.getCreateTime(), UtilBox.DATE_TIME));
 
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
@@ -273,46 +268,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                         return;
                                     }
 
-                                    String[] key = {"taskid"};
-                                    String[] value = {task.getId()};
-                                    VolleyUtil.requestWithCookie(Urls.TASK_DELETE, key, value,
-                                            new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    try {
-                                                        JSONObject jsonObject = new JSONObject(response);
-
-                                                        if ("900001".equals(jsonObject.getString("status"))) {
-                                                            dialog.dismiss();
-
-                                                            Intent intent = new Intent(Constants.ACTION_DELETE_TASK);
-                                                            intent.putExtra("taskID", task.getId());
-
-                                                            Aty_TaskInfo.this.sendBroadcast(intent);
-
-                                                            Aty_TaskInfo.this.finish();
-                                                            overridePendingTransition(R.anim.in_left_right,
-                                                                    R.anim.out_left_right);
-                                                        } else {
-                                                            Toast.makeText(Aty_TaskInfo.this,
-                                                                    jsonObject.getString("info"),
-                                                                    Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            },
-                                            new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError volleyError) {
-                                                    volleyError.printStackTrace();
-
-                                                    Toast.makeText(Aty_TaskInfo.this,
-                                                            "删除失败，请重试",
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
+                                    // 开始删除
+                                    deleteTask(dialog);
                                 }
                             })
                             .show();
@@ -346,6 +303,54 @@ public class Aty_TaskInfo extends AppCompatActivity {
                         if (difference > 100) {
                             keyBoardHeight = difference;
                         }
+                    }
+                });
+    }
+
+    /**
+     * 删除任务
+     *
+     * @param dialog 删除任务的对话框
+     */
+    private void deleteTask(final MaterialDialog dialog){
+        String[] key = {"taskid"};
+        String[] value = {task.getId()};
+        VolleyUtil.requestWithCookie(Urls.TASK_DELETE, key, value,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+                            if ("900001".equals(jsonObject.getString("status"))) {
+                                dialog.dismiss();
+
+                                Intent intent = new Intent(Constants.ACTION_DELETE_TASK);
+                                intent.putExtra("taskID", task.getId());
+
+                                Aty_TaskInfo.this.sendBroadcast(intent);
+
+                                Aty_TaskInfo.this.finish();
+                                overridePendingTransition(R.anim.in_left_right,
+                                        R.anim.out_left_right);
+                            } else {
+                                Toast.makeText(Aty_TaskInfo.this,
+                                        jsonObject.getString("info"),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        volleyError.printStackTrace();
+
+                        Toast.makeText(Aty_TaskInfo.this,
+                                "删除失败，请重试",
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -602,7 +607,8 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                                 Toast.LENGTH_SHORT).show();
                                     } else {
                                         String nickname;
-                                        if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
+                                        if ("".equals(Config.NICKNAME)
+                                                || "null".equals(Config.NICKNAME)) {
                                             nickname = "你";
                                         } else {
                                             nickname = Config.NICKNAME;
