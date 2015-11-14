@@ -180,19 +180,14 @@ public class Adpt_Member extends BaseAdapter {
                 }
             });
         } else {
+            // TODO 使用传统的ViewHolder判空有问题，但必须使用，否则有性能隐患
             ViewHolder holder;
-            if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(R.layout.item_body_member, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_body_member, null);
 
-                holder = new ViewHolder();
-                holder.tv = (TextView) convertView.findViewById(R.id.tv_item_body_member);
-                holder.btn = (Button) convertView.findViewById(R.id.btn_item_body_member);
-                holder.rv = (RippleView) convertView.findViewById(R.id.rv_item_body_member);
-
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+            holder = new ViewHolder();
+            holder.tv = (TextView) convertView.findViewById(R.id.tv_item_body_member);
+            holder.btn = (Button) convertView.findViewById(R.id.btn_item_body_member);
+            holder.rv = (RippleView) convertView.findViewById(R.id.rv_item_body_member);
 
             final Member member = ((Member) getItem(position));
 
@@ -283,7 +278,8 @@ public class Adpt_Member extends BaseAdapter {
             if ("1".equals(status) || "900001".equals(status)) {
                 Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT).show();
 
-                memberList.add(new Member(json.getString("real_name"),
+                // 插到倒数第二个位置
+                memberList.add(memberList.size() - 1, new Member(json.getString("real_name"),
                         json.getString("mobile"), json.getString("id"), json.getString("mid")));
 
                 notifyDataSetChanged();
