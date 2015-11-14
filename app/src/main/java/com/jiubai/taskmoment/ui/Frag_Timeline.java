@@ -150,7 +150,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
 
-        footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more, null);
+        footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more_timeline, null);
 
         sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
         sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {

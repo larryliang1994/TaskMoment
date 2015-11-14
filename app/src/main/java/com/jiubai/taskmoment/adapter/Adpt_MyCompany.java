@@ -92,11 +92,11 @@ public class Adpt_MyCompany extends BaseAdapter {
             TextView tv = (TextView) convertView.findViewById(R.id.tv_item_head);
             tv.setText("我的公司");
         } else if (position == companyList.size() - 1) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_foot, null);
-            TextView tv = (TextView) convertView.findViewById(R.id.tv_item_foot);
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_footer, null);
+            TextView tv = (TextView) convertView.findViewById(R.id.tv_item_footer);
             tv.setText("创建公司");
 
-            RippleView rv = (RippleView) convertView.findViewById(R.id.rv_item_foot);
+            RippleView rv = (RippleView) convertView.findViewById(R.id.rv_item_footer);
             rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
                 public void onComplete(RippleView rippleView) {

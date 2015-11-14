@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="51dp"
     android:animateLayoutChanges="true"
@@ -8,27 +9,32 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginLeft="18dp"
         android:layout_marginRight="18dp"
         android:animateLayoutChanges="true"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_item_with_button"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/myCompany"
-            android:textSize="16sp" />
-
-        <Space
+        <com.jiubai.taskmoment.view.RippleView
+            android:id="@+id/rv_item_body_member"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            app:rv_color="@color/gray"
+            app:rv_rippleDuration="200"
+            app:rv_type="rectangle">
+
+            <TextView
+                android:id="@+id/tv_item_body_member"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="18dp"
+                android:gravity="center_vertical"
+                android:text="@string/nickname"
+                android:textSize="16sp" />
+        </com.jiubai.taskmoment.view.RippleView>
 
         <Button
-            android:id="@+id/btn_item_with_button"
+            android:id="@+id/btn_item_body_member"
             android:layout_width="56dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"

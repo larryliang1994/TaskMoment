@@ -8,7 +8,7 @@
     android:orientation="horizontal">
 
     <com.jiubai.taskmoment.view.RippleView
-        android:id="@+id/rv_item_foot"
+        android:id="@+id/rv_item_footer"
         android:layout_width="match_parent"
         android:layout_height="51dp"
         app:rv_color="@color/gray"
@@ -23,7 +23,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tv_item_foot"
+                android:id="@+id/tv_item_footer"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_gravity="center"

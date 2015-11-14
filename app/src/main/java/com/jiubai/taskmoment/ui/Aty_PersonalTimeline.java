@@ -165,7 +165,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         space = (Space) findViewById(R.id.space);
 
 
-        footerView = LayoutInflater.from(this).inflate(R.layout.load_more, null);
+        footerView = LayoutInflater.from(this).inflate(R.layout.load_more_timeline, null);
 
         tv_space_comment.setOnTouchListener(new View.OnTouchListener() {
             @Override
