@@ -1,10 +1,12 @@
 package com.jiubai.taskmoment.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -19,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.BorderScrollView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
 
@@ -116,7 +118,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
     private static LinearLayout ll_comment;
     private static LinearLayout ll_audit;
     private static ListView lv_comment;
-    private static ScrollView sv_taskInfo;
+    private static BorderScrollView sv_taskInfo;
     private static int keyBoardHeight;
     private static Space space;
     private Task task;
@@ -146,6 +148,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         tv_title.setText("任务详情");
 
         ImageLoader.getInstance().displayImage(task.getPortraitUrl() + "?t=" + Config.TIME, iv_portrait);
+        iv_portrait.requestFocus();
 
         tv_desc.setText(task.getDesc());
         tv_nickname.setText(task.getNickname());
@@ -199,7 +202,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) findViewById(R.id.ll_audit);
         lv_comment = (ListView) findViewById(R.id.lv_comment);
-        sv_taskInfo = (ScrollView) findViewById(R.id.sv_taskInfo);
+        sv_taskInfo = (BorderScrollView) findViewById(R.id.sv_taskInfo);
         space = (Space) findViewById(R.id.space);
 
         tv_space_comment.setOnTouchListener(new View.OnTouchListener() {
@@ -331,7 +334,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                                 Aty_TaskInfo.this.sendBroadcast(intent);
 
                                 Aty_TaskInfo.this.finish();
-                                overridePendingTransition(R.anim.in_left_right,
+                                overridePendingTransition(R.anim.scale_stay,
                                         R.anim.out_left_right);
                             } else {
                                 Toast.makeText(Aty_TaskInfo.this,
@@ -421,17 +424,14 @@ public class Aty_TaskInfo extends AppCompatActivity {
         }
 
         if (executor != null) {
-            tv_executor.append("：");
             tv_executor.append(executor);
         }
 
         if (supervisor != null) {
-            tv_supervisor.append("：");
             tv_supervisor.append(supervisor);
         }
 
         if (auditor != null) {
-            tv_auditor.append("：");
             tv_auditor.append(auditor);
         }
     }
@@ -471,7 +471,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.iBtn_back:
                 finish();
-                overridePendingTransition(R.anim.in_left_right,
+                overridePendingTransition(R.anim.scale_stay,
                         R.anim.out_left_right);
                 break;
 
@@ -494,7 +494,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 intent.putExtra("mid", task.getMid());
                 startActivity(intent);
                 overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
                 break;
         }
     }
@@ -521,51 +521,56 @@ public class Aty_TaskInfo extends AppCompatActivity {
 
         ll_comment.setVisibility(View.VISIBLE);
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
-        edt_content.setText(null);
-        edt_content.requestFocus();
-
-        if (keyBoardHeight == 0) {
-            UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 360 + 48));
-
-            // 弹出键盘
-            UtilBox.toggleSoftInput(ll_comment, true);
-
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    int keyBoardHeight = UtilBox.dip2px(context, 360);
-                    int viewHeight = UtilBox.getHeightPixels(context) - y;
-
-                    int finalScroll = keyBoardHeight - viewHeight
-                            + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 48);
-
-                    sv_taskInfo.smoothScrollTo(0, finalScroll);
-                }
-            });
-        } else {
-            UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
-
-            // 弹出键盘
-            UtilBox.toggleSoftInput(ll_comment, true);
-
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    int viewHeight = UtilBox.getHeightPixels(context) - y;
-
-                    int finalScroll = keyBoardHeight - viewHeight
-                            + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 50);
-
-                    sv_taskInfo.smoothScrollTo(0, finalScroll);
-                }
-            });
-        }
-
         if (!"".equals(receiver)) {
             edt_content.setHint("回复" + receiver + ":");
         } else {
             edt_content.setHint("评论");
         }
+        edt_content.setText(null);
+        edt_content.requestFocus();
+
+        // 弹出键盘
+        UtilBox.toggleSoftInput(ll_comment, true);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean flag = false;
+                while (!flag) {
+                    if (keyBoardHeight == 0) {
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        flag = true;
+
+                        Looper.prepare();
+
+                        ((Activity) context).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 52) + keyBoardHeight);
+
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                                        int finalScroll = keyBoardHeight - viewHeight
+                                                + sv_taskInfo.getScrollY() + UtilBox.dip2px(context, 52);
+
+                                        sv_taskInfo.smoothScrollTo(0, finalScroll);
+                                    }
+                                });
+                            }
+                        });
+                        Looper.loop();
+                    }
+                }
+            }
+        }).start();
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
@@ -779,7 +784,7 @@ public class Aty_TaskInfo extends AppCompatActivity {
                 auditWindowIsShow = false;
             } else {
                 finish();
-                overridePendingTransition(R.anim.in_left_right,
+                overridePendingTransition(R.anim.scale_stay,
                         R.anim.out_left_right);
             }
             return true;

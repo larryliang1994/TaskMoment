@@ -284,7 +284,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 intent.putExtra("mid", mid);
 
                 startActivity(intent);
-                overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
             }
         });
     }
@@ -455,6 +455,12 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
 
         ll_comment.setVisibility(View.VISIBLE);
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        if (!"".equals(receiver)) {
+            edt_content.setHint("回复" + receiver + ":");
+        } else {
+            edt_content.setHint("评论");
+        }
+        edt_content.setText(null);
         edt_content.requestFocus();
 
         // 弹出键盘
@@ -479,33 +485,27 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                         ((Activity)context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
+                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 52) + keyBoardHeight);
+
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int viewHeight = UtilBox.getHeightPixels(context) - y;
+
+                                        int finalScroll = keyBoardHeight - viewHeight
+                                                + sv.getScrollY() + UtilBox.dip2px(context, 52);
+
+                                        sv.smoothScrollTo(0, finalScroll);
+                                    }
+                                });
                             }
                         });
 
-                        new Handler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                int viewHeight = UtilBox.getHeightPixels(context) - y;
-
-                                int finalScroll = keyBoardHeight - viewHeight
-                                        + sv.getScrollY() + UtilBox.dip2px(context, 50);
-
-                                sv.smoothScrollTo(0, finalScroll);
-                            }
-                        });
                         Looper.loop();
                     }
                 }
             }
         }).start();
-
-        if (!"".equals(receiver)) {
-            edt_content.setHint("回复" + receiver + ":");
-        } else {
-            edt_content.setHint("评论");
-        }
-        edt_content.setText(null);
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
@@ -676,7 +676,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         switch (v.getId()) {
             case R.id.iBtn_back:
                 finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
 
             case R.id.iv_companyBackground:
@@ -718,7 +718,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                         startActivityForResult(intent, Constants.CODE_CHOOSE_COMPANY_BACKGROUND);
 
                         overridePendingTransition(
-                                R.anim.in_right_left, R.anim.out_right_left);
+                                R.anim.in_right_left, R.anim.scale_stay);
                     }
                 })
                         .setCancelable(true);
@@ -810,7 +810,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
 
             finish();
-            overridePendingTransition(R.anim.in_left_right,
+            overridePendingTransition(R.anim.scale_stay,
                     R.anim.out_left_right);
             return true;
         }

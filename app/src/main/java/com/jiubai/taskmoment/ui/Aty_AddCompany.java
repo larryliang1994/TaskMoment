@@ -80,7 +80,7 @@ public class Aty_AddCompany extends AppCompatActivity
             case R.id.iBtn_back:
                 Aty_AddCompany.this.setResult(RESULT_CANCELED);
                 Aty_AddCompany.this.finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
         }
     }
@@ -141,8 +141,7 @@ public class Aty_AddCompany extends AppCompatActivity
                 Toast.makeText(this, "创建成功", Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK);
                 finish();
-                overridePendingTransition(R.anim.in_left_right,
-                        R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             } else {
                 btn_submit.setText(R.string.addCompany);
                 Toast.makeText(this, json.getString("info"), Toast.LENGTH_SHORT).show();
@@ -180,8 +179,7 @@ public class Aty_AddCompany extends AppCompatActivity
             setResult(RESULT_CANCELED);
 
             finish();
-            overridePendingTransition(R.anim.in_left_right,
-                    R.anim.out_left_right);
+            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             return true;
         }
 

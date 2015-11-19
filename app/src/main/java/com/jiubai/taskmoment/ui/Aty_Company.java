@@ -148,7 +148,7 @@ public class Aty_Company extends AppCompatActivity {
             case R.id.iBtn_back:
                 Aty_Company.this.setResult(RESULT_CANCELED);
                 Aty_Company.this.finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
 
             case R.id.iBtn_more:
@@ -178,7 +178,7 @@ public class Aty_Company extends AppCompatActivity {
                                         startActivity(new Intent(Aty_Company.this, Aty_Login.class));
                                         finish();
                                         overridePendingTransition(
-                                                R.anim.in_left_right, R.anim.out_left_right);
+                                                R.anim.scale_stay, R.anim.out_left_right);
                                     }
                                 })
                                 .setNegativeButton("假的", new View.OnClickListener() {
@@ -286,7 +286,7 @@ public class Aty_Company extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, Aty_Login.class));
                 finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -364,7 +364,7 @@ public class Aty_Company extends AppCompatActivity {
             } else {
                 Aty_Company.this.setResult(RESULT_CANCELED);
                 Aty_Company.this.finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             }
             return true;
         }

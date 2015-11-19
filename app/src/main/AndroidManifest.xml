@@ -107,7 +107,6 @@
             android:name=".ui.Aty_PersonalInfo"
             android:screenOrientation="portrait" />
 
-
         <activity
             android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
             android:configChanges="orientation|screenSize"

@@ -108,7 +108,7 @@ public class Adpt_PublishPicture extends BaseAdapter {
                     ((Activity) context).startActivityForResult(
                             intent, Constants.CODE_MULTIPLE_PICTURE);
                     ((Activity) context).overridePendingTransition(
-                            R.anim.in_right_left, R.anim.out_right_left);
+                            R.anim.in_right_left, R.anim.scale_stay);
                 }
             });
         } else {

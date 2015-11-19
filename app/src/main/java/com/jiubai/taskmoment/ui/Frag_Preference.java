@@ -91,7 +91,7 @@ public class Frag_Preference extends Fragment implements RippleView.OnRippleComp
             case R.id.rv_about:
                 startActivity(new Intent(getActivity(), Aty_About.class));
                 getActivity().overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
                 break;
         }
     }

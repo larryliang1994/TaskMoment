@@ -356,7 +356,7 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
                                                         Aty_Login.this.finish();
                                                         overridePendingTransition(
                                                                 R.anim.in_right_left,
-                                                                R.anim.out_right_left);
+                                                                R.anim.scale_stay);
 
                                                     } else {
                                                         Toast.makeText(Aty_Login.this,

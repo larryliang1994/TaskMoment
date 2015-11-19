@@ -86,7 +86,7 @@ public class Adpt_Comment extends BaseAdapter {
                 intent.putExtra("mid", comment.getSenderId());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
             }
         };
         senderSpan.setSpan(senderClickableSpan, 0, comment.getSender().length(),
@@ -104,7 +104,7 @@ public class Adpt_Comment extends BaseAdapter {
                     intent.putExtra("mid", comment.getReceiverId());
                     context.startActivity(intent);
                     ((Activity) context).overridePendingTransition(
-                            R.anim.in_right_left, R.anim.out_right_left);
+                            R.anim.in_right_left, R.anim.scale_stay);
                 }
             };
             receiverSpan.setSpan(receiverClickableSpan, 0, comment.getReceiver().length(),

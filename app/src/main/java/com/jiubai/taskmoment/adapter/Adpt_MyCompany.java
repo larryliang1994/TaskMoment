@@ -104,7 +104,7 @@ public class Adpt_MyCompany extends BaseAdapter {
                             Aty_AddCompany.class);
                     ((Activity) context).startActivityForResult(intent, Constants.CODE_ADD_COMPANY);
                     ((Activity) context).overridePendingTransition(
-                            R.anim.in_right_left, R.anim.out_right_left);
+                            R.anim.in_right_left, R.anim.scale_stay);
                 }
             });
 
@@ -147,7 +147,7 @@ public class Adpt_MyCompany extends BaseAdapter {
                                 context.startActivity(intent);
                                 ((Activity) context).finish();
                                 ((Activity) context).overridePendingTransition(
-                                        R.anim.in_right_left, R.anim.out_right_left);
+                                        R.anim.in_right_left, R.anim.scale_stay);
                             }
 
                             @Override

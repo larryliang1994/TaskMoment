@@ -129,7 +129,7 @@ public class Adpt_JoinedCompany extends BaseAdapter {
                                 context.startActivity(intent);
                                 ((Activity) context).finish();
                                 ((Activity) context).overridePendingTransition(
-                                        R.anim.in_right_left, R.anim.out_right_left);
+                                        R.anim.in_right_left, R.anim.scale_stay);
                             }
 
                             @Override

@@ -104,6 +104,7 @@ public class MainActivity extends Activity {
                 if (Config.COOKIE == null) {
                     startActivity(new Intent(MainActivity.this, Aty_Login.class));
                     finish();
+                    overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
                 } else if (Config.CID == null) {
                     if (!Config.IS_CONNECTED) {
                         changeLoadingState("dismiss");
@@ -122,9 +123,10 @@ public class MainActivity extends Activity {
                                 getUserInfo();
 
                                 changeLoadingState("dismiss");
-                                startActivity(new Intent(MainActivity.this, Aty_Company.class));
 
+                                startActivity(new Intent(MainActivity.this, Aty_Company.class));
                                 finish();
+                                overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
 
                                 Looper.loop();
                             }
@@ -151,9 +153,11 @@ public class MainActivity extends Activity {
                                     @Override
                                     public void successCallback() {
                                         changeLoadingState("dismiss");
-                                        startActivity(new Intent(MainActivity.this, Aty_Main.class));
 
+                                        startActivity(new Intent(MainActivity.this, Aty_Main.class));
                                         finish();
+                                        overridePendingTransition(R.anim.in_right_left,
+                                                R.anim.scale_stay);
                                     }
 
                                     @Override

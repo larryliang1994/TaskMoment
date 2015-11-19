@@ -62,8 +62,7 @@ public class Aty_About extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.iBtn_back:
                 finish();
-                overridePendingTransition(R.anim.in_left_right,
-                        R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
         }
     }
@@ -74,8 +73,7 @@ public class Aty_About extends AppCompatActivity {
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
 
             finish();
-            overridePendingTransition(R.anim.in_left_right,
-                    R.anim.out_left_right);
+            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             return true;
         }
 

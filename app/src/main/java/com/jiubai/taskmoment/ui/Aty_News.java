@@ -107,8 +107,7 @@ public class Aty_News extends AppCompatActivity implements View.OnClickListener 
         switch (view.getId()) {
             case R.id.iBtn_back:
                 finish();
-                overridePendingTransition(R.anim.in_left_right,
-                        R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
 
             case R.id.rl_load_more_news:
@@ -123,8 +122,7 @@ public class Aty_News extends AppCompatActivity implements View.OnClickListener 
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {
             finish();
-            overridePendingTransition(R.anim.in_left_right,
-                    R.anim.out_left_right);
+            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             return true;
         }
 

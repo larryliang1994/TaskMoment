@@ -273,7 +273,7 @@ public class Aty_TaskPublish extends AppCompatActivity
 
         Aty_TaskPublish.this.setResult(RESULT_OK, intent);
         Aty_TaskPublish.this.finish();
-        overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+        overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
     }
 
     @OnClick({R.id.iBtn_back, R.id.tv_deadline, R.id.tv_publishTime,
@@ -290,7 +290,7 @@ public class Aty_TaskPublish extends AppCompatActivity
             case R.id.iBtn_back:
                 Aty_TaskPublish.this.setResult(RESULT_CANCELED);
                 Aty_TaskPublish.this.finish();
-                overridePendingTransition(R.anim.in_left_right, R.anim.out_left_right);
+                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
 
             case R.id.tv_deadline:
@@ -728,8 +728,7 @@ public class Aty_TaskPublish extends AppCompatActivity
             setResult(RESULT_CANCELED);
 
             finish();
-            overridePendingTransition(R.anim.in_left_right,
-                    R.anim.out_left_right);
+            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
             return true;
         }
 

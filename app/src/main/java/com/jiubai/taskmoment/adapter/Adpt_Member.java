@@ -189,7 +189,7 @@ public class Adpt_Member extends BaseAdapter {
             holder.btn = (Button) convertView.findViewById(R.id.btn_item_body_member);
             holder.rv = (RippleView) convertView.findViewById(R.id.rv_item_body_member);
 
-            final Member member = ((Member) getItem(position));
+            final Member member = (Member) getItem(position);
 
             holder.btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -246,7 +246,7 @@ public class Adpt_Member extends BaseAdapter {
                     intent.putExtra("mid", member.getMid());
                     context.startActivity(intent);
                     ((Activity) context).overridePendingTransition(
-                            R.anim.in_right_left, R.anim.out_right_left);
+                            R.anim.in_right_left, R.anim.scale_stay);
                 }
             });
 

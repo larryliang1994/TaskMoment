@@ -667,6 +667,12 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
         ll_comment.setVisibility(View.VISIBLE);
         final EditText edt_content = (EditText) ll_comment.findViewById(R.id.edt_comment_content);
+        if (!"".equals(receiver)) {
+            edt_content.setHint("回复" + receiver + ":");
+        } else {
+            edt_content.setHint("评论");
+        }
+        edt_content.setText(null);
         edt_content.requestFocus();
 
         // 弹出键盘
@@ -691,19 +697,19 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 50) + keyBoardHeight);
-                            }
-                        });
+                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 52) + keyBoardHeight);
 
-                        new Handler().post(new Runnable() {
-                            @Override
-                            public void run() {
-                                int viewHeight = UtilBox.getHeightPixels(context) - y;
+                                new Handler().post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int viewHeight = UtilBox.getHeightPixels(context) - y;
 
-                                int finalScroll = keyBoardHeight - viewHeight
-                                        + sv.getScrollY() + UtilBox.dip2px(context, 50);
+                                        int finalScroll = keyBoardHeight - viewHeight
+                                                + sv.getScrollY() + UtilBox.dip2px(context, 52);
 
-                                sv.smoothScrollTo(0, finalScroll);
+                                        sv.smoothScrollTo(0, finalScroll);
+                                    }
+                                });
                             }
                         });
                         Looper.loop();
@@ -711,13 +717,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 }
             }
         }).start();
-
-        if (!"".equals(receiver)) {
-            edt_content.setHint("回复" + receiver + ":");
-        } else {
-            edt_content.setHint("评论");
-        }
-        edt_content.setText(null);
 
         Button btn_send = (Button) ll_comment.findViewById(R.id.btn_comment_send);
         btn_send.setOnClickListener(new View.OnClickListener() {
@@ -935,7 +934,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         startActivityForResult(intent, Constants.CODE_CHOOSE_COMPANY_BACKGROUND);
 
                         getActivity().overridePendingTransition(
-                                R.anim.in_right_left, R.anim.out_right_left);
+                                R.anim.in_right_left, R.anim.scale_stay);
                     }
                 })
                         .setCancelable(true);
@@ -950,7 +949,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 intent.putExtra("mid", Config.MID);
                 startActivity(intent);
                 getActivity().overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
                 break;
 
             case R.id.iBtn_publish:
@@ -958,7 +957,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         new Intent(getActivity(), Aty_TaskPublish.class),
                         Constants.CODE_PUBLISH_TASK);
                 getActivity().overridePendingTransition(R.anim.in_right_left,
-                        R.anim.out_right_left);
+                        R.anim.scale_stay);
                 break;
 
             case R.id.ll_news:
@@ -966,7 +965,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 newsIntent.putExtra("newsList", newsList);
                 startActivity(newsIntent);
                 getActivity().overridePendingTransition(R.anim.in_right_left,
-                        R.anim.out_right_left);
+                        R.anim.scale_stay);
 
                 Config.NEWS_NUM = 0;
                 if (newsList != null) {

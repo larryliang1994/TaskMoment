@@ -135,7 +135,7 @@ public class Adpt_UserInfo extends BaseAdapter {
                                     intent, Constants.CODE_CHOOSE_PORTRAIT);
 
                             ((Activity) context).overridePendingTransition(
-                                    R.anim.in_right_left, R.anim.out_right_left);
+                                    R.anim.in_right_left, R.anim.scale_stay);
                         }
                     })
                             .setCancelable(true);
@@ -165,7 +165,7 @@ public class Adpt_UserInfo extends BaseAdapter {
                             intent.putExtra("mid", Config.MID);
                             context.startActivity(intent);
                             ((Activity) context).overridePendingTransition(
-                                    R.anim.in_right_left, R.anim.out_right_left);
+                                    R.anim.in_right_left, R.anim.scale_stay);
                         }
                     });
 

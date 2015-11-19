@@ -151,7 +151,7 @@ public class Adpt_Timeline extends BaseAdapter {
                 intent.putExtra("mid", task.getMid());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
             }
         });
 
@@ -162,7 +162,7 @@ public class Adpt_Timeline extends BaseAdapter {
                 intent.putExtra("mid", task.getMid());
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
             }
         });
 
@@ -186,7 +186,7 @@ public class Adpt_Timeline extends BaseAdapter {
 
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(
-                        R.anim.in_right_left, R.anim.out_right_left);
+                        R.anim.in_right_left, R.anim.scale_stay);
             }
         });
 

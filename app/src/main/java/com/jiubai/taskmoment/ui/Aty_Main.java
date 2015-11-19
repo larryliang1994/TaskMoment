@@ -241,7 +241,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                         Intent intent = new Intent(Aty_Main.this, Aty_Company.class);
                         intent.putExtra("hide", true);
                         startActivityForResult(intent, Constants.CODE_CHANGE_COMPANY);
-                        overridePendingTransition(R.anim.in_right_left, R.anim.out_right_left);
+                        overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
                         break;
                 }
 
@@ -340,10 +340,23 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
             } else if ((currentItem == 0 && Frag_Timeline.auditWindowIsShow)) {
                 Frag_Timeline.ll_audit.setVisibility(View.GONE);
                 Frag_Timeline.auditWindowIsShow = false;
+            } else if (currentItem!=0){
+                nv.getMenu().getItem(0).setChecked(true);
+                tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
+                nv.getMenu().getItem(currentItem).setChecked(false);
+
+                switchContent(frag_timeline);
+
+                tv_title.setOnClickListener(Aty_Main.this);
+
+                currentItem = 0;
+
+                iBtn_publish.setVisibility(View.VISIBLE);
             } else {
-                Intent MyIntent = new Intent(Intent.ACTION_MAIN);
-                MyIntent.addCategory(Intent.CATEGORY_HOME);
-                startActivity(MyIntent);
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                startActivity(intent);
             }
 
             return true;
