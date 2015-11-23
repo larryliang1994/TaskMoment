@@ -44,6 +44,7 @@ import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.DateDialog;
 import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.jiubai.taskmoment.view.TimeDialog;
 import com.umeng.analytics.MobclickAgent;
 
@@ -119,9 +120,18 @@ public class Aty_TaskPublish extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            //透明状态栏
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            //透明导航栏
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+//        }
 
         setContentView(R.layout.aty_task_publish);
+
+        new SlidingLayout(this);
+
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         ButterKnife.bind(this);
 

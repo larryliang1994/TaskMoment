@@ -45,5 +45,13 @@ public class Constants {
     public static final int SIZE_TASK_IMAGE = 300;
     public static final int SIZE_PORTRAIT = 100;
 
+    public static final String APP_ID_WX = "1";
+    public static final String APP_SECRET_WX = "1";
+    public static final String APP_ID_QQ = "1";
+    public static final String APP_KEY_QQ = "1";
+    public static final String APP_ID_REN = "1";
+    public static final String APP_KEY_REN = "1";
+    public static final String APP_SECRET_REN = "1";
+
     public static final int REQUEST_TIMEOUT = 10000;
 }

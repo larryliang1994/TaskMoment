@@ -13,7 +13,7 @@ import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_News;
 import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.SlidingLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -40,9 +40,11 @@ public class Aty_News extends AppCompatActivity implements View.OnClickListener 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_news);
+
+        new SlidingLayout(this);
 
         ButterKnife.bind(this);
 

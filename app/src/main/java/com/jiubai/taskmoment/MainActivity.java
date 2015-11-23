@@ -48,6 +48,8 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //UtilBox.setStatusBarTint(this, R.color.white);
+
         setContentView(R.layout.aty_welcome);
 
         ButterKnife.bind(this);

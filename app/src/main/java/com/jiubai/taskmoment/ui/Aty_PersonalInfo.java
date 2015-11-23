@@ -24,6 +24,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.Calendar;
@@ -49,9 +50,11 @@ public class Aty_PersonalInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_personal_info);
+
+        new SlidingLayout(this);
 
         ButterKnife.bind(this);
 

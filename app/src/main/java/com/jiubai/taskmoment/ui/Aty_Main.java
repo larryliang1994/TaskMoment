@@ -73,9 +73,11 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
-
         setContentView(R.layout.aty_main);
+
+        //new SlidingLayout(this).setEnable(false);
+
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         ButterKnife.bind(this);
 
@@ -236,8 +238,6 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
                         break;
 
                     case R.id.navItem_chooseCompany:
-                        nv.getMenu().getItem(currentItem).setChecked(true);
-
                         Intent intent = new Intent(Aty_Main.this, Aty_Company.class);
                         intent.putExtra("hide", true);
                         startActivityForResult(intent, Constants.CODE_CHANGE_COMPANY);
@@ -317,6 +317,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
 
         switch (requestCode) {
             case Constants.CODE_CHANGE_COMPANY:
+                nv.getMenu().getItem(currentItem).setChecked(true);
                 if (resultCode == RESULT_OK) {
                     recreate();
                 }

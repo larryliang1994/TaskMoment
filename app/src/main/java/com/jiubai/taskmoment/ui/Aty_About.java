@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.umeng.analytics.MobclickAgent;
 
 import butterknife.Bind;
@@ -30,9 +30,11 @@ public class Aty_About extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_about);
+
+        new SlidingLayout(this);
 
         ButterKnife.bind(this);
 

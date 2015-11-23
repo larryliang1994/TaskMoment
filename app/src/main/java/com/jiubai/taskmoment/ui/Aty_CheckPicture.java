@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
@@ -60,9 +60,11 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_checkpicture);
+
+        new SlidingLayout(this);
 
         pictureList = getIntent().getStringArrayListExtra("pictureList");
         index = getIntent().getIntExtra("index", 0);

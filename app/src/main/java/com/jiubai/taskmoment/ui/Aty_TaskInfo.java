@@ -40,6 +40,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.BorderScrollView;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.umeng.analytics.MobclickAgent;
 
@@ -130,9 +131,11 @@ public class Aty_TaskInfo extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_taskinfo);
+
+        new SlidingLayout(this);
 
         ButterKnife.bind(this);
 

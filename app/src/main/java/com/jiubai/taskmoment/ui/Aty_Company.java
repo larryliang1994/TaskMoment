@@ -35,6 +35,7 @@ import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.view.RotateLoading;
+import com.jiubai.taskmoment.view.SlidingLayout;
 import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
@@ -74,7 +75,7 @@ public class Aty_Company extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UtilBox.setStatusBarTint(this, R.color.titleBar);
+        //UtilBox.setStatusBarTint(this, R.color.titleBar);
 
         setContentView(R.layout.aty_company);
 
@@ -100,6 +101,10 @@ public class Aty_Company extends AppCompatActivity {
             lp.gravity = Gravity.CENTER_VERTICAL;
 
             tv_title.setLayoutParams(lp);
+
+            new SlidingLayout(this).setEnable(false);
+        } else {
+            new SlidingLayout(this);
         }
 
         iBtn_more.setVisibility(View.VISIBLE);

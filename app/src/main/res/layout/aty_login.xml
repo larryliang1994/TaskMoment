@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="#ffffff"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars=""
+        android:scrollbars="none"
         android:background="#eeeeee">
 
         <LinearLayout
@@ -23,7 +22,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="220dp"
                 android:animateLayoutChanges="true"
                 android:background="@color/primary">
 
