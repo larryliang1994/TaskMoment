@@ -53,5 +53,12 @@ public class Constants {
     public static final String APP_KEY_REN = "1";
     public static final String APP_SECRET_REN = "1";
 
+    public static final int VISIBLE = 1;
+    public static final int INVISIBLE = 0;
+
+    public static final String SUCCESS = "900001";
+    public static final String FAILED = "-1";
+    public static final String EXPIRE = "2";
+
     public static final int REQUEST_TIMEOUT = 10000;
 }

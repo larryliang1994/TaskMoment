@@ -10,18 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.classes.Company;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_AddCompany;
-import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Main;
-import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.customview.RippleView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +41,7 @@ public class Adpt_MyCompany extends BaseAdapter {
             this.context = context;
 
             companyList = new ArrayList<>();
+            companyList.clear();
             companyList.add(new Company("", "", ""));
 
             JSONObject companyJson = new JSONObject(companyInfo);
@@ -120,7 +118,6 @@ public class Adpt_MyCompany extends BaseAdapter {
                 rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                     @Override
                     public void onComplete(RippleView rippleView) {
-                        Aty_Company.changeLoadingState(context, "show");
 
                         Config.COMPANY_NAME = companyList.get(position).getName();
                         Config.CID = companyList.get(position).getCid();
@@ -138,27 +135,11 @@ public class Adpt_MyCompany extends BaseAdapter {
                         editor.putString(Constants.SP_KEY_COMPANY_CREATOR, Config.COMPANY_CREATOR);
                         editor.apply();
 
-                        UtilBox.getMember(context, new UtilBox.GetMemberCallBack() {
-                            @Override
-                            public void successCallback() {
-                                Aty_Company.changeLoadingState(context, "dismiss");
-
-                                Intent intent = new Intent(context, Aty_Main.class);
-                                context.startActivity(intent);
-                                ((Activity) context).finish();
-                                ((Activity) context).overridePendingTransition(
-                                        R.anim.in_right_left, R.anim.scale_stay);
-                            }
-
-                            @Override
-                            public void failedCallback() {
-                                Aty_Company.changeLoadingState(context, "dismiss");
-
-                                Toast.makeText(context,
-                                        "获取成员列表失败，请重试",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        Intent intent = new Intent(context, Aty_Main.class);
+                        context.startActivity(intent);
+                        ((Activity) context).finish();
+                        ((Activity) context).overridePendingTransition(
+                                R.anim.in_right_left, R.anim.scale_stay);
                     }
                 });
             }

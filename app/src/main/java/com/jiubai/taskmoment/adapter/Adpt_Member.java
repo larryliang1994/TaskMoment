@@ -24,7 +24,7 @@ import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
 import com.jiubai.taskmoment.ui.Frag_Member;
-import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.customview.RippleView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -194,8 +194,18 @@ public class Adpt_Member extends BaseAdapter {
             holder.btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(!Config.COMPANY_CREATOR.equals(Config.MID)){
+                        Toast.makeText(context, "只有创建者可以移除成员",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    } else if(Config.COMPANY_CREATOR.equals(member.getMid())){
+                        Toast.makeText(context, "不能移除公司创建者",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     final MaterialDialog dialog = new MaterialDialog(context);
-                    dialog.setMessage("真的要删除该成员吗？")
+                    dialog.setMessage("真的要移除该成员吗？")
                             .setPositiveButton("真的", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

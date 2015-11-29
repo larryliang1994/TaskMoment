@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -36,11 +35,8 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alibaba.sdk.android.media.upload.UploadListener;
-import com.alibaba.sdk.android.media.upload.UploadTask;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_Timeline;
 import com.jiubai.taskmoment.classes.Comment;
 import com.jiubai.taskmoment.classes.News;
@@ -48,19 +44,26 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.BaseUploadListener;
-import com.jiubai.taskmoment.net.MediaServiceUtil;
-import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.customview.BorderScrollView;
 import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.presenter.AuditPresenterImpl;
+import com.jiubai.taskmoment.presenter.CommentPresenterImpl;
+import com.jiubai.taskmoment.presenter.IAuditPresenter;
+import com.jiubai.taskmoment.presenter.ICommentPresenter;
+import com.jiubai.taskmoment.presenter.ITimelinePresenter;
+import com.jiubai.taskmoment.presenter.IUploadImagePresenter;
+import com.jiubai.taskmoment.presenter.TimelinePresenterImpl;
+import com.jiubai.taskmoment.presenter.UploadImagePresenterImpl;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
-import com.jiubai.taskmoment.view.BorderScrollView;
+import com.jiubai.taskmoment.view.IAuditView;
+import com.jiubai.taskmoment.view.ICommentView;
+import com.jiubai.taskmoment.view.ITimelineView;
+import com.jiubai.taskmoment.view.IUploadImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -70,12 +73,15 @@ import java.util.Locale;
 /**
  * 时间线（任务圈）
  */
-public class Frag_Timeline extends Fragment implements View.OnClickListener {
+public class Frag_Timeline extends Fragment implements ITimelineView, ICommentView,
+        IUploadImageView, IAuditView, View.OnClickListener {
 
     private static ListView lv;
     private static Adpt_Timeline adapter;
     private static View footerView;
     private static int keyBoardHeight;
+    private static ICommentPresenter commentPresenter;
+    private static IAuditPresenter auditPresenter;
 
     public static BorderScrollView sv;
     public static LinearLayout ll_comment;
@@ -85,6 +91,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     public static String taskID;
     public static boolean commentWindowIsShow = false, auditWindowIsShow = false;
 
+    private ITimelinePresenter timelinePresenter;
+    private IUploadImagePresenter uploadImagePresenter;
     private ArrayList<News> newsList;
     private boolean isBottomRefreshing = false;
     private RelativeLayout rl_timeline;
@@ -111,7 +119,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     /**
      * 初始化界面
      */
-    @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
+    @SuppressLint("InflateParams")
     private void initView(View view) {
         iv_portrait = (ImageView) view.findViewById(R.id.iv_portrait);
         iv_portrait.setFocusable(true);
@@ -267,15 +275,19 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     }
                 });
 
+        timelinePresenter = new TimelinePresenterImpl(this);
+        commentPresenter = new CommentPresenterImpl(getActivity(), this);
+        uploadImagePresenter = new UploadImagePresenterImpl(getActivity(), this);
+        auditPresenter = new AuditPresenterImpl(this);
+
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-
                 refreshTimeline("refresh",
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
             }
-        }, 500);
+        }, 200);
     }
 
     /**
@@ -287,35 +299,11 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 new Receiver_UpdateView.UpdateCallBack() {
                     @Override
                     public void updateView(String msg, Object... objects) {
-                        tv_news_num.setText(Config.NEWS_NUM + "");
-
                         try {
-                            if (newsList == null) {
-                                newsList = new ArrayList<>();
-                            }
-
-                            JSONObject msgJson = new JSONObject(msg);
-
-                            JSONObject contentJson = new JSONObject(msgJson.getString("content"));
-
-                            newsList.add(new News(msgJson.getString("mid"),
-                                    decodeTask(msgJson.getString("task")),
-                                    contentJson.getString("title"),
-                                    contentJson.getString("content"),
-                                    UtilBox.getDateToString(
-                                            Long.valueOf(contentJson.getString("time")) * 1000,
-                                            UtilBox.TIME)));
-
-                            // 显示头像
-                            ImageLoader.getInstance().displayImage(
-                                    Urls.MEDIA_CENTER_PORTRAIT + msgJson.getString("mid") + ".jpg"
-                                            + "?t=" + Config.TIME,
-                                    iv_news_portrait);
+                            timelinePresenter.doGetNews(msg);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        ll_news.setVisibility(View.VISIBLE);
                     }
                 });
         newsReceiver.registerAction(Constants.ACTION_NEWS);
@@ -412,118 +400,6 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * 解析Task的Json字符串
-     *
-     * @param taskJson Task的Json字符串
-     * @return 解析出来的任务
-     * @throws JSONException
-     */
-    private Task decodeTask(String taskJson) throws JSONException {
-        JSONObject obj = new JSONObject(taskJson);
-
-        String id = obj.getString("id");
-
-        String mid = obj.getString("mid");
-        String portraitUrl = Urls.MEDIA_CENTER_PORTRAIT + mid + ".jpg";
-
-        String nickname = obj.getString("show_name");
-
-        char p1 = obj.getString("p1").charAt(0);
-        String grade = (p1 - 48) == 1 ? "S" : String.valueOf((char) (p1 + 15));
-
-        String desc = obj.getString("comments");
-        String executor = obj.getString("ext1");
-        String supervisor = obj.getString("ext2");
-        String auditor = obj.getString("ext3");
-
-        ArrayList<String> pictures = decodePictureList(obj.getString("works"));
-        ArrayList<Comment> comments
-                = decodeCommentList(id, obj.getString("member_comment"));
-
-        long deadline = Long.valueOf(obj.getString("time1")) * 1000;
-        long publish_time = Long.valueOf(obj.getString("time2")) * 1000;
-        long create_time = Long.valueOf(obj.getString("create_time")) * 1000;
-
-        String audit_result = obj.getString("p2");
-
-        return new Task(id, portraitUrl, nickname, mid, grade, desc,
-                executor, supervisor, auditor,
-                pictures, comments, deadline, publish_time, create_time, audit_result);
-    }
-
-    /**
-     * 将json解码成list
-     *
-     * @param pictures 图片Json
-     * @return 图片list
-     */
-    private ArrayList<String> decodePictureList(String pictures) {
-        ArrayList<String> pictureList = new ArrayList<>();
-
-        if (pictures != null && !"null".equals(pictures)) {
-            try {
-                JSONArray jsonArray = new JSONArray(pictures);
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    pictureList.add(Urls.MEDIA_CENTER_TASK + jsonArray.getString(i));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return pictureList;
-    }
-
-    /**
-     * 将json解码成list
-     *
-     * @param comments 评论json
-     * @return 图片List
-     */
-    private ArrayList<Comment> decodeCommentList(String taskID, String comments) {
-        ArrayList<Comment> commentList = new ArrayList<>();
-
-        if (!"".equals(comments) && !"null".equals(comments)) {
-            try {
-
-                JSONArray jsonArray = new JSONArray(comments);
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject object = new JSONObject(jsonArray.getString(i));
-
-                    String sender = "null".equals(object.getString("send_real_name")) ?
-                            object.getString("send_mobile") : object.getString("send_real_name");
-
-                    String receiver = "null".equals(object.getString("receiver_real_name")) ?
-                            object.getString("receiver_mobile") : object.getString("receiver_real_name");
-
-                    if ("null".equals(receiver)) {
-                        Comment comment = new Comment(taskID,
-                                sender, object.getString("send_id"),
-                                object.getString("content"),
-                                Long.valueOf(object.getString("create_time")) * 1000);
-
-                        commentList.add(comment);
-                    } else {
-                        Comment comment = new Comment(taskID,
-                                sender, object.getString("send_id"),
-                                receiver, object.getString("receiver_id"),
-                                object.getString("content"),
-                                Long.valueOf(object.getString("create_time")) * 1000);
-
-                        commentList.add(comment);
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return commentList;
-    }
-
-    /**
      * 刷新时间线
      *
      * @param type         refresh或loadMore
@@ -537,112 +413,20 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
             return;
         }
 
-        if ("refresh".equals(type)) {
-            srl.setRefreshing(true);
-        }
-
-        String[] key = {"len", "cid", "create_time"};
-        String[] value = {"2", Config.CID, request_time};
-
-        VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        JSONObject responseJson;
-                        try {
-                            responseJson = new JSONObject(response);
-
-                            String responseStatus = responseJson.getString("status");
-
-                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-
-                                if ("refresh".equals(type)) {
-                                    adapter = new Adpt_Timeline(getActivity(), true, response);
-                                } else {
-                                    adapter = new Adpt_Timeline(getActivity(), false, response);
-                                }
-
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                lv.setAdapter(adapter);
-                                                UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                                                if ("refresh".equals(type)) {
-                                                    srl.setRefreshing(false);
-
-                                                    int svHeight = sv.getHeight();
-
-                                                    int lvHeight = lv.getLayoutParams().height;
-
-                                                    // 312是除去上部其他组件高度后的剩余空间，
-                                                    int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
-                                                    if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
-                                                            && lv.getFooterViewsCount() == 0) {
-                                                        lv.addFooterView(footerView);
-                                                        UtilBox.setListViewHeightBasedOnChildren(lv);
-                                                    }
-                                                } else {
-                                                    isBottomRefreshing = false;
-                                                }
-                                            }
-                                        });
-                                    }
-                                }, 1000);
-
-                            } else if ("900900".equals(responseStatus)) {
-                                // 没有更多了，就去掉footerView
-                                if ("refresh".equals(type)) {
-                                    srl.setRefreshing(false);
-                                } else {
-                                    lv.removeFooterView(footerView);
-
-                                    UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                                    isBottomRefreshing = false;
-                                }
-
-                                Toast.makeText(getActivity(),
-                                        responseJson.getString("info"),
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
-                                if ("refresh".equals(type)) {
-                                    srl.setRefreshing(false);
-                                } else {
-                                    isBottomRefreshing = false;
-                                }
-
-                                Toast.makeText(getActivity(),
-                                        responseJson.getString("info"),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                        if ("refresh".equals(type)) {
-                            srl.setRefreshing(false);
-                        } else {
-                            isBottomRefreshing = false;
-                        }
-                        volleyError.printStackTrace();
-                        Toast.makeText(getActivity(),
-                                "刷新失败，请重试",
-                                Toast.LENGTH_SHORT).show();
-                    }
+        if (Adpt_Member.memberList == null || Adpt_Member.memberList.isEmpty()) {
+            UtilBox.getMember(getActivity(), new UtilBox.GetMemberCallBack() {
+                @Override
+                public void successCallback() {
+                    timelinePresenter.doPullTimeline(request_time, type);
                 }
 
-        );
+                @Override
+                public void failedCallback() {
+                }
+            });
+        } else {
+            timelinePresenter.doPullTimeline(request_time, type);
+        }
     }
 
     /**
@@ -697,7 +481,8 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                UtilBox.setViewParams(space, 1, UtilBox.dip2px(context, 52) + keyBoardHeight);
+                                UtilBox.setViewParams(space, 1,
+                                        UtilBox.dip2px(context, 52) + keyBoardHeight);
 
                                 new Handler().post(new Runnable() {
                                     @Override
@@ -740,65 +525,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                 UtilBox.toggleSoftInput(ll_comment, false);
 
-                String[] key = {"oid", "pmid", "content"};
-                String[] value = {taskID, receiverID, edt_content.getText().toString()};
-
-                VolleyUtil.requestWithCookie(Urls.SEND_COMMENT, key, value,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-
-                                    if (!"900001".equals(jsonObject.getString("status"))) {
-                                        System.out.println(response);
-
-                                        Toast.makeText(context,
-                                                "发送失败，请重试",
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        // 发送更新评论广播
-                                        Intent intent = new Intent(Constants.ACTION_SEND_COMMENT);
-                                        intent.putExtra("taskID", taskID);
-
-                                        String nickname;
-                                        if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
-                                            nickname = "你";
-                                        } else {
-                                            nickname = Config.NICKNAME;
-                                        }
-
-                                        if (!"".equals(receiver)) {
-                                            intent.putExtra("comment", new Comment(taskID,
-                                                    nickname, Config.MID,
-                                                    receiver, receiverID,
-                                                    edt_content.getText().toString(),
-                                                    Calendar.getInstance(Locale.CHINA)
-                                                            .getTimeInMillis()));
-                                        } else {
-                                            intent.putExtra("comment", new Comment(taskID,
-                                                    nickname, Config.MID,
-                                                    edt_content.getText().toString(),
-                                                    Calendar.getInstance(Locale.CHINA)
-                                                            .getTimeInMillis()));
-                                        }
-
-                                        context.sendBroadcast(intent);
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError volleyError) {
-                                volleyError.printStackTrace();
-                                Toast.makeText(context,
-                                        "评论发送失败，请重试",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                commentPresenter.doSendComment(taskID, "", receiverID, edt_content.getText().toString());
             }
         });
     }
@@ -853,41 +580,7 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                     return;
                 }
 
-                String[] key = {"id", "level"};
-                String[] value = {taskID, audit_result[0] + ""};
-
-                VolleyUtil.requestWithCookie(Urls.SEND_AUDIT, key, value,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                try {
-                                    JSONObject responseObject = new JSONObject(response);
-                                    String status = responseObject.getString("status");
-                                    if ("1".equals(status) || "900001".equals(status)) {
-                                        ll_audit.setVisibility(View.GONE);
-
-                                        Toast.makeText(context,
-                                                responseObject.getString("info"),
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(context,
-                                                responseObject.getString("info"),
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError volleyError) {
-                                volleyError.printStackTrace();
-
-                                Toast.makeText(context, "审核失败，请重试",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                auditPresenter.doAudit(taskID, audit_result[0] + "");
             }
         });
     }
@@ -999,47 +692,10 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
 
                             final String objectName = Config.CID + ".jpg";
 
-                            UploadListener listener = new BaseUploadListener() {
-
-                                @Override
-                                public void onUploadFailed(UploadTask uploadTask, com.alibaba.sdk.android.media.utils.FailReason failReason) {
-                                    System.out.println(failReason.getMessage());
-
-                                    Toast.makeText(getActivity(),
-                                            "图片上传失败，请重试",
-                                            Toast.LENGTH_SHORT).show();
-
-                                    ImageLoader.getInstance().displayImage(
-                                            Config.COMPANY_BACKGROUND + "?t=" + Config.TIME,
-                                            iv_companyBackground);
-                                }
-
-                                @Override
-                                public void onUploadComplete(UploadTask uploadTask) {
-                                    Config.COMPANY_BACKGROUND = Urls.MEDIA_CENTER_BACKGROUND + objectName;
-
-                                    // 更新时间戳
-                                    Config.TIME = Calendar.getInstance().getTimeInMillis();
-
-                                    SharedPreferences sp = getActivity()
-                                            .getSharedPreferences(Constants.SP_FILENAME,
-                                                    Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sp.edit();
-                                    editor.putString(Constants.SP_KEY_COMPANY_BACKGROUND,
-                                            Config.COMPANY_BACKGROUND);
-                                    editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
-                                    editor.apply();
-
-                                    ImageLoader.getInstance().displayImage(
-                                            Config.COMPANY_BACKGROUND + "?t=" + Config.TIME,
-                                            iv_companyBackground);
-                                }
-
-                            };
-
-                            MediaServiceUtil.uploadImage(
+                            uploadImagePresenter.doUploadImage(
                                     UtilBox.compressImage(bitmap, Constants.SIZE_COMPANY_BACKGROUND),
-                                    Constants.DIR_BACKGROUND, objectName, listener);
+                                    Constants.DIR_BACKGROUND, objectName,
+                                    Constants.SP_KEY_COMPANY_BACKGROUND);
 
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
@@ -1082,5 +738,132 @@ public class Frag_Timeline extends Fragment implements View.OnClickListener {
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onPullTimelineResult(int result, final String type, String info) {
+        if (result == 900001) {
+            if ("refresh".equals(type)) {
+                adapter = new Adpt_Timeline(getActivity(), true, info);
+            } else {
+                adapter = new Adpt_Timeline(getActivity(), false, info);
+            }
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    lv.setAdapter(adapter);
+                    UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                    if ("refresh".equals(type)) {
+                        timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+
+                        int svHeight = sv.getHeight();
+
+                        int lvHeight = lv.getLayoutParams().height;
+
+                        // 312是除去上部其他组件高度后的剩余空间，
+                        int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
+                        if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
+                                && lv.getFooterViewsCount() == 0) {
+                            lv.addFooterView(footerView);
+                            UtilBox.setListViewHeightBasedOnChildren(lv);
+                        }
+                    } else {
+                        isBottomRefreshing = false;
+                    }
+                }
+            }, 1000);
+        } else if (result == 900900) {
+            // 没有更多了，就去掉footerView
+            if ("refresh".equals(type)) {
+                timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+            } else {
+                lv.removeFooterView(footerView);
+
+                UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                isBottomRefreshing = false;
+            }
+
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+        } else if (result == 0) {
+            if ("refresh".equals(type)) {
+                timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+            } else {
+                isBottomRefreshing = false;
+            }
+
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+        } else {
+            if ("refresh".equals(type)) {
+                timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+            } else {
+                isBottomRefreshing = false;
+            }
+
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onGetNewsResult(int result, News news) {
+        if (result == 1) {
+            tv_news_num.setText(Config.NEWS_NUM + "");
+
+            if (newsList == null) {
+                newsList = new ArrayList<>();
+            }
+
+            newsList.add(news);
+
+            // 显示头像
+            ImageLoader.getInstance().displayImage(
+                    Urls.MEDIA_CENTER_PORTRAIT + news.getSenderID() + ".jpg" + "?t=" + Config.TIME,
+                    iv_news_portrait);
+
+            ll_news.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onSetSwipeRefreshVisibility(int visibility) {
+        if (Constants.VISIBLE == visibility) {
+            srl.setRefreshing(true);
+        } else if (Constants.INVISIBLE == visibility) {
+            srl.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void onSendCommentResult(String result, String info) {
+        if (Constants.SUCCESS.equals(result)) {
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+        } else if (Constants.FAILED.equals(result)){
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onUploadImageResult(String result, String info) {
+        if (Constants.SUCCESS.equals(result)) {
+            ImageLoader.getInstance().displayImage(
+                    Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground);
+        } else if (Constants.FAILED.equals(result)) {
+            Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
+
+            ImageLoader.getInstance().displayImage(
+                    Config.COMPANY_BACKGROUND + "?t=" + Config.TIME, iv_companyBackground);
+        }
+    }
+
+    @Override
+    public void onAuditResult(String result, String info) {
+        if (Constants.SUCCESS.equals(result)){
+            ll_audit.setVisibility(View.GONE);
+        }
+
+        Toast.makeText(getActivity(), info, Toast.LENGTH_SHORT).show();
     }
 }

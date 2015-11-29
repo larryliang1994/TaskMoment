@@ -29,7 +29,7 @@ import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.ui.Aty_PersonalTimeline;
-import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.customview.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;

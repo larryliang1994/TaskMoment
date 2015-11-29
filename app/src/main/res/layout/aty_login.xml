@@ -63,7 +63,7 @@
                         android:paddingRight="16dp"
                         android:textSize="16sp" />
 
-                    <com.jiubai.taskmoment.view.RippleView
+                    <com.jiubai.taskmoment.customview.RippleView
                         android:id="@+id/rv_btn_getVerifyCode"
                         android:layout_width="60dp"
                         android:layout_height="40dp"
@@ -78,7 +78,7 @@
                             android:text="@string/getVerify"
                             android:textColor="#ffffff"
                             android:textSize="16sp" />
-                    </com.jiubai.taskmoment.view.RippleView>
+                    </com.jiubai.taskmoment.customview.RippleView>
                 </LinearLayout>
 
                 <EditText
@@ -94,7 +94,7 @@
                     android:paddingRight="16dp"
                     android:textSize="16sp" />
 
-                <com.jiubai.taskmoment.view.RippleView
+                <com.jiubai.taskmoment.customview.RippleView
                     android:id="@+id/rv_btn_submit"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -110,7 +110,7 @@
                         android:text="@string/login"
                         android:textColor="#ffffff"
                         android:textSize="16sp" />
-                </com.jiubai.taskmoment.view.RippleView>
+                </com.jiubai.taskmoment.customview.RippleView>
 
                 <LinearLayout
                     android:layout_width="match_parent"

@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,13 +20,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.umeng.analytics.MobclickAgent;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -37,7 +36,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 /**
  * 主activity界面
  */
-public class Aty_Main extends AppCompatActivity implements View.OnClickListener {
+public class Aty_Main extends BaseActivity implements View.OnClickListener {
     @Bind(R.id.dw_main)
     DrawerLayout dw;
 
@@ -125,6 +124,7 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
     /**
      * 初始化NavigationHeader
      */
+    @SuppressLint("InflateParams")
     private void initNavigationHeader() {
         ll_nvHeader = (LinearLayout) LayoutInflater.from(this)
                 .inflate(R.layout.navigation_header, null);
@@ -404,17 +404,5 @@ public class Aty_Main extends AppCompatActivity implements View.OnClickListener 
         unregisterReceiver(portraitReceiver);
 
         super.onDestroy();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

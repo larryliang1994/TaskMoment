@@ -1,0 +1,134 @@
+package com.jiubai.taskmoment.presenter;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Handler;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
+import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.view.ICompanyView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Created by howell on 2015/11/29.
+ * CompanyPresenter实现类
+ */
+public class CompanyPresenterImpl implements ICompanyPresenter{
+    private ICompanyView iCompanyView;
+    private Context context;
+
+    public CompanyPresenterImpl(Context context, ICompanyView iCompanyView) {
+        this.context = context;
+        this.iCompanyView = iCompanyView;
+    }
+
+    @Override
+    public void getMyCompany() {
+        iCompanyView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
+
+        VolleyUtil.requestWithCookie(Urls.MY_COMPANY, null, null,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject responseJson = new JSONObject(response);
+                            if(Constants.SUCCESS.equals(responseJson.getString("status"))){
+                                iCompanyView.onGetMyCompanyResult(Constants.SUCCESS, response);
+                            } else {
+                                // cookie有误，清空cookie
+                                SharedPreferences sp = context.getSharedPreferences(
+                                        Constants.SP_FILENAME, Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.remove(Constants.SP_KEY_COOKIE);
+                                editor.apply();
+
+                                Config.COOKIE = null;
+
+                                iCompanyView.onGetMyCompanyResult(Constants.EXPIRE,
+                                        "登录信息已过期，请重新登录");
+
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                                    }
+                                }, 1000);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                            }
+                        }, 1000);
+
+                        iCompanyView.onGetMyCompanyResult(Constants.FAILED,
+                                "获取公司列表失败，下拉重试一下吧？");
+                    }
+                });
+    }
+
+    @Override
+    public void getJoinedCompany() {
+        VolleyUtil.requestWithCookie(Urls.MY_JOIN_COMPANY, null, null,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject responseJson = new JSONObject(response);
+                            if(Constants.SUCCESS.equals(responseJson.getString("status"))){
+                                iCompanyView.onGetJoinedCompanyResult(Constants.SUCCESS, response);
+
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                                    }
+                                }, 1000);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                iCompanyView.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                            }
+                        }, 1000);
+
+                        iCompanyView.onGetJoinedCompanyResult(Constants.FAILED,
+                                "获取公司列表失败，下拉重试一下吧？");
+                    }
+                });
+    }
+
+    @Override
+    public void onSetSwipeRefreshVisibility(int visibility) {
+        iCompanyView.onSetSwipeRefreshVisibility(visibility);
+    }
+}

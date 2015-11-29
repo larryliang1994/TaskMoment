@@ -16,7 +16,7 @@
         <include layout="@layout/toolbar" />
     </android.support.design.widget.AppBarLayout>
 
-    <com.jiubai.taskmoment.view.BorderScrollView
+    <com.jiubai.taskmoment.customview.BorderScrollView
         android:id="@+id/sv_taskInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                 android:layout_height="0dp"
                 android:background="#000000" />
         </LinearLayout>
-    </com.jiubai.taskmoment.view.BorderScrollView>
+    </com.jiubai.taskmoment.customview.BorderScrollView>
 
     <LinearLayout
         android:id="@+id/ll_comment"

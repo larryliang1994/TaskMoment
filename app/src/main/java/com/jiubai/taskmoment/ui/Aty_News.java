@@ -1,19 +1,18 @@
 package com.jiubai.taskmoment.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_News;
 import com.jiubai.taskmoment.classes.News;
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.view.SlidingLayout;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,7 +25,7 @@ import butterknife.OnClick;
 /**
  * 新消息页面
  */
-public class Aty_News extends AppCompatActivity implements View.OnClickListener {
+public class Aty_News extends BaseActivity implements View.OnClickListener {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -117,17 +116,5 @@ public class Aty_News extends AppCompatActivity implements View.OnClickListener 
                 Toast.makeText(this, "clicked", Toast.LENGTH_SHORT).show();
                 break;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-            finish();
-            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
     }
 }

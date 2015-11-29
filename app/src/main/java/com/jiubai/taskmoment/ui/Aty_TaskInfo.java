@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +26,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Comment;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
@@ -37,12 +37,11 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.customview.BorderScrollView;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.BorderScrollView;
-import com.jiubai.taskmoment.view.SlidingLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +57,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 /**
  * 任务详情页面
  */
-public class Aty_TaskInfo extends AppCompatActivity {
+public class Aty_TaskInfo extends BaseActivity {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -794,17 +793,5 @@ public class Aty_TaskInfo extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

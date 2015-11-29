@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +16,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
-import com.jiubai.taskmoment.view.SlidingLayout;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.download.ImageDownloader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
 
@@ -38,7 +37,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * 查看图片
  */
-public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickListener {
+public class Aty_CheckPicture extends BaseActivity implements View.OnClickListener {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -257,17 +256,5 @@ public class Aty_CheckPicture extends AppCompatActivity implements View.OnClickL
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

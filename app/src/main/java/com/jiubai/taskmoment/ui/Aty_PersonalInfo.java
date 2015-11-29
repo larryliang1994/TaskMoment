@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -16,16 +14,16 @@ import android.widget.Toast;
 import com.alibaba.sdk.android.media.upload.UploadListener;
 import com.alibaba.sdk.android.media.upload.UploadTask;
 import com.alibaba.sdk.android.media.utils.FailReason;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_PersonalInfo;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.SlidingLayout;
-import com.umeng.analytics.MobclickAgent;
 
 import java.util.Calendar;
 
@@ -36,7 +34,7 @@ import butterknife.OnClick;
 /**
  * 个人信息页面
  */
-public class Aty_PersonalInfo extends AppCompatActivity {
+public class Aty_PersonalInfo extends BaseActivity {
     @Bind(R.id.lv_personalInfo)
     ListView lv;
 
@@ -92,19 +90,6 @@ public class Aty_PersonalInfo extends AppCompatActivity {
                 overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            finish();
-            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -164,15 +149,4 @@ public class Aty_PersonalInfo extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
-    }
 }

@@ -1,18 +1,14 @@
 package com.jiubai.taskmoment.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -23,21 +19,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.net.SoapUtil;
-import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.customview.RippleView;
+import com.jiubai.taskmoment.customview.RotateLoading;
 import com.jiubai.taskmoment.other.SmsContentUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.RippleView;
-import com.jiubai.taskmoment.view.RotateLoading;
+import com.jiubai.taskmoment.presenter.GetVerifyCodePresenterImpl;
+import com.jiubai.taskmoment.presenter.IGetVerifyCodePresenter;
+import com.jiubai.taskmoment.presenter.ILoginPresenter;
+import com.jiubai.taskmoment.presenter.LoginPresenterImpl;
+import com.jiubai.taskmoment.view.IGetVerifyCodeView;
+import com.jiubai.taskmoment.view.ILoginView;
 import com.umeng.analytics.MobclickAgent;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -45,7 +40,8 @@ import butterknife.ButterKnife;
 /**
  * 登录页面
  */
-public class Aty_Login extends Activity implements RippleView.OnRippleCompleteListener, TextWatcher {
+public class Aty_Login extends Activity implements ILoginView, IGetVerifyCodeView, TextWatcher,
+        RippleView.OnRippleCompleteListener {
     @Bind(R.id.edt_telephone)
     EditText edt_telephone;
 
@@ -67,12 +63,14 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
     private RotateLoading rl;
     private Dialog dialog = null;
     private boolean isCounting = false;
+    private ILoginPresenter loginPresenter;
+    private IGetVerifyCodePresenter getVerifyCodePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             //透明状态栏
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             //透明导航栏
@@ -91,7 +89,6 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
     /**
      * 初始化界面
      */
-    @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void initView() {
         dialog = new Dialog(this, R.style.dialog);
         dialog.setContentView(R.layout.dialog_rotate_loading);
@@ -109,70 +106,10 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
 
         GradientDrawable submitBgShape = (GradientDrawable) btn_submit.getBackground();
         submitBgShape.setColor(ContextCompat.getColor(this, R.color.gray));
-    }
 
-    /**
-     * 显示或隐藏旋转进度条
-     *
-     * @param which show代表显示, dismiss代表隐藏
-     */
-    private void changeLoadingState(String which) {
-        if ("show".equals(which)) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.show();
-                    rl.start();
-                }
-            });
-        } else if ("dismiss".equals(which)) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    rl.stop();
-                    dialog.dismiss();
-                }
-            });
-        }
-    }
-
-    /**
-     * 处理登录成功后的cookie
-     *
-     * @param cookie 登录成功后返回的cookie
-     */
-    private void handleLoginResponse(String cookie) {
-
-        // 延长cookie可用时间
-        SoapUtil.extendCookieLifeTime(cookie);
-
-        // 保存cookie
-        SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        if (Config.COOKIE != null) {
-            editor.putString(Constants.SP_KEY_COOKIE, Config.COOKIE);
-            editor.putString(Constants.SP_KEY_MID, Config.MID);
-            editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
-            editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
-        }
-
-        editor.apply();
-    }
-
-    /**
-     * 点击返回，回到桌面
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-            Intent MyIntent = new Intent(Intent.ACTION_MAIN);
-            MyIntent.addCategory(Intent.CATEGORY_HOME);
-            startActivity(MyIntent);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
+        getVerifyCodePresenter = new GetVerifyCodePresenterImpl(this);
+        loginPresenter = new LoginPresenterImpl(this, this);
+        loginPresenter.onSetRotateLoadingVisibility(Constants.INVISIBLE);
     }
 
     @Override
@@ -223,180 +160,119 @@ public class Aty_Login extends Activity implements RippleView.OnRippleCompleteLi
     public void onComplete(RippleView rippleView) {
         switch (rippleView.getId()) {
             case R.id.rv_btn_getVerifyCode:
-                getVerifyCode();
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                getVerifyCodePresenter.doGetVerifyCode(edt_telephone.getText().toString());
                 break;
 
             case R.id.rv_btn_submit:
-                login();
+                if (!Config.IS_CONNECTED) {
+                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                loginPresenter.doLogin(edt_telephone.getText().toString(),
+                        edt_verifyCode.getText().toString());
                 break;
         }
     }
 
     /**
-     * 获取验证码
+     * 登录结果回调
+     *
+     * @param result true表示登录成功
+     * @param info 返回的信息
      */
-    private void getVerifyCode() {
-        new Handler().post(new Runnable() {
+    @Override
+    public void onLoginResult(boolean result, String info) {
+        if (result) {
+            Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
 
-            public void run() {
+            Intent intent = new Intent(this, Aty_Company.class);
+            intent.putExtra("isLogin", true);
 
-                final String tele = edt_telephone.getText().toString();
-
-                if (!Config.IS_CONNECTED) {
-                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
-                            Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // 注册短信变化监听
-                SmsContentUtil smsContent = new SmsContentUtil(Aty_Login.this,
-                        new Handler(), edt_verifyCode);
-                Aty_Login.this.getContentResolver().registerContentObserver(
-                        Uri.parse("content://sms/"), true, smsContent);
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Looper.prepare();
-
-                        new TimeCount(60000, 1000).start();
-
-                        changeLoadingState("show");
-
-                        if (Config.RANDOM == null) {
-                            UtilBox.getRandom();
-                        }
-
-                        String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                        String[] soapValue = {"sms_send_verifycode", Config.RANDOM, "", "1"};
-                        String[] httpKey = {"mobile"};
-                        String[] httpValue = {tele};
-                        VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
-                                new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(String response) {
-                                        changeLoadingState("dismiss");
-
-                                        try {
-                                            JSONObject obj = new JSONObject(response);
-                                            Toast.makeText(Aty_Login.this,
-                                                    obj.getString("info"),
-                                                    Toast.LENGTH_SHORT).show();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                },
-                                new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError volleyError) {
-                                        changeLoadingState("dismiss");
-
-                                        if (volleyError != null
-                                                && volleyError.getMessage() != null) {
-                                            System.out.println(volleyError.getMessage());
-                                        }
-                                        Toast.makeText(Aty_Login.this,
-                                                "获取失败，请重试",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-                        Looper.loop();
-                    }
-                }).start();
-            }
-        });
+            startActivity(intent);
+            Aty_Login.this.finish();
+            overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
+        } else {
+            Toast.makeText(this, info, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
-     * 登录
+     * 获取验证码结果回调
+     *
+     * @param result true表示获取成功
+     * @param info 返回的信息
      */
-    private void login() {
-        new Handler().post(new Runnable() {
+    @Override
+    public void onGetVerifyCodeResult(boolean result, String info) {
+        if(result){
+            Toast.makeText(Aty_Login.this, info, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(Aty_Login.this, "获取失败，请重试", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-            @Override
-            public void run() {
+    /**
+     * 点击获取验证码后更新view
+     */
+    @Override
+    public void onUpdateView() {
+        // 注册短信变化监听
+        SmsContentUtil smsContent = new SmsContentUtil(Aty_Login.this,
+                new Handler(), edt_verifyCode);
+        Aty_Login.this.getContentResolver().registerContentObserver(
+                Uri.parse("content://sms/"), true, smsContent);
 
-                final String tele = edt_telephone.getText().toString();
-                final String verify = edt_verifyCode.getText().toString();
+        new TimeCount(60000, 1000).start();
+    }
 
-                if (!Config.IS_CONNECTED) {
-                    Toast.makeText(Aty_Login.this, R.string.cant_access_network,
-                            Toast.LENGTH_SHORT).show();
-                    return;
+    /**
+     * 显示或隐藏旋转进度条
+     *
+     * @param visibility visible代表显示, invisible代表隐藏
+     */
+    @Override
+    public void onSetRotateLoadingVisibility(int visibility) {
+        if (visibility == Constants.VISIBLE) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                    rl.start();
                 }
+            });
+        } else if (visibility == Constants.INVISIBLE) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rl.stop();
+                    dialog.dismiss();
+                }
+            });
+        }
+    }
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Looper.prepare();
+    /**
+     * 点击返回，回到桌面
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+            Intent MyIntent = new Intent(Intent.ACTION_MAIN);
+            MyIntent.addCategory(Intent.CATEGORY_HOME);
+            startActivity(MyIntent);
+            return true;
+        }
 
-                        changeLoadingState("show");
-
-                        String[] soapKey = {"type", "table_name", "feedback_url", "return"};
-                        String[] soapValue = {"mobile_login", Config.RANDOM, "", "1"};
-                        String[] httpKey = {"mobile", "check_code"};
-                        String[] httpValue = {tele, verify};
-                        VolleyUtil.requestWithSoap(soapKey, soapValue, httpKey, httpValue,
-                                new Response.Listener<String>() {
-                                    @Override
-                                    public void onResponse(final String response) {
-                                        changeLoadingState("dismiss");
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Looper.prepare();
-                                                try {
-                                                    JSONObject responseJson = new JSONObject(response);
-                                                    // 若登录成功，则延长cookie寿命，并跳转
-                                                    if ("900001".equals(responseJson.getString("status"))) {
-                                                        handleLoginResponse(
-                                                                responseJson.getString("memberCookie"));
-
-                                                        Toast.makeText(Aty_Login.this, "登录成功",
-                                                                Toast.LENGTH_SHORT).show();
-
-                                                        Intent intent = new Intent(Aty_Login.this,
-                                                                Aty_Company.class);
-                                                        intent.putExtra("isLogin", true);
-                                                        startActivity(intent);
-                                                        Aty_Login.this.finish();
-                                                        overridePendingTransition(
-                                                                R.anim.in_right_left,
-                                                                R.anim.scale_stay);
-
-                                                    } else {
-                                                        Toast.makeText(Aty_Login.this,
-                                                                responseJson.getString("info"),
-                                                                Toast.LENGTH_SHORT).show();
-                                                    }
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-                                                Looper.loop();
-                                            }
-                                        }).start();
-
-                                    }
-                                },
-                                new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError volleyError) {
-                                        changeLoadingState("dismiss");
-                                        Toast.makeText(Aty_Login.this,
-                                                "登录失败，请重试",
-                                                Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-
-                        Looper.loop();
-                    }
-                }).start();
-            }
-        });
+        return super.onKeyDown(keyCode, event);
     }
 
     /**

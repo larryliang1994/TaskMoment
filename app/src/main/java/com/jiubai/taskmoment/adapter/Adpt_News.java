@@ -16,7 +16,7 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.ui.Aty_TaskInfo;
-import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.customview.RippleView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;

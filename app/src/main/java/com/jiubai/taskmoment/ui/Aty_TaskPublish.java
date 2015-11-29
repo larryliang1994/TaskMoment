@@ -12,9 +12,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -29,6 +27,7 @@ import com.alibaba.sdk.android.media.upload.UploadTask;
 import com.alibaba.sdk.android.media.utils.FailReason;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_PublishPicture;
@@ -38,15 +37,14 @@ import com.jiubai.taskmoment.classes.MyTime;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.customview.DateDialog;
+import com.jiubai.taskmoment.customview.RippleView;
+import com.jiubai.taskmoment.customview.SlidingLayout;
+import com.jiubai.taskmoment.customview.TimeDialog;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.DateDialog;
-import com.jiubai.taskmoment.view.RippleView;
-import com.jiubai.taskmoment.view.SlidingLayout;
-import com.jiubai.taskmoment.view.TimeDialog;
-import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,7 +63,7 @@ import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 /**
  * 发布任务
  */
-public class Aty_TaskPublish extends AppCompatActivity
+public class Aty_TaskPublish extends BaseActivity
         implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     @Bind(R.id.tv_title)
     TextView tv_title;
@@ -729,31 +727,5 @@ public class Aty_TaskPublish extends AppCompatActivity
                     UtilBox.setGridViewHeightBasedOnChildren(gv, false);
                 }
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-            setResult(RESULT_CANCELED);
-
-            finish();
-            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

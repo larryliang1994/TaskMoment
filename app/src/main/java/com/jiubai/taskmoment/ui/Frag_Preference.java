@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.view.RippleView;
+import com.jiubai.taskmoment.customview.RippleView;
 import com.umeng.socialize.controller.UMServiceFactory;
 import com.umeng.socialize.controller.UMSocialService;
 import com.umeng.socialize.media.UMImage;

@@ -3,14 +3,12 @@ package com.jiubai.taskmoment.ui;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.view.SlidingLayout;
-import com.umeng.analytics.MobclickAgent;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,7 +17,7 @@ import butterknife.OnClick;
 /**
  * 关于页面
  */
-public class Aty_About extends AppCompatActivity {
+public class Aty_About extends BaseActivity {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -67,30 +65,5 @@ public class Aty_About extends AppCompatActivity {
                 overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            finish();
-            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

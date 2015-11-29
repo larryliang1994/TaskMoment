@@ -21,7 +21,7 @@ import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.ui.Aty_Company;
 import com.jiubai.taskmoment.ui.Aty_Login;
 import com.jiubai.taskmoment.ui.Aty_Main;
-import com.jiubai.taskmoment.view.RotateLoading;
+import com.jiubai.taskmoment.customview.RotateLoading;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengDialogButtonListener;
 import com.umeng.update.UmengUpdateAgent;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //UtilBox.setStatusBarTint(this, R.color.white);
+        UtilBox.setStatusBarTint(this, R.color.welcomeStatus);
 
         setContentView(R.layout.aty_welcome);
 
@@ -151,23 +151,12 @@ public class MainActivity extends Activity {
                                 // 获取用户信息
                                 getUserInfo();
 
-                                UtilBox.getMember(MainActivity.this, new UtilBox.GetMemberCallBack() {
-                                    @Override
-                                    public void successCallback() {
-                                        changeLoadingState("dismiss");
+                                changeLoadingState("dismiss");
 
-                                        startActivity(new Intent(MainActivity.this, Aty_Main.class));
-                                        finish();
-                                        overridePendingTransition(R.anim.in_right_left,
-                                                R.anim.scale_stay);
-                                    }
-
-                                    @Override
-                                    public void failedCallback() {
-                                        changeLoadingState("dismiss");
-                                        ll_no_network.setVisibility(View.VISIBLE);
-                                    }
-                                });
+                                startActivity(new Intent(MainActivity.this, Aty_Main.class));
+                                finish();
+                                overridePendingTransition(R.anim.in_right_left,
+                                        R.anim.scale_stay);
 
                                 Looper.loop();
                             }

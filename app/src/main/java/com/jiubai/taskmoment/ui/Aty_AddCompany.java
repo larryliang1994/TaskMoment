@@ -4,10 +4,8 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,12 +14,12 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.customview.RippleView;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.view.RippleView;
-import com.jiubai.taskmoment.view.SlidingLayout;
-import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +31,7 @@ import butterknife.OnClick;
 /**
  * 创建公司
  */
-public class Aty_AddCompany extends AppCompatActivity
+public class Aty_AddCompany extends BaseActivity
         implements RippleView.OnRippleCompleteListener, TextWatcher {
     @Bind(R.id.rv_btn_submit)
     RippleView rv_btn_submit;
@@ -172,31 +170,5 @@ public class Aty_AddCompany extends AppCompatActivity
 
     @Override
     public void afterTextChanged(Editable s) {
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-            setResult(RESULT_CANCELED);
-
-            finish();
-            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

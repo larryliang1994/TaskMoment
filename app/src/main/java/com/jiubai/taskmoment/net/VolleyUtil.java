@@ -40,33 +40,39 @@ public class VolleyUtil {
      */
     public static void requestWithSoap(final String[] soapKey, final String[] soapValue,
                                        final String[] httpKey, final String[] httpValue,
-                                       Response.Listener<String> successCallback,
-                                       Response.ErrorListener errorCallback) {
-        // 先进行soap通信，获取url后缀
-        String soapUrl = SoapUtil.getUrlBySoap("ajax", soapKey, soapValue);
-
-        // 构建Post请求对象
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                Urls.SERVER_URL + "/act/ajax.php?a=" + soapUrl,
-                successCallback, errorCallback) {
+                                       final Response.Listener<String> successCallback,
+                                       final Response.ErrorListener errorCallback) {
+        new Thread(new Runnable() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                if (httpKey != null) {
-                    Map<String, String> map = new HashMap<>();
-                    for (int i = 0; i < httpKey.length; i++) {
-                        map.put(httpKey[i], httpValue[i]);
+            public void run() {
+                // 先进行soap通信，获取url后缀
+                String soapUrl = SoapUtil.getUrlBySoap("ajax", soapKey, soapValue);
+
+                // 构建Post请求对象
+                StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                        Urls.SERVER_URL + "/act/ajax.php?a=" + soapUrl,
+                        successCallback, errorCallback) {
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        if (httpKey != null) {
+                            Map<String, String> map = new HashMap<>();
+                            for (int i = 0; i < httpKey.length; i++) {
+                                map.put(httpKey[i], httpValue[i]);
+                            }
+                            return map;
+                        } else {
+                            return super.getParams();
+                        }
                     }
-                    return map;
-                } else {
-                    return super.getParams();
-                }
+                };
+
+                stringRequest.setRetryPolicy(
+                        new DefaultRetryPolicy(Constants.REQUEST_TIMEOUT, 1, 1.0f));
+
+                // 加入请求队列
+                requestQueue.add(stringRequest);
             }
-        };
-
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(Constants.REQUEST_TIMEOUT, 1, 1.0f));
-
-        // 加入请求队列
-        requestQueue.add(stringRequest);
+        }).start();
     }
 
     /**

@@ -1,17 +1,11 @@
 package com.jiubai.taskmoment.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,22 +18,17 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_JoinedCompany;
 import com.jiubai.taskmoment.adapter.Adpt_MyCompany;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.VolleyUtil;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.RotateLoading;
-import com.jiubai.taskmoment.view.SlidingLayout;
-import com.umeng.analytics.MobclickAgent;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.jiubai.taskmoment.presenter.CompanyPresenterImpl;
+import com.jiubai.taskmoment.presenter.ICompanyPresenter;
+import com.jiubai.taskmoment.view.ICompanyView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -49,7 +38,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 /**
  * 我创建的公司与我加入的公司
  */
-public class Aty_Company extends AppCompatActivity {
+public class Aty_Company extends BaseActivity implements ICompanyView{
     @Bind(R.id.swipe_company)
     SwipeRefreshLayout srl;
 
@@ -68,8 +57,7 @@ public class Aty_Company extends AppCompatActivity {
     @Bind(R.id.iBtn_more)
     ImageButton iBtn_more;
 
-    private static Dialog dialog;
-    private static RotateLoading rl;
+    private ICompanyPresenter companyPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,18 +75,18 @@ public class Aty_Company extends AppCompatActivity {
     /**
      * 初始化界面
      */
-    @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void initView() {
         tv_title.setText(R.string.myCompany);
+
+        iBtn_more.setVisibility(View.VISIBLE);
 
         // 若不来自切换公司，则不需要返回键
         if (!getIntent().getBooleanExtra("hide", false)) {
             iBtn_back.setVisibility(View.GONE);
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(UtilBox.dip2px(this, 16), 0, 0, 0);
-            lp.gravity = Gravity.CENTER_VERTICAL;
 
             tv_title.setLayoutParams(lp);
 
@@ -106,8 +94,6 @@ public class Aty_Company extends AppCompatActivity {
         } else {
             new SlidingLayout(this);
         }
-
-        iBtn_more.setVisibility(View.VISIBLE);
 
         srl.setColorSchemeResources(R.color.primary);
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -137,6 +123,9 @@ public class Aty_Company extends AppCompatActivity {
             }
         });
 
+        companyPresenter = new CompanyPresenterImpl(this, this);
+        companyPresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+
         // 延迟执行才能使旋转进度条显示出来
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -144,7 +133,6 @@ public class Aty_Company extends AppCompatActivity {
                 refreshListView();
             }
         }, 100);
-
     }
 
     @OnClick({R.id.iBtn_back, R.id.iBtn_more})
@@ -215,127 +203,41 @@ public class Aty_Company extends AppCompatActivity {
             return;
         }
 
-        srl.setRefreshing(true);
-
-        VolleyUtil.requestWithCookie(Urls.MY_COMPANY, null, null,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        showCompany("my_company", response);
-                        UtilBox.setListViewHeightBasedOnChildren(lv_myCompany);
-                    }
-                },
-                new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, "获取公司列表失败，下拉重试一下吧？",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-        VolleyUtil.requestWithCookie(Urls.MY_JOIN_COMPANY, null, null,
-                new Response.Listener<String>() {
-
-                    @Override
-                    public void onResponse(String response) {
-                        showCompany("my_join_company", response);
-                        UtilBox.setListViewHeightBasedOnChildren(lv_joinedCompany);
-                    }
-                },
-                new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        srl.setRefreshing(false);
-                        Toast.makeText(Aty_Company.this, "获取公司列表失败，下拉重试一下吧？",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+        companyPresenter.getMyCompany();
+        companyPresenter.getJoinedCompany();
     }
 
-    /**
-     * 如果cookie可用，则显示公司，否则返回登录页面
-     *
-     * @param which    my_company代表我创建的公司，my_join_company代表我加入的公司
-     * @param response 我的公司的返回结果
-     */
-    private void showCompany(String which, String response) {
-        try {
-            JSONObject responseJson = new JSONObject(response);
-
-            String responseStatus = responseJson.getString("status");
-
-            if (("1".equals(responseStatus) || "900001".equals(responseStatus))
-                    && (("1".equals(responseStatus) || "900001".equals(responseStatus)))) {
-
-                if ("my_company".equals(which)) {
-                    lv_myCompany.setAdapter(new Adpt_MyCompany(Aty_Company.this, response));
-                } else if ("my_join_company".equals(which)) {
-                    lv_joinedCompany.setAdapter(new Adpt_JoinedCompany(Aty_Company.this, response));
-                }
-
-            } else {
-                // cookie有误，清空cookie
-                SharedPreferences sp = getSharedPreferences(Constants.SP_FILENAME,
-                        Activity.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sp.edit();
-                editor.remove(Constants.SP_KEY_COOKIE);
-                editor.apply();
-
-                Config.COOKIE = null;
-
-                Toast.makeText(getApplicationContext(), "登录信息已过期，请重新登录",
-                        Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(this, Aty_Login.class));
-                finish();
-                overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    @Override
+    public void onGetMyCompanyResult(String result, String info) {
+        if(Constants.SUCCESS.equals(result)){ // 获取成功
+            lv_myCompany.setAdapter(new Adpt_MyCompany(Aty_Company.this, info));
+            UtilBox.setListViewHeightBasedOnChildren(lv_myCompany);
+        } else if (Constants.EXPIRE.equals(result)){ // 登录信息过期
+            Toast.makeText(this, info, Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, Aty_Login.class));
+            finish();
+            overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
+        } else if (Constants.FAILED.equals(result)){
+            Toast.makeText(Aty_Company.this, info, Toast.LENGTH_SHORT).show();
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                srl.setRefreshing(false);
-            }
-        }, 1000);
     }
 
-    /**
-     * 显示或隐藏旋转进度条
-     *
-     * @param which show代表显示, dismiss代表隐藏
-     */
-    public static void changeLoadingState(Context context, String which) {
-        if (dialog == null) {
-            dialog = new Dialog(context, R.style.dialog);
-            dialog.setContentView(R.layout.dialog_rotate_loading);
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(false);
-
-            rl = (RotateLoading) dialog.findViewById(R.id.rl_dialog);
+    @Override
+    public void onGetJoinedCompanyResult(String result, String info) {
+        if(Constants.SUCCESS.equals(result)){
+            lv_joinedCompany.setAdapter(new Adpt_JoinedCompany(Aty_Company.this, info));
+            UtilBox.setListViewHeightBasedOnChildren(lv_joinedCompany);
+        } else if (Constants.FAILED.equals(result)){
+            Toast.makeText(Aty_Company.this, info, Toast.LENGTH_SHORT).show();
         }
+    }
 
-        if ("show".equals(which)) {
-            ((Activity)context).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    dialog.show();
-                    rl.start();
-                }
-            });
-        } else if ("dismiss".equals(which)) {
-            ((Activity)context).runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    rl.stop();
-                    dialog.dismiss();
-                }
-            });
+    @Override
+    public void onSetSwipeRefreshVisibility(int visibility) {
+        if(visibility == Constants.VISIBLE){
+            srl.setRefreshing(true);
+        } else if (visibility == Constants.INVISIBLE){
+            srl.setRefreshing(false);
         }
     }
 
@@ -375,17 +277,5 @@ public class Aty_Company extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }

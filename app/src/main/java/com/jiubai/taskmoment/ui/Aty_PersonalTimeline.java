@@ -1,5 +1,6 @@
 package com.jiubai.taskmoment.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,8 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,6 +35,7 @@ import com.alibaba.sdk.android.media.upload.UploadListener;
 import com.alibaba.sdk.android.media.upload.UploadTask;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.BaseActivity;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.Adpt_Member;
 import com.jiubai.taskmoment.adapter.Adpt_PersonalTimeline;
@@ -46,17 +46,16 @@ import com.jiubai.taskmoment.classes.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.customview.BorderScrollView;
+import com.jiubai.taskmoment.customview.SlidingLayout;
 import com.jiubai.taskmoment.net.BaseUploadListener;
 import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.other.UtilBox;
 import com.jiubai.taskmoment.receiver.Receiver_UpdateView;
-import com.jiubai.taskmoment.view.BorderScrollView;
-import com.jiubai.taskmoment.view.SlidingLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +71,7 @@ import butterknife.OnClick;
 /**
  * 个人情况
  */
-public class Aty_PersonalTimeline extends AppCompatActivity {
+public class Aty_PersonalTimeline extends BaseActivity {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
@@ -150,6 +149,7 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     /**
      * 初始化组件
      */
+    @SuppressLint("InflateParams")
     private void initView() {
 
         if (!"null".equals(name) && !"".equals(name)) {
@@ -808,20 +808,6 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK
-                && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-            finish();
-            overridePendingTransition(R.anim.scale_stay,
-                    R.anim.out_left_right);
-            return true;
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
     protected void onStart() {
         deleteTaskReceiver = new Receiver_UpdateView(this,
                 new Receiver_UpdateView.UpdateCallBack() {
@@ -895,17 +881,5 @@ public class Aty_PersonalTimeline extends AppCompatActivity {
         unregisterReceiver(portraitReceiver);
 
         super.onDestroy();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        MobclickAgent.onResume(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        MobclickAgent.onPause(this);
     }
 }
