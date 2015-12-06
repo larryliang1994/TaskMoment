@@ -44,7 +44,6 @@ public class TimelineAdapter extends BaseAdapter {
     public CommentAdapter commentAdapter;
     private Context context;
     private IUploadImagePresenter uploadImagePresenter;
-    private String executor = null, supervisor = null, auditor = null;
 
     public TimelineAdapter(Context context, boolean isRefresh,
                            String response, IUploadImagePresenter uploadImagePresenter) {
@@ -238,17 +237,41 @@ public class TimelineAdapter extends BaseAdapter {
         }
 
         // 设置执行者、监督者、审核者
-        setESA(task);
-        if (executor != null) {
-            holder.tv_executor.setText(context.getResources().getString(R.string._executor) + executor);
-        }
+        for (int i = 1; i < MemberAdapter.memberList.size() - 1; i++) {
+            Member member = MemberAdapter.memberList.get(i);
 
-        if (supervisor != null) {
-            holder.tv_supervisor.setText(context.getResources().getString(R.string._supervisor) + supervisor);
-        }
+            if (task.getExecutor().equals(member.getMid())) {
+                String executor;
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    executor = member.getName();
+                } else {
+                    executor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+                holder.tv_executor.setText(context.getResources().getString(R.string._executor) + executor);
+            }
 
-        if (auditor != null) {
-            holder.tv_auditor.setText(context.getResources().getString(R.string._auditor) + auditor);
+            if (task.getSupervisor().equals(member.getMid())) {
+                String supervisor;
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    supervisor = member.getName();
+                } else {
+                    supervisor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+                holder.tv_supervisor.setText(context.getResources().getString(R.string._supervisor) + supervisor);
+            }
+
+            if (task.getAuditor().equals(member.getMid())) {
+                String auditor;
+                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+                    auditor = member.getName();
+                } else {
+                    auditor = member.getMobile().substring(0, 3)
+                            + "****" + member.getMobile().substring(7);
+                }
+                holder.tv_auditor.setText(context.getResources().getString(R.string._auditor) + auditor);
+            }
         }
 
         holder.tv_deadline.setText(context.getResources().getString(R.string._deadline)
@@ -291,50 +314,50 @@ public class TimelineAdapter extends BaseAdapter {
         return convertView;
     }
 
-    /**
-     * 设置执行者，监督者，审核者
-     */
-    private void setESA(Task task) {
-        String executorID = task.getExecutor();
-        String supervisorID = task.getSupervisor();
-        String auditorID = task.getAuditor();
-
-        // TODO 这里应该可以更高效
-        for (int i = 1; i < MemberAdapter.memberList.size() - 1; i++) {
-            Member member = MemberAdapter.memberList.get(i);
-
-            if (executorID.equals(member.getMid())) {
-                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-                    executor = member.getName();
-                } else {
-                    executor = member.getMobile().substring(0, 3)
-                            + "****" + member.getMobile().substring(7);
-                }
-            }
-
-            if (supervisorID.equals(member.getMid())) {
-                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-                    supervisor = member.getName();
-                } else {
-                    supervisor = member.getMobile().substring(0, 3)
-                            + "****" + member.getMobile().substring(7);
-                }
-            }
-
-            if (auditorID.equals(member.getMid())) {
-                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-                    auditor = member.getName();
-                } else {
-                    auditor = member.getMobile().substring(0, 3)
-                            + "****" + member.getMobile().substring(7);
-                }
-            }
-
-            if (executor != null && supervisor != null && auditor != null) {
-                break;
-            }
-        }
-    }
+//    /**
+//     * 设置执行者，监督者，审核者
+//     */
+//    private void setESA(Task task) {
+//        String executorID = task.getExecutor();
+//        String supervisorID = task.getSupervisor();
+//        String auditorID = task.getAuditor();
+//
+//        // TODO 这里应该可以更高效
+//        for (int i = 1; i < MemberAdapter.memberList.size() - 1; i++) {
+//            Member member = MemberAdapter.memberList.get(i);
+//
+//            if (executorID.equals(member.getMid())) {
+//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+//                    executor = member.getName();
+//                } else {
+//                    executor = member.getMobile().substring(0, 3)
+//                            + "****" + member.getMobile().substring(7);
+//                }
+//            }
+//
+//            if (supervisorID.equals(member.getMid())) {
+//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+//                    supervisor = member.getName();
+//                } else {
+//                    supervisor = member.getMobile().substring(0, 3)
+//                            + "****" + member.getMobile().substring(7);
+//                }
+//            }
+//
+//            if (auditorID.equals(member.getMid())) {
+//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
+//                    auditor = member.getName();
+//                } else {
+//                    auditor = member.getMobile().substring(0, 3)
+//                            + "****" + member.getMobile().substring(7);
+//                }
+//            }
+//
+//            if (executor != null && supervisor != null && auditor != null) {
+//                break;
+//            }
+//        }
+//    }
 
     /**
      * 设置任务等级的颜色

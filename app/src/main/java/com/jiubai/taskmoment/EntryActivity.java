@@ -106,7 +106,8 @@ public class EntryActivity extends Activity {
                 if (Config.COOKIE == null) {
                     startActivity(new Intent(EntryActivity.this, LoginActivity.class));
                     finish();
-                    overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
+                    overridePendingTransition(R.anim.zoom_in_scale,
+                            R.anim.zoom_out_scale);
                 } else if (Config.CID == null) {
                     if (!Config.IS_CONNECTED) {
                         changeLoadingState("dismiss");
@@ -128,7 +129,8 @@ public class EntryActivity extends Activity {
 
                                 startActivity(new Intent(EntryActivity.this, CompanyActivity.class));
                                 finish();
-                                overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
+                                overridePendingTransition(R.anim.zoom_in_scale,
+                                        R.anim.zoom_out_scale);
 
                                 Looper.loop();
                             }
