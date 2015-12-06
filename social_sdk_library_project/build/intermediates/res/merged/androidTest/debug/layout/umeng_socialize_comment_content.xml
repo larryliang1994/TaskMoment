@@ -74,4 +74,4 @@
         android:layout_marginTop="23dp"
         android:src="@drawable/umeng_socialize_location_ic"/>
     
-</RelativeLayout><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_comment_content.xml --><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/build/intermediates/bundles/debug/res/layout/umeng_socialize_comment_content.xml -->
+</RelativeLayout>

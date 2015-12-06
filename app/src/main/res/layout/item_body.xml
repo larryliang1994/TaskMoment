@@ -6,7 +6,7 @@
     android:animateLayoutChanges="true"
     android:orientation="vertical">
 
-    <com.jiubai.taskmoment.customview.RippleView
+    <com.jiubai.taskmoment.widget.RippleView
         android:id="@+id/rv_item_body"
         android:layout_width="match_parent"
         android:layout_height="51dp"
@@ -58,5 +58,5 @@
                 android:layout_marginRight="14dp"
                 android:background="@color/divider" />
         </LinearLayout>
-    </com.jiubai.taskmoment.customview.RippleView>
+    </com.jiubai.taskmoment.widget.RippleView>
 </LinearLayout>

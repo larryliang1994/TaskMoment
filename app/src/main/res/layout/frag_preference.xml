@@ -20,7 +20,7 @@
             android:text="功能"
             android:textColor="#009688" />
 
-        <com.jiubai.taskmoment.customview.RippleView
+        <com.jiubai.taskmoment.widget.RippleView
             android:id="@+id/rv_companyInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-        </com.jiubai.taskmoment.customview.RippleView>
+        </com.jiubai.taskmoment.widget.RippleView>
 
         <TextView
             android:layout_width="wrap_content"
@@ -58,7 +58,7 @@
             android:text="其他"
             android:textColor="#009688" />
 
-        <com.jiubai.taskmoment.customview.RippleView
+        <com.jiubai.taskmoment.widget.RippleView
             android:id="@+id/rv_share"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,9 +86,9 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-        </com.jiubai.taskmoment.customview.RippleView>
+        </com.jiubai.taskmoment.widget.RippleView>
 
-        <com.jiubai.taskmoment.customview.RippleView
+        <com.jiubai.taskmoment.widget.RippleView
             android:id="@+id/rv_feedback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -116,9 +116,9 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-        </com.jiubai.taskmoment.customview.RippleView>
+        </com.jiubai.taskmoment.widget.RippleView>
 
-        <com.jiubai.taskmoment.customview.RippleView
+        <com.jiubai.taskmoment.widget.RippleView
             android:id="@+id/rv_update"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -146,9 +146,9 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-        </com.jiubai.taskmoment.customview.RippleView>
+        </com.jiubai.taskmoment.widget.RippleView>
 
-        <com.jiubai.taskmoment.customview.RippleView
+        <com.jiubai.taskmoment.widget.RippleView
             android:id="@+id/rv_about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-        </com.jiubai.taskmoment.customview.RippleView>
+        </com.jiubai.taskmoment.widget.RippleView>
 
     </LinearLayout>
 </ScrollView>

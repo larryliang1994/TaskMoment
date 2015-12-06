@@ -6,7 +6,7 @@
     android:animateLayoutChanges="true"
     android:orientation="horizontal">
 
-    <com.jiubai.taskmoment.customview.RippleView
+    <com.jiubai.taskmoment.widget.RippleView
         android:id="@+id/rv_item_news"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,5 +82,5 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/portrait_default" />
         </LinearLayout>
-    </com.jiubai.taskmoment.customview.RippleView>
+    </com.jiubai.taskmoment.widget.RippleView>
 </LinearLayout>

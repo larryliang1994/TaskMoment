@@ -2,15 +2,15 @@ package com.jiubai.taskmoment.presenter;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.jiubai.taskmoment.classes.Comment;
-import com.jiubai.taskmoment.classes.News;
-import com.jiubai.taskmoment.classes.Task;
+import com.jiubai.taskmoment.bean.Comment;
+import com.jiubai.taskmoment.bean.News;
+import com.jiubai.taskmoment.bean.Task;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.ITimelineView;
+import com.jiubai.taskmoment.common.UtilBox;
+import com.jiubai.taskmoment.view.iview.ITimelineView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +31,17 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
     @Override
     public void doPullTimeline(String request_time, final String type) {
+        doPullTimeline(request_time, type, "", "", "");
+    }
+
+    @Override
+    public void doPullTimeline(String request_time, final String type, String mid, String isAudit, String isInvolved) {
         if ("refresh".equals(type)) {
             iTimelineView.onSetSwipeRefreshVisibility(Constants.VISIBLE);
         }
 
-        String[] key = {"len", "cid", "create_time"};
-        String[] value = {"2", Config.CID, request_time};
+        String[] key = {"len", "cid", "create_time", "mid", "shenhe", "canyu"};
+        String[] value = {"2", Config.CID, request_time, mid, isAudit, isInvolved};
 
         VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
                 new Response.Listener<String>() {
@@ -51,11 +56,10 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
                             if (Constants.SUCCESS.equals(responseStatus)) {
 
-                                iTimelineView.onPullTimelineResult(900001, type, response);
+                                iTimelineView.onPullTimelineResult(Constants.SUCCESS, type, response);
 
                             } else {
-                                iTimelineView.onPullTimelineResult(
-                                        Integer.valueOf(responseStatus), type,
+                                iTimelineView.onPullTimelineResult(responseStatus, type,
                                         responseJson.getString("info"));
                             }
                         } catch (JSONException e) {
@@ -66,8 +70,7 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-
-                        iTimelineView.onPullTimelineResult(0, type, "刷新失败，请重试");
+                        iTimelineView.onPullTimelineResult(Constants.FAILED, type, "刷新失败，请重试");
                     }
                 }
 
@@ -127,7 +130,8 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
 
         return new Task(id, portraitUrl, nickname, mid, grade, desc,
                 executor, supervisor, auditor,
-                pictures, comments, deadline, publish_time, create_time, audit_result);
+                pictures, comments, deadline, publish_time, create_time,
+                audit_result, Task.SUCCESS);
     }
 
     /**

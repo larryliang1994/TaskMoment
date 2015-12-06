@@ -37,6 +37,7 @@ public class Constants {
     public static final String ACTION_CHANGE_PORTRAIT = "com.jiubai.action.change_portrait";
     public static final String ACTION_DELETE_TASK = "com.jiubai.action.delete_task";
     public static final String ACTION_SEND_COMMENT = "com.jiubai.action.send_comment";
+    public static final String ACTION_AUDIT = "com.jiubai.action.audit";
     public static final String ACTION_CHANGE_BACKGROUND = "com.jiubai.action.change_background";
 
     public static final String TEMP_FILE_LOCATION = "file:///"
@@ -53,10 +54,17 @@ public class Constants {
     public static final String APP_KEY_REN = "1";
     public static final String APP_SECRET_REN = "1";
 
+    public static final int IMAGETYPE_BACKGROUND = 0;
+    public static final int IMAGETYPE_TASK = 1;
+    public static final int IMAGETYPE_PORTRAIT = 2;
+
     public static final int VISIBLE = 1;
     public static final int INVISIBLE = 0;
 
+    public static final String[] AUDIT_RESULT = {"", "", "完美解决", "普通完成", "任务失败"};
+
     public static final String SUCCESS = "900001";
+    public static final String NOMORE = "900900";
     public static final String FAILED = "-1";
     public static final String EXPIRE = "2";
 

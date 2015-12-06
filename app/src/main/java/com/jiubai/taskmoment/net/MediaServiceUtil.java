@@ -9,7 +9,7 @@ import com.alibaba.sdk.android.media.MediaService;
 import com.alibaba.sdk.android.media.upload.UploadListener;
 import com.alibaba.sdk.android.media.upload.UploadOptions;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.other.UtilBox;
+import com.jiubai.taskmoment.common.UtilBox;
 
 /**
  * 阿里巴巴图片上传工具

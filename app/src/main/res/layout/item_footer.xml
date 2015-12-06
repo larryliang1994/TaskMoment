@@ -7,7 +7,7 @@
     android:gravity="right"
     android:orientation="horizontal">
 
-    <com.jiubai.taskmoment.customview.RippleView
+    <com.jiubai.taskmoment.widget.RippleView
         android:id="@+id/rv_item_footer"
         android:layout_width="match_parent"
         android:layout_height="51dp"
@@ -41,5 +41,5 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/right" />
         </LinearLayout>
-    </com.jiubai.taskmoment.customview.RippleView>
+    </com.jiubai.taskmoment.widget.RippleView>
 </LinearLayout>

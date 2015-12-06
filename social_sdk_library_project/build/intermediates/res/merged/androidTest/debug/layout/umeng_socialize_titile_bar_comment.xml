@@ -85,4 +85,4 @@
 	<TextView 
 	    style="@style/umeng_socialize_divider"
 	    android:layout_alignParentBottom="true"/>
-</RelativeLayout><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_titile_bar_comment.xml --><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/build/intermediates/bundles/debug/res/layout/umeng_socialize_titile_bar_comment.xml -->
+</RelativeLayout>

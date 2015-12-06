@@ -39,4 +39,4 @@
             android:paddingRight="4dp"
             android:textSize="13sp" />
     </RelativeLayout>
-</LinearLayout><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_at_item.xml -->
+</LinearLayout>

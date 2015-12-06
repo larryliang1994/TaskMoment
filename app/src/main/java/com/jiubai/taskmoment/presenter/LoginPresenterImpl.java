@@ -1,32 +1,29 @@
 package com.jiubai.taskmoment.presenter;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.App;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.SoapUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.view.ILoginView;
+import com.jiubai.taskmoment.view.iview.ILoginView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * Created by howell on 2015/11/28.
- * <p/>
  * LoginPresenter实现类
  */
 public class LoginPresenterImpl implements ILoginPresenter {
     private ILoginView iLoginView;
-    private Context context;
 
-    public LoginPresenterImpl(Context context, ILoginView iLoginView) {
-        this.context = context;
+    public LoginPresenterImpl(ILoginView iLoginView) {
         this.iLoginView = iLoginView;
     }
 
@@ -99,8 +96,7 @@ public class LoginPresenterImpl implements ILoginPresenter {
         SoapUtil.extendCookieLifeTime(cookie);
 
         // 保存cookie
-        SharedPreferences sp = context.getSharedPreferences(Constants.SP_FILENAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
+        SharedPreferences.Editor editor = App.sp.edit();
         if (Config.COOKIE != null) {
             editor.putString(Constants.SP_KEY_COOKIE, Config.COOKIE);
             editor.putString(Constants.SP_KEY_MID, Config.MID);

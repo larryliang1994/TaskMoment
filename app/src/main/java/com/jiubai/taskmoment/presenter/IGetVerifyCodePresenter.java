@@ -6,5 +6,4 @@ package com.jiubai.taskmoment.presenter;
  */
 public interface IGetVerifyCodePresenter {
     void doGetVerifyCode(String phoneNum);
-    void onSetRotateLoadingVisibility(int visibility);
 }

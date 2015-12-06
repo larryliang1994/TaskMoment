@@ -23,4 +23,4 @@
         android:src="@drawable/umeng_socialize_checked"
         android:visibility="invisible" />
 
-</RelativeLayout><!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_post_comment_platform.xml -->
+</RelativeLayout>

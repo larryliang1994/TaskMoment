@@ -5,12 +5,12 @@ import android.content.Intent;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.jiubai.taskmoment.classes.Comment;
+import com.jiubai.taskmoment.bean.Comment;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.view.ICommentView;
+import com.jiubai.taskmoment.view.iview.ICommentView;
 
 import org.json.JSONException;
 import org.json.JSONObject;

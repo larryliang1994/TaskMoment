@@ -7,8 +7,8 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.other.UtilBox;
-import com.jiubai.taskmoment.view.IGetVerifyCodeView;
+import com.jiubai.taskmoment.common.UtilBox;
+import com.jiubai.taskmoment.view.iview.IGetVerifyCodeView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,10 +72,5 @@ public class GetVerifyCodePresenterImpl implements IGetVerifyCodePresenter {
                         });
             }
         });
-    }
-
-    @Override
-    public void onSetRotateLoadingVisibility(int visibility) {
-        iGetVerifyCodeView.onSetRotateLoadingVisibility(visibility);
     }
 }

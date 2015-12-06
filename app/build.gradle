@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 14
-        versionName "0.8.2.3"
+        versionCode 16
+        versionName "0.8.2.6"
     }
 
     signingConfigs {
@@ -50,6 +50,7 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+        maven {url "https://clojars.org/repo/"}
     }
 }
 
@@ -58,13 +59,6 @@ dependencies {
     compile project(':MediaSDK')
     compile project(':multi-image-selector')
     compile project(':social_sdk_library_project')
-    compile 'me.drakeet.materialdialog:library:1.2.2'
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'de.hdodenhof:circleimageview:2.0.0'
-    compile 'com.umeng.analytics:analytics:latest.integration'
-    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:appcompat-v7:23.1.1'
     compile files('src/main/jniLibs/butterknife-7.0.1.jar')
     compile files('src/main/jniLibs/ksoap2-android-assembly-2.5.2-jar-with-dependencies.jar')
     compile files('src/main/jniLibs/oss-0.2.2-javadoc.jar')
@@ -76,4 +70,11 @@ dependencies {
     compile files('src/main/jniLibs/easyandroidanimationslibrary-v0.5.jar')
     compile files('src/main/jniLibs/com.umeng.message.lib_v2.5.0.jar')
     compile files('src/main/jniLibs/umeng-update-v2.6.0.1.jar')
+    compile 'me.drakeet.materialdialog:library:1.2.2'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'com.umeng.analytics:analytics:latest.integration'
+    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
 }

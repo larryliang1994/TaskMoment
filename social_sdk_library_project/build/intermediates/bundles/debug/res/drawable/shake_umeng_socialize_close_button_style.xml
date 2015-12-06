@@ -3,4 +3,3 @@
 	<item android:state_pressed="true" android:drawable="@drawable/shake_umeng_socialize_close_pressed" />
 	<item android:drawable="@drawable/shake_umeng_socialize_close" />
 </selector>
-<!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/social_sdk_library_project/res/drawable/shake_umeng_socialize_close_button_style.xml -->

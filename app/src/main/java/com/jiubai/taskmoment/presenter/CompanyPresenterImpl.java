@@ -1,17 +1,16 @@
 package com.jiubai.taskmoment.presenter;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.jiubai.taskmoment.App;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.view.ICompanyView;
+import com.jiubai.taskmoment.view.iview.ICompanyView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,12 +19,10 @@ import org.json.JSONObject;
  * Created by howell on 2015/11/29.
  * CompanyPresenter实现类
  */
-public class CompanyPresenterImpl implements ICompanyPresenter{
+public class CompanyPresenterImpl implements ICompanyPresenter {
     private ICompanyView iCompanyView;
-    private Context context;
 
-    public CompanyPresenterImpl(Context context, ICompanyView iCompanyView) {
-        this.context = context;
+    public CompanyPresenterImpl(ICompanyView iCompanyView) {
         this.iCompanyView = iCompanyView;
     }
 
@@ -41,13 +38,11 @@ public class CompanyPresenterImpl implements ICompanyPresenter{
 
                         try {
                             JSONObject responseJson = new JSONObject(response);
-                            if(Constants.SUCCESS.equals(responseJson.getString("status"))){
+                            if (Constants.SUCCESS.equals(responseJson.getString("status"))) {
                                 iCompanyView.onGetMyCompanyResult(Constants.SUCCESS, response);
                             } else {
                                 // cookie有误，清空cookie
-                                SharedPreferences sp = context.getSharedPreferences(
-                                        Constants.SP_FILENAME, Activity.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sp.edit();
+                                SharedPreferences.Editor editor = App.sp.edit();
                                 editor.remove(Constants.SP_KEY_COOKIE);
                                 editor.apply();
 
@@ -95,7 +90,7 @@ public class CompanyPresenterImpl implements ICompanyPresenter{
                     public void onResponse(String response) {
                         try {
                             JSONObject responseJson = new JSONObject(response);
-                            if(Constants.SUCCESS.equals(responseJson.getString("status"))){
+                            if (Constants.SUCCESS.equals(responseJson.getString("status"))) {
                                 iCompanyView.onGetJoinedCompanyResult(Constants.SUCCESS, response);
 
                                 new Handler().postDelayed(new Runnable() {

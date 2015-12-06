@@ -8,6 +8,10 @@ import org.json.JSONException;
  */
 public interface ITimelinePresenter {
     void doPullTimeline(String request_time, String type);
+
+    void doPullTimeline(String request_time, String type, String mid, String isAudit, String isInvolved);
+
     void doGetNews(String msg) throws JSONException;
+
     void onSetSwipeRefreshVisibility(int visibility);
 }

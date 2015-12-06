@@ -1,11 +1,14 @@
 package com.jiubai.taskmoment.presenter;
 
+import android.content.Context;
+import android.content.Intent;
+
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
-import com.jiubai.taskmoment.view.IAuditView;
+import com.jiubai.taskmoment.view.iview.IAuditView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,13 +19,15 @@ import org.json.JSONObject;
  */
 public class AuditPresenterImpl implements IAuditPresenter {
     private IAuditView iAuditView;
+    private Context context;
 
-    public AuditPresenterImpl(IAuditView iAuditView) {
+    public AuditPresenterImpl(Context context, IAuditView iAuditView) {
+        this.context = context;
         this.iAuditView = iAuditView;
     }
 
     @Override
-    public void doAudit(String taskID, String audit_result) {
+    public void doAudit(final String taskID, final String audit_result) {
         String[] key = {"id", "level"};
         String[] value = {taskID, audit_result};
 
@@ -36,6 +41,12 @@ public class AuditPresenterImpl implements IAuditPresenter {
                             iAuditView.onAuditResult(
                                     responseJson.getString("status"),
                                     responseJson.getString("info"));
+
+                            // 发送广播
+                            Intent intent = new Intent(Constants.ACTION_AUDIT);
+                            intent.putExtra("taskID", taskID);
+                            intent.putExtra("auditResult", audit_result);
+                            context.sendBroadcast(intent);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
