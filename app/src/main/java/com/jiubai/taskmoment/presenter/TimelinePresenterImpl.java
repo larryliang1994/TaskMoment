@@ -41,7 +41,7 @@ public class TimelinePresenterImpl implements ITimelinePresenter {
         }
 
         String[] key = {"len", "cid", "create_time", "mid", "shenhe", "canyu"};
-        String[] value = {"2", Config.CID, request_time, mid, isAudit, isInvolved};
+        String[] value = {"8", Config.CID, request_time, mid, isAudit, isInvolved};
 
         VolleyUtil.requestWithCookie(Urls.GET_TASK_LIST, key, value,
                 new Response.Listener<String>() {

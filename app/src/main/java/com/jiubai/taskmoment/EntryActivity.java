@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -108,34 +107,6 @@ public class EntryActivity extends Activity {
                     finish();
                     overridePendingTransition(R.anim.zoom_in_scale,
                             R.anim.zoom_out_scale);
-                } else if (Config.CID == null) {
-                    if (!Config.IS_CONNECTED) {
-                        changeLoadingState("dismiss");
-                        ll_no_network.setVisibility(View.VISIBLE);
-
-                        Toast.makeText(EntryActivity.this,
-                                R.string.cant_access_network,
-                                Toast.LENGTH_SHORT).show();
-                    } else {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-
-                                // 获取用户信息
-                                getUserInfo();
-
-                                changeLoadingState("dismiss");
-
-                                startActivity(new Intent(EntryActivity.this, CompanyActivity.class));
-                                finish();
-                                overridePendingTransition(R.anim.zoom_in_scale,
-                                        R.anim.zoom_out_scale);
-
-                                Looper.loop();
-                            }
-                        }).start();
-                    }
                 } else {
                     if (!Config.IS_CONNECTED) {
                         changeLoadingState("dismiss");
@@ -145,24 +116,8 @@ public class EntryActivity extends Activity {
                                 R.string.cant_access_network,
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Looper.prepare();
-
-                                // 获取用户信息
-                                getUserInfo();
-
-                                changeLoadingState("dismiss");
-
-                                startActivity(new Intent(EntryActivity.this, MainActivity.class));
-                                finish();
-                                overridePendingTransition(R.anim.zoom_in_scale,
-                                        R.anim.zoom_out_scale);
-
-                                Looper.loop();
-                            }
-                        }).start();
+                        // 获取用户信息
+                        getUserInfo();
                     }
                 }
             }
@@ -205,6 +160,8 @@ public class EntryActivity extends Activity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        changeLoadingState("dismiss");
+
                         try {
                             JSONObject object = new JSONObject(response);
 
@@ -220,7 +177,19 @@ public class EntryActivity extends Activity {
                                 editor.putString(Constants.SP_KEY_NICKNAME, Config.NICKNAME);
                                 editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
                                 editor.apply();
+
+                                if (Config.CID == null) {
+                                    startActivity(new Intent(EntryActivity.this, CompanyActivity.class));
+                                } else {
+                                    startActivity(new Intent(EntryActivity.this, MainActivity.class));
+                                }
+
+                                finish();
+                                overridePendingTransition(R.anim.zoom_in_scale,
+                                        R.anim.zoom_out_scale);
                             } else {
+                                ll_no_network.setVisibility(View.VISIBLE);
+
                                 Toast.makeText(EntryActivity.this,
                                         object.getString("info"),
                                         Toast.LENGTH_SHORT).show();
@@ -233,6 +202,10 @@ public class EntryActivity extends Activity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
+                        ll_no_network.setVisibility(View.VISIBLE);
+
+                        changeLoadingState("dismiss");
+
                         Toast.makeText(EntryActivity.this,
                                 "获取用户信息失败，请重试",
                                 Toast.LENGTH_SHORT).show();

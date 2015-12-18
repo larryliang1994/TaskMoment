@@ -83,7 +83,7 @@ public class App extends Application {
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                .tasksProcessingOrder(QueueProcessingType.LIFO).build();
+                .tasksProcessingOrder(QueueProcessingType.FIFO).build();
         ImageLoader.getInstance().init(config);
     }
 

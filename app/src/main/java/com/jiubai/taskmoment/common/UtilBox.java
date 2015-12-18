@@ -451,7 +451,7 @@ public class UtilBox {
      * @return 缩略图文件名
      */
     public static String getThumbnailImageName(String url, int width, int height) {
-        return url + "@" + width + "w_" + height + "h_100Q";
+        return url + "@" + width + "w_" + height + "h_50Q";
     }
 
     /**

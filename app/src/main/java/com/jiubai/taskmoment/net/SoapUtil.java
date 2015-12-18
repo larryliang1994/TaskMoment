@@ -39,7 +39,7 @@ public class SoapUtil {
         transport.debug = true;
 
         try {
-            transport.call(Urls.SOAP_TARGET + "soap_server", envelope);
+            transport.call(Urls.SOAP_TARGET + "&soap_server=1", envelope);
 
             if (envelope.getResponse() != null) {
                 return envelope.getResponse().toString();
@@ -57,6 +57,8 @@ public class SoapUtil {
      * @param cookie 默认的只有10分钟寿命的cookie
      */
     public static void extendCookieLifeTime(String cookie) {
+        Config.COOKIE = cookie;
+
         String[] decodeKey = {"string", "operation"};
         String[] decodeValue = {cookie, "DECODE"};
         String urlString = getUrlBySoap("authcode", decodeKey, decodeValue);
@@ -70,8 +72,8 @@ public class SoapUtil {
             e.printStackTrace();
         }
 
-        String[] encodeKey = {"string", "operation", "p1", "p2"};
-        String[] encodeValue = {urlString, "ENCODE", "jbw", "40000000"};
-        Config.COOKIE = getUrlBySoap("authcode", encodeKey, encodeValue);
+//        String[] encodeKey = {"string", "operation", "p1", "p2"};
+//        String[] encodeValue = {urlString, "ENCODE", "jbw", "40000000"};
+//        Config.COOKIE = getUrlBySoap("authcode", encodeKey, encodeValue);
     }
 }

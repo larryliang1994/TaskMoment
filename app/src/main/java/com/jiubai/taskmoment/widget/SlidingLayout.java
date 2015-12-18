@@ -123,6 +123,4 @@ public class SlidingLayout extends FrameLayout {
             View.ROTATION.set(view,MAX_ANGLE*offSet);
         }
     }
-
-
 }

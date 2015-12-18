@@ -50,7 +50,7 @@ public class VolleyUtil {
 
                 // 构建Post请求对象
                 StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                        Urls.SERVER_URL + "/act/ajax.php?a=" + soapUrl,
+                        Urls.SERVER_URL + "/act/ajax.php?a=" + soapUrl + "&is_app=1",
                         successCallback, errorCallback) {
                     @Override
                     protected Map<String, String> getParams() throws AuthFailureError {

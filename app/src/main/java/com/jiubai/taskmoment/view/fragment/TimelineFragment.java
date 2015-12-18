@@ -295,6 +295,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                timelinePresenter.onSetSwipeRefreshVisibility(Constants.VISIBLE);
                 refreshTimeline("refresh",
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() / 1000 + "");
             }
@@ -792,29 +793,38 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-
-                        lv.setAdapter(adapter);
-                        UtilBox.setListViewHeightBasedOnChildren(lv);
-
-                        if ("refresh".equals(type)) {
-                            timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
-
-                            int svHeight = sv.getHeight();
-
-                            int lvHeight = lv.getLayoutParams().height;
-
-                            // 312是除去上部其他组件高度后的剩余空间，
-                            int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
-                            if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
-                                    && lv.getFooterViewsCount() == 0) {
-                                lv.addFooterView(footerView);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (lv.getAdapter() == null) {
+                                    lv.setAdapter(adapter);
+                                } else {
+                                    adapter.notifyDataSetChanged();
+                                }
                                 UtilBox.setListViewHeightBasedOnChildren(lv);
+
+                                if ("refresh".equals(type)) {
+                                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+
+                                    int svHeight = sv.getHeight();
+
+                                    int lvHeight = lv.getLayoutParams().height;
+
+                                    // 312是除去上部其他组件高度后的剩余空间，
+                                    int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
+                                    if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
+                                            && lv.getFooterViewsCount() == 0) {
+                                        lv.addFooterView(footerView);
+                                        UtilBox.setListViewHeightBasedOnChildren(lv);
+                                    }
+                                } else {
+                                    isBottomRefreshing = false;
+                                }
                             }
-                        } else {
-                            isBottomRefreshing = false;
-                        }
+                        });
                     }
-                }, 1000);
+                }, 500);
+
                 break;
 
             case Constants.NOMORE:
@@ -871,7 +881,12 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         if (Constants.VISIBLE == visibility) {
             srl.setRefreshing(true);
         } else if (Constants.INVISIBLE == visibility) {
-            srl.setRefreshing(false);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    srl.setRefreshing(false);
+                }
+            }, 1000);
         }
     }
 
@@ -905,8 +920,8 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                 break;
 
             case Constants.FAILED:
-                for(int i = 0; i < adapter.getCount(); i++){
-                    if(TimelineAdapter.taskList.get(i).getId().equals(taskID)){
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    if (TimelineAdapter.taskList.get(i).getId().equals(taskID)) {
                         TimelineAdapter.taskList.get(i).setSendState(Task.FAILED);
                         adapter.notifyDataSetChanged();
                         break;
@@ -937,10 +952,10 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
 
     @Override
     public void onUpdateTaskResult(String result, String info) {
-        switch (result){
+        switch (result) {
             case Constants.SUCCESS:
-                for(int i = 0; i < adapter.getCount(); i++){
-                    if(TimelineAdapter.taskList.get(i).getId().equals(taskID)){
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    if (TimelineAdapter.taskList.get(i).getId().equals(taskID)) {
                         TimelineAdapter.taskList.get(i).setSendState(Task.SUCCESS);
                         adapter.notifyDataSetChanged();
                         break;
@@ -949,8 +964,8 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                 break;
 
             default:
-                for(int i = 0; i < adapter.getCount(); i++){
-                    if(TimelineAdapter.taskList.get(i).getId().equals(taskID)){
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    if (TimelineAdapter.taskList.get(i).getId().equals(taskID)) {
                         TimelineAdapter.taskList.get(i).setSendState(Task.FAILED);
                         adapter.notifyDataSetChanged();
                         break;

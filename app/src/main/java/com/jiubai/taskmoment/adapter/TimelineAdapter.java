@@ -314,51 +314,6 @@ public class TimelineAdapter extends BaseAdapter {
         return convertView;
     }
 
-//    /**
-//     * 设置执行者，监督者，审核者
-//     */
-//    private void setESA(Task task) {
-//        String executorID = task.getExecutor();
-//        String supervisorID = task.getSupervisor();
-//        String auditorID = task.getAuditor();
-//
-//        // TODO 这里应该可以更高效
-//        for (int i = 1; i < MemberAdapter.memberList.size() - 1; i++) {
-//            Member member = MemberAdapter.memberList.get(i);
-//
-//            if (executorID.equals(member.getMid())) {
-//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-//                    executor = member.getName();
-//                } else {
-//                    executor = member.getMobile().substring(0, 3)
-//                            + "****" + member.getMobile().substring(7);
-//                }
-//            }
-//
-//            if (supervisorID.equals(member.getMid())) {
-//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-//                    supervisor = member.getName();
-//                } else {
-//                    supervisor = member.getMobile().substring(0, 3)
-//                            + "****" + member.getMobile().substring(7);
-//                }
-//            }
-//
-//            if (auditorID.equals(member.getMid())) {
-//                if (!"null".equals(member.getName()) && !"".equals(member.getName())) {
-//                    auditor = member.getName();
-//                } else {
-//                    auditor = member.getMobile().substring(0, 3)
-//                            + "****" + member.getMobile().substring(7);
-//                }
-//            }
-//
-//            if (executor != null && supervisor != null && auditor != null) {
-//                break;
-//            }
-//        }
-//    }
-
     /**
      * 设置任务等级的颜色
      *
