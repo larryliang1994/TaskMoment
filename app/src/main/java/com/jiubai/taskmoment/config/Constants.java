@@ -68,5 +68,9 @@ public class Constants {
     public static final String FAILED = "-1";
     public static final String EXPIRE = "2";
 
+    public static final int LOAD_NUM = 8;
+
     public static final int REQUEST_TIMEOUT = 10000;
+
+    public static final String SHARE_TEXT = "任务圈 http://adm.jiubaiwang.cn/WebSite/20055/uploadfile/webeditor2/android/TaskMoment.apk";
 }

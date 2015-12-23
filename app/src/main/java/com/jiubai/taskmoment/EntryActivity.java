@@ -126,6 +126,7 @@ public class EntryActivity extends Activity {
 
     @OnClick(R.id.btn_reconnect)
     public void onClick(View v) {
+        new App().initService();
         getStart();
         changeLoadingState("show");
     }

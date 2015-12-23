@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:animateLayoutChanges="true">
+
+        <ImageView
+            android:id="@+id/iv_companyBackground"
+            android:layout_width="match_parent"
+            android:layout_height="270dp"
+            android:background="#eeeeee"
+            android:scaleType="centerCrop"
+            android:src="@drawable/background_default" />
+
+        <ImageView
+            android:id="@+id/iv_portrait"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="12dp"
+            android:background="@drawable/rectangle"
+            android:padding="1.5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/portrait_default"
+            tools:ignore="RtlHardcoded" />
+
+        <TextView
+            android:id="@+id/tv_timeline_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp"
+            android:layout_marginRight="12dp"
+            android:layout_toLeftOf="@id/iv_portrait"
+            android:shadowColor="#000000"
+            android:shadowRadius="3"
+            android:text="@string/nickname"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            tools:ignore="RtlHardcoded" />
+
+        <TextView
+            android:id="@+id/tv_add_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="135dp"
+            android:gravity="center_horizontal"
+            android:text="@string/add_company_background"
+            android:textColor="#ffffff"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_news"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/round_button_grade"
+        android:orientation="horizontal"
+        android:padding="7dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_news_portrait"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/portrait_default" />
+
+        <TextView
+            android:id="@+id/tv_news_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_news"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="8dp"
+            android:text="@string/news_num"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

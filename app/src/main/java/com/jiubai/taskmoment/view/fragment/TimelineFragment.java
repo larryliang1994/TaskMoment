@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,7 +49,6 @@ import com.jiubai.taskmoment.view.activity.MainActivity;
 import com.jiubai.taskmoment.view.activity.NewsActivity;
 import com.jiubai.taskmoment.view.activity.PersonalTimelineActivity;
 import com.jiubai.taskmoment.view.activity.TaskPublishActivity;
-import com.jiubai.taskmoment.widget.BorderScrollView;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.AuditPresenterImpl;
 import com.jiubai.taskmoment.presenter.CommentPresenterImpl;
@@ -84,14 +84,13 @@ import java.util.Locale;
 public class TimelineFragment extends Fragment implements ITimelineView, ICommentView, ITaskView,
         IUploadImageView, IAuditView, View.OnClickListener {
 
-    private static ListView lv;
+    public static ListView lv;
     private static TimelineAdapter adapter;
     private static View footerView;
     private static int keyBoardHeight;
     private static ICommentPresenter commentPresenter;
     private static IAuditPresenter auditPresenter;
 
-    public static BorderScrollView sv;
     public static LinearLayout ll_comment;
     public static LinearLayout ll_audit;
     public static Space space;
@@ -131,13 +130,14 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
      */
     @SuppressLint("InflateParams")
     private void initView(View view) {
-        iv_portrait = (ImageView) view.findViewById(R.id.iv_portrait);
+        final View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.timeline_header, null);
+        iv_portrait = (ImageView) headerView.findViewById(R.id.iv_portrait);
         iv_portrait.setFocusable(true);
         iv_portrait.setFocusableInTouchMode(true);
         iv_portrait.requestFocus();
         iv_portrait.setOnClickListener(this);
 
-        tv_nickname = (TextView) view.findViewById(R.id.tv_timeline_nickname);
+        tv_nickname = (TextView) headerView.findViewById(R.id.tv_timeline_nickname);
         if (!"".equals(Config.NICKNAME) && !"null".equals(Config.NICKNAME)) {
             tv_nickname.setText(Config.NICKNAME);
         }
@@ -153,11 +153,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // 下拉刷新过以后，可以重新进行底部加载
-                if (lv.getFooterViewsCount() == 0) {
-                    lv.addFooterView(footerView);
-                }
-
                 refreshTimeline("refresh",
                         Calendar.getInstance(Locale.CHINA).getTimeInMillis() + "");
 
@@ -167,28 +162,44 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         srl.setEnabled(true);
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
+        lv.setAdapter(new TimelineAdapter(getActivity()));
+        lv.addHeaderView(headerView);
 
         footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more_timeline, null);
 
-        sv = (BorderScrollView) view.findViewById(R.id.sv_timeline);
-        sv.setOnBorderListener(new BorderScrollView.OnBorderListener() {
-
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onTop() {
+            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
+                switch (scrollState) {
+
+                    case SCROLL_STATE_IDLE:
+                        // 判断滚动到底部
+                        View lastChild = lv.getChildAt(lv.getChildCount() - 1);
+
+                        if (lastChild.getBottom() <= lv.getHeight()
+                                && lv.getLastVisiblePosition() == lv.getCount() - 1) {
+                            // 有footerView并且不是正在加载
+                            if (lv.getFooterViewsCount() > 0 && !isBottomRefreshing) {
+
+                                isBottomRefreshing = true;
+
+                                refreshTimeline("loadMore",
+                                        (TimelineAdapter.taskList
+                                                .get(TimelineAdapter.taskList.size() - 1)
+                                                .getCreateTime() / 1000 - 1) + "");
+                            }
+                        }
+
+                        break;
+                }
             }
 
             @Override
-            public void onBottom() {
-                // 有footerView并且不是正在加载
-                if (lv.getFooterViewsCount() > 0 && !isBottomRefreshing) {
-
-                    isBottomRefreshing = true;
-
-                    refreshTimeline("loadMore",
-                            (TimelineAdapter.taskList
-                                    .get(TimelineAdapter.taskList.size() - 1)
-                                    .getCreateTime() / 1000 - 1) + "");
-
+            public void onScroll(AbsListView absListView, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (headerView.getY() == 0) {
+                    srl.setEnabled(true);
+                } else {
+                    srl.setEnabled(false);
                 }
             }
         });
@@ -228,17 +239,17 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         ll_comment = (LinearLayout) view.findViewById(R.id.ll_comment);
         ll_audit = (LinearLayout) view.findViewById(R.id.ll_audit);
 
-        tv_news_num = (TextView) view.findViewById(R.id.tv_news_num);
-        ll_news = (LinearLayout) view.findViewById(R.id.ll_news);
+        tv_news_num = (TextView) headerView.findViewById(R.id.tv_news_num);
+        ll_news = (LinearLayout) headerView.findViewById(R.id.ll_news);
         ll_news.setOnClickListener(this);
 
         GradientDrawable newsBgShape = (GradientDrawable) ll_news.getBackground();
         newsBgShape.setColor(ContextCompat.getColor(getActivity(), R.color.news));
 
-        iv_companyBackground = (ImageView) view.findViewById(R.id.iv_companyBackground);
+        iv_companyBackground = (ImageView) headerView.findViewById(R.id.iv_companyBackground);
         iv_companyBackground.setOnClickListener(this);
 
-        final TextView tv_addBackground = (TextView) view.findViewById(R.id.tv_add_background);
+        final TextView tv_addBackground = (TextView) headerView.findViewById(R.id.tv_add_background);
 
         if (Config.COMPANY_BACKGROUND != null) {
             ImageLoader.getInstance().displayImage(
@@ -263,7 +274,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                     });
         }
 
-        iv_news_portrait = (ImageView) view.findViewById(R.id.iv_news_portrait);
+        iv_news_portrait = (ImageView) headerView.findViewById(R.id.iv_news_portrait);
         ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_news_portrait);
 
         MainActivity.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
@@ -350,7 +361,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                             if (TimelineAdapter.taskList.get(i).getId().equals(taskID)) {
                                 TimelineAdapter.taskList.remove(i);
                                 adapter.notifyDataSetChanged();
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
 
                                 break;
                             }
@@ -376,7 +386,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                                     TimelineAdapter.taskList.get(i).getComments().add(comment);
 
                                     adapter.notifyDataSetChanged();
-                                    UtilBox.setListViewHeightBasedOnChildren(lv);
 
                                     break;
                                 }
@@ -398,7 +407,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                                 TimelineAdapter.taskList.set(i, task);
 
                                 adapter.notifyDataSetChanged();
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
 
                                 break;
                             }
@@ -525,10 +533,15 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                                     public void run() {
                                         int viewHeight = UtilBox.getHeightPixels(context) - y;
 
-                                        int finalScroll = keyBoardHeight - viewHeight
-                                                + sv.getScrollY() + UtilBox.dip2px(context, 54);
+                                        final int finalScroll = keyBoardHeight - viewHeight
+                                                + lv.getScrollY() + UtilBox.dip2px(context, 54);
 
-                                        sv.smoothScrollTo(0, finalScroll);
+                                        lv.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                lv.scrollTo(0, finalScroll);
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -771,8 +784,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
 
                     adapter.notifyDataSetChanged();
 
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
-
                     // 开始上传图片
                     uploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
                 }
@@ -790,40 +801,25 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                     adapter = new TimelineAdapter(getActivity(), false, info, uploadImagePresenter);
                 }
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (lv.getAdapter() == null) {
-                                    lv.setAdapter(adapter);
-                                } else {
-                                    adapter.notifyDataSetChanged();
-                                }
-                                UtilBox.setListViewHeightBasedOnChildren(lv);
+                if (TimelineAdapter.init) {
+                    lv.setAdapter(adapter);
+                    TimelineAdapter.init = false;
+                } else {
+                    adapter.notifyDataSetChanged();
+                }
 
-                                if ("refresh".equals(type)) {
-                                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
+                if ("refresh".equals(type)) {
+                    timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
 
-                                    int svHeight = sv.getHeight();
-
-                                    int lvHeight = lv.getLayoutParams().height;
-
-                                    // 312是除去上部其他组件高度后的剩余空间，
-                                    int newsBar = ll_news.getVisibility() == View.GONE ? 312 : 357;
-                                    if (lvHeight > svHeight - UtilBox.dip2px(getActivity(), newsBar)
-                                            && lv.getFooterViewsCount() == 0) {
-                                        lv.addFooterView(footerView);
-                                        UtilBox.setListViewHeightBasedOnChildren(lv);
-                                    }
-                                } else {
-                                    isBottomRefreshing = false;
-                                }
-                            }
-                        });
+                    if (TimelineAdapter.taskList.size() >= Constants.LOAD_NUM
+                            && lv.getFooterViewsCount() == 0) {
+                        lv.addFooterView(footerView);
                     }
-                }, 500);
+                } else {
+                    isBottomRefreshing = false;
+
+                    lv.requestLayout();
+                }
 
                 break;
 
@@ -833,8 +829,6 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                     timelinePresenter.onSetSwipeRefreshVisibility(Constants.INVISIBLE);
                 } else {
                     lv.removeFooterView(footerView);
-
-                    UtilBox.setListViewHeightBasedOnChildren(lv);
 
                     isBottomRefreshing = false;
                 }

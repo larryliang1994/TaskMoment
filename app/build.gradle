@@ -8,8 +8,8 @@ android {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 16
-        versionName "0.8.2.6"
+        versionCode 17
+        versionName "0.8.3.0"
     }
 
     signingConfigs {
@@ -49,8 +49,9 @@ buildscript {
 
 allprojects {
     repositories {
+        jcenter()
         mavenCentral()
-        maven {url "https://clojars.org/repo/"}
+        maven { url "https://raw.githubusercontent.com/umeng/mvn-repo-umeng/master/repository" }
     }
 }
 
@@ -77,5 +78,4 @@ dependencies {
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:recyclerview-v7:23.1.1'
 }

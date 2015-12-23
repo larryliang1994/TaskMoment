@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.view.activity.AboutActivity;
 import com.jiubai.taskmoment.widget.RippleView;
 import com.umeng.socialize.controller.UMServiceFactory;
@@ -43,7 +44,7 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
     private void initView(View view){
         ((RippleView)view.findViewById(R.id.rv_companyInfo)).setOnRippleCompleteListener(this);
         ((RippleView)view.findViewById(R.id.rv_share)).setOnRippleCompleteListener(this);
-        ((RippleView)view.findViewById(R.id.rv_feedback)).setOnRippleCompleteListener(this);
+        //((RippleView)view.findViewById(R.id.rv_feedback)).setOnRippleCompleteListener(this);
         ((RippleView)view.findViewById(R.id.rv_update)).setOnRippleCompleteListener(this);
         ((RippleView)view.findViewById(R.id.rv_about)).setOnRippleCompleteListener(this);
     }
@@ -55,14 +56,14 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
                 break;
 
             case R.id.rv_share:
-                final UMSocialService mController = UMServiceFactory.getUMSocialService("com.umeng.share");
-
-                // 设置分享内容
-                mController.setShareContent("友盟社会化组件（SDK）让移动应用快速整合社交分享功能，http://www.umeng.com/social");
-
-                // 设置分享图片, 参数2为图片的url地址
-                mController.setShareMedia(new UMImage(getActivity(),
-                        "http://a.hiphotos.baidu.com/image/pic/item/83025aafa40f4bfb23babefc064f78f0f736182b.jpg"));
+//                final UMSocialService mController = UMServiceFactory.getUMSocialService("com.umeng.share");
+//
+//                // 设置分享内容
+//                mController.setShareContent("友盟社会化组件（SDK）让移动应用快速整合社交分享功能，http://www.umeng.com/social");
+//
+//                // 设置分享图片, 参数2为图片的url地址
+//                mController.setShareMedia(new UMImage(getActivity(),
+//                        "http://a.hiphotos.baidu.com/image/pic/item/83025aafa40f4bfb23babefc064f78f0f736182b.jpg"));
 
 //                // 添加微信平台
 //                UMWXHandler wxHandler = new UMWXHandler(getActivity(),
@@ -84,12 +85,12 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
 //                QZoneSsoHandler qZoneSsoHandler = new QZoneSsoHandler(getActivity(),
 //                        Constants.APP_ID_QQ, Constants.APP_KEY_QQ);
 //                qZoneSsoHandler.addToSocialSDK();
-
-                //设置新浪SSO handler
-                mController.getConfig().setSsoHandler(new SinaSsoHandler());
-
-                //设置腾讯微博SSO handler
-                mController.getConfig().setSsoHandler(new TencentWBSsoHandler());
+//
+//                //设置新浪SSO handler
+//                mController.getConfig().setSsoHandler(new SinaSsoHandler());
+//
+//                //设置腾讯微博SSO handler
+//                mController.getConfig().setSsoHandler(new TencentWBSsoHandler());
 
 //                //添加人人网SSO授权功能
 //                RenrenSsoHandler renrenSsoHandler = new RenrenSsoHandler(getActivity(),
@@ -99,19 +100,28 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
 //                // 添加豆瓣平台
 //                mController.getConfig().setPlatforms(SHARE_MEDIA.DOUBAN);
 
-                // 添加短信
-                SmsHandler smsHandler = new SmsHandler();
-                smsHandler.addToSocialSDK();
+//                // 添加短信
+//                SmsHandler smsHandler = new SmsHandler();
+//                smsHandler.addToSocialSDK();
+//
+//                // 添加email
+//                EmailHandler emailHandler = new EmailHandler();
+//                emailHandler.addToSocialSDK();
+//
+//                mController.openShare(getActivity(), false);
 
-                // 添加email
-                EmailHandler emailHandler = new EmailHandler();
-                emailHandler.addToSocialSDK();
-
-                mController.openShare(getActivity(), false);
+                Intent intent=new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain"); // 纯文本
+                intent.putExtra(Intent.EXTRA_TEXT, Constants.SHARE_TEXT);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "分享");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(Intent.createChooser(intent, getActivity().getTitle()));
                 break;
 
-            case R.id.rv_feedback:
-                break;
+           // case R.id.rv_feedback:
+//                FeedbackAgent agent = new FeedbackAgent(getActivity());
+//                agent.startFeedbackActivity();
+              //  break;
 
             case R.id.rv_update:
                 UmengUpdateAgent.setUpdateListener(new UmengUpdateListener() {

@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiubai.taskmoment.R;
+import com.jiubai.taskmoment.adapter.TimelineAdapter;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.common.UtilBox;
@@ -30,6 +31,8 @@ import com.jiubai.taskmoment.view.fragment.PreferenceFragment;
 import com.jiubai.taskmoment.view.fragment.TimelineFragment;
 import com.jiubai.taskmoment.view.fragment.UserInfoFragment;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.sql.Time;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -304,7 +307,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     new Handler().post(new Runnable() {
                         @Override
                         public void run() {
-                            TimelineFragment.sv.fullScroll(View.FOCUS_UP);
+                            if (TimelineAdapter.taskList != null
+                                    && TimelineAdapter.taskList.size() > Constants.LOAD_NUM){
+                                TimelineFragment.lv.setSelection(Constants.LOAD_NUM - 1);
+                            }
+
+                            TimelineFragment.lv.smoothScrollToPosition(0);
                         }
                     });
                 }
@@ -342,7 +350,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             } else if ((currentItem == 0 && TimelineFragment.auditWindowIsShow)) {
                 TimelineFragment.ll_audit.setVisibility(View.GONE);
                 TimelineFragment.auditWindowIsShow = false;
-            } else if (currentItem!=0){
+            } else if (currentItem != 0) {
                 nv.getMenu().getItem(0).setChecked(true);
                 tv_title.setText(Config.COMPANY_NAME + "的" + getResources().getString(R.string.timeline));
                 nv.getMenu().getItem(currentItem).setChecked(false);

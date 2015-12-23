@@ -44,6 +44,16 @@ public class TimelineAdapter extends BaseAdapter {
     public CommentAdapter commentAdapter;
     private Context context;
     private IUploadImagePresenter uploadImagePresenter;
+    public static boolean init = false; // true表示正在初始化
+
+    public TimelineAdapter(Context context) {
+        this.context = context;
+        if (taskList == null) {
+            taskList = new ArrayList<>();
+        }
+
+        init = true;
+    }
 
     public TimelineAdapter(Context context, boolean isRefresh,
                            String response, IUploadImagePresenter uploadImagePresenter) {
@@ -51,6 +61,7 @@ public class TimelineAdapter extends BaseAdapter {
 
         if (isRefresh) {
             taskList = new ArrayList<>();
+            taskList.clear();
         }
 
         if (uploadImagePresenter != null) {
@@ -134,6 +145,10 @@ public class TimelineAdapter extends BaseAdapter {
     @SuppressLint({"InflateParams", "SetTextI18n"})
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        if (taskList == null || taskList.isEmpty()) {
+            return null;
+        }
+
         final ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_timeline, null);

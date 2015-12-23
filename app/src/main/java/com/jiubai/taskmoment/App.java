@@ -36,6 +36,10 @@ public class App extends Application {
 
         sp = getApplicationContext().getSharedPreferences(Constants.SP_FILENAME, Context.MODE_PRIVATE);
 
+        initService();
+    }
+
+    public void initService() {
         // 初始化请求队列
         VolleyUtil.initRequestQueue(getApplicationContext());
 
