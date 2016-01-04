@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'bugly'   //添加Bugly插件
 
 android {
     compileSdkVersion 23
@@ -8,8 +9,8 @@ android {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 17
-        versionName "0.8.3.0"
+        versionCode 18
+        versionName "0.8.3.1"
     }
 
     signingConfigs {
@@ -55,6 +56,11 @@ allprojects {
     }
 }
 
+bugly {
+    appId = '900016169'    //注册时分配的App ID
+    appKey = 'sjc2oBkPvD4b3L0p'  //注册时分配的App Key
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':MediaSDK')
@@ -78,4 +84,5 @@ dependencies {
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.tencent.bugly:crashreport:1.2.8'
 }

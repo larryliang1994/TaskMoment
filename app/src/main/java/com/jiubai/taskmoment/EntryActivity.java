@@ -15,12 +15,14 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
+import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.view.activity.CompanyActivity;
 import com.jiubai.taskmoment.view.activity.LoginActivity;
 import com.jiubai.taskmoment.view.activity.MainActivity;
 import com.jiubai.taskmoment.widget.RotateLoading;
+import com.taobao.tae.sdk.callback.InitResultCallback;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengDialogButtonListener;
 import com.umeng.update.UmengUpdateAgent;
@@ -99,6 +101,27 @@ public class EntryActivity extends Activity {
 
     // 进入正式页面
     private void getStart() {
+        // 初始化多媒体服务
+        MediaServiceUtil.initMediaService(getApplicationContext(), new InitResultCallback() {
+            @Override
+            public void onSuccess() {
+                entry();
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                ll_no_network.setVisibility(View.VISIBLE);
+
+                changeLoadingState("dismiss");
+
+                Toast.makeText(EntryActivity.this,
+                        "初始化失败，请重试",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void entry() {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

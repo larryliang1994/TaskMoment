@@ -15,17 +15,8 @@ import com.jiubai.taskmoment.common.UtilBox;
  * 阿里巴巴图片上传工具
  */
 public class MediaServiceUtil {
-    public static void initMediaService(Context context) {
-        AlibabaSDK.asyncInit(context, new InitResultCallback() {
-            @Override
-            public void onSuccess() {
-            }
-
-            @Override
-            public void onFailure(int code, String msg) {
-                System.out.println("AlibabaSDK初始化失败：" + msg);
-            }
-        });
+    public static void initMediaService(Context context, InitResultCallback callback) {
+        AlibabaSDK.asyncInit(context, callback);
     }
 
     /**

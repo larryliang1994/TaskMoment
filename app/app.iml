@@ -72,6 +72,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/23.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.1/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.tencent.bugly/crashreport/1.2.8/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/de.hdodenhof/circleimageview/2.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/me.drakeet.materialdialog/library/1.2.2/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
@@ -107,6 +108,7 @@
     <orderEntry type="library" exported="" name="support-annotations-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.1" level="project" />
     <orderEntry type="library" exported="" name="oss-0.2.2" level="project" />
+    <orderEntry type="library" exported="" name="crashreport-1.2.8" level="project" />
     <orderEntry type="library" exported="" name="ksoap2-android-assembly-2.5.2-jar-with-dependencies" level="project" />
     <orderEntry type="module" module-name="social_sdk_library_project" exported="" />
     <orderEntry type="module" module-name="MediaSDK" exported="" />

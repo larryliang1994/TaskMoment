@@ -11,13 +11,13 @@ import android.widget.Toast;
 
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.net.MediaServiceUtil;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.umeng.message.PushAgent;
 import com.umeng.message.UmengMessageHandler;
 import com.umeng.message.entity.UMessage;
@@ -52,11 +52,11 @@ public class App extends Application {
         // 初始化图片加载框架
         initImageLoader();
 
-        // 初始化多媒体服务
-        MediaServiceUtil.initMediaService(getApplicationContext());
-
         // 开启推送服务
         initPushAgent();
+
+        // 启动崩溃统计
+        CrashReport.initCrashReport(getApplicationContext(), "900016169", false);
     }
 
     private void loadStorageData() {

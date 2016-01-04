@@ -162,8 +162,8 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
         srl.setEnabled(true);
 
         lv = (ListView) view.findViewById(R.id.lv_timeline);
-        lv.setAdapter(new TimelineAdapter(getActivity()));
         lv.addHeaderView(headerView);
+        lv.setAdapter(new TimelineAdapter(getActivity()));
 
         footerView = LayoutInflater.from(getActivity()).inflate(R.layout.load_more_timeline, null);
 
