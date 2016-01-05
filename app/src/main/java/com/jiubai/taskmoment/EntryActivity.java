@@ -144,7 +144,7 @@ public class EntryActivity extends Activity {
                     }
                 }
             }
-        }, 1500);
+        }, 500);
     }
 
     @OnClick(R.id.btn_reconnect)

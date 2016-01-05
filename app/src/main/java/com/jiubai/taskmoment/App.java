@@ -40,6 +40,9 @@ public class App extends Application {
     }
 
     public void initService() {
+        // 启动崩溃统计
+        CrashReport.initCrashReport(getApplicationContext(), "900016169", false);
+
         // 初始化请求队列
         VolleyUtil.initRequestQueue(getApplicationContext());
 
@@ -54,9 +57,6 @@ public class App extends Application {
 
         // 开启推送服务
         initPushAgent();
-
-        // 启动崩溃统计
-        CrashReport.initCrashReport(getApplicationContext(), "900016169", false);
     }
 
     private void loadStorageData() {
