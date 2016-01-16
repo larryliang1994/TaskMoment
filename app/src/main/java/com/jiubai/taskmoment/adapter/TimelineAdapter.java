@@ -52,6 +52,8 @@ public class TimelineAdapter extends BaseAdapter {
             taskList = new ArrayList<>();
         }
 
+        taskList.clear();
+
         init = true;
     }
 

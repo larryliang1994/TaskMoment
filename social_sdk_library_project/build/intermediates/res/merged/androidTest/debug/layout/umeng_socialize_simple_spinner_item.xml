@@ -18,4 +18,4 @@
         android:layout_toRightOf="@id/umeng_socialize_spinner_img"
         android:gravity="center_vertical" />
 
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_simple_spinner_item.xml --><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/build/intermediates/bundles/debug/res/layout/umeng_socialize_simple_spinner_item.xml -->

@@ -770,9 +770,17 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
 
                     String nickname;
                     if ("".equals(Config.NICKNAME) || "null".equals(Config.NICKNAME)) {
-                        nickname = "你";
+                        nickname = "我";
                     } else {
                         nickname = Config.NICKNAME;
+                    }
+
+                    int sendState = Task.SENDING;
+                    if(pictureList != null && !pictureList.isEmpty()) {
+                        // 开始上传图片
+                        uploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
+                    } else {
+                        sendState = Task.SUCCESS;
                     }
 
                     TimelineAdapter.taskList.add(0, new Task(taskID,
@@ -780,12 +788,11 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                             nickname, Config.MID, grade, content,
                             executor, supervisor, auditor,
                             pictureList, null, deadline, publish_time, create_time,
-                            "1", Task.SENDING));
+                            "1", sendState));
 
                     adapter.notifyDataSetChanged();
 
-                    // 开始上传图片
-                    uploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
+
                 }
                 break;
         }

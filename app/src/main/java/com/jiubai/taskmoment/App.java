@@ -71,7 +71,7 @@ public class App extends Application {
         Config.NICKNAME = sp.getString(Constants.SP_KEY_NICKNAME, "null");
         Config.TIME = sp.getLong(Constants.SP_KEY_TIME, 0);
         if (Config.TIME == 0) {
-            Calendar.getInstance().getTimeInMillis();
+            Config.TIME = Calendar.getInstance().getTimeInMillis();
             SharedPreferences.Editor editor = sp.edit();
             editor.putLong(Constants.SP_KEY_TIME, Config.TIME);
             editor.apply();

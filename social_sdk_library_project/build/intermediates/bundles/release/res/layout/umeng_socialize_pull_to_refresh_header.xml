@@ -70,4 +70,4 @@
         android:textSize="12sp"
         android:visibility="gone" />
 
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_pull_to_refresh_header.xml -->

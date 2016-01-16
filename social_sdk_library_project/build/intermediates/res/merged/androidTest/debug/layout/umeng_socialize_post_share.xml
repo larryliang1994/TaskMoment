@@ -142,4 +142,4 @@
         android:textColor="@color/umeng_socialize_text_share_content"
         android:textSize="18sp" />
 
-</com.umeng.socialize.view.wigets.KeyboardListenRelativeLayout>
+</com.umeng.socialize.view.wigets.KeyboardListenRelativeLayout><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_post_share.xml --><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/build/intermediates/bundles/debug/res/layout/umeng_socialize_post_share.xml -->

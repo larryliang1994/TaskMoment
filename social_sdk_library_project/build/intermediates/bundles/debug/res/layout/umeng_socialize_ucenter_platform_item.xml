@@ -41,4 +41,4 @@
          style="@style/umeng_socialize_divider"
         android:layout_below="@id/umeng_socialize_msg"/>
 
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_ucenter_platform_item.xml -->

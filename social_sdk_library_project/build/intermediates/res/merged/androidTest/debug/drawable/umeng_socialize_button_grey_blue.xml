@@ -5,4 +5,4 @@
     <item android:drawable="@drawable/umeng_socialize_button_blue" android:state_pressed="true" android:state_window_focused="true"/>
     <item android:drawable="@drawable/umeng_socialize_button_blue" android:state_focused="true"/>
 
-</selector>	
+</selector>	<!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/drawable/umeng_socialize_button_grey_blue.xml --><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/build/intermediates/bundles/debug/res/drawable/umeng_socialize_button_grey_blue.xml -->

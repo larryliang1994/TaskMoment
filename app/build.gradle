@@ -9,13 +9,13 @@ android {
         applicationId "com.jiubai.taskmoment"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 18
-        versionName "0.8.3.1"
+        versionCode 19
+        versionName "0.8.3.2"
     }
 
     signingConfigs {
         debug{
-            storeFile file("D:\\Others\\EngineeringPractice\\sign.jks")
+            storeFile file("sign.jks")
             storePassword "leunghowell"
             keyAlias "leunghowell"
             keyPassword "leunghowell"
@@ -44,7 +44,7 @@ android {
 
 buildscript {
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:1.3.0'
     }
 }
 

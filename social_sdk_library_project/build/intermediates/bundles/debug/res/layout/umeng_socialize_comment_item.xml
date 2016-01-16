@@ -78,4 +78,4 @@
         android:visibility="invisible"
         android:src="@drawable/umeng_socialize_location_ic"/>
     
-</RelativeLayout>
+</RelativeLayout><!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/social_sdk_library_project/res/layout/umeng_socialize_comment_item.xml -->
