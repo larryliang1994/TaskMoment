@@ -254,66 +254,60 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
                 break;
 
             case R.id.tv_executor:
-                if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-                    progressDialog.show();
 
-                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                        @Override
-                        public void successCallback() {
-                            progressDialog.dismiss();
-                            showMemberList(R.id.tv_executor, "executor");
-                        }
+                progressDialog.show();
 
-                        @Override
-                        public void failedCallback() {
-                            progressDialog.dismiss();
-                        }
-                    });
-                } else {
-                    showMemberList(R.id.tv_executor, "executor");
-                }
+                MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+                    @Override
+                    public void successCallback() {
+                        progressDialog.dismiss();
+                        showMemberList(R.id.tv_executor, "executor");
+                    }
+
+                    @Override
+                    public void failedCallback() {
+                        progressDialog.dismiss();
+                    }
+                });
+
                 break;
 
             case R.id.tv_supervisor:
-                if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-                    progressDialog.show();
 
-                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                        @Override
-                        public void successCallback() {
-                            progressDialog.dismiss();
-                            showMemberList(R.id.tv_supervisor, "supervisor");
-                        }
+                progressDialog.show();
 
-                        @Override
-                        public void failedCallback() {
-                            progressDialog.dismiss();
-                        }
-                    });
-                } else {
-                    showMemberList(R.id.tv_supervisor, "supervisor");
-                }
+                MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+                    @Override
+                    public void successCallback() {
+                        progressDialog.dismiss();
+                        showMemberList(R.id.tv_supervisor, "supervisor");
+                    }
+
+                    @Override
+                    public void failedCallback() {
+                        progressDialog.dismiss();
+                    }
+                });
+
                 break;
 
             case R.id.tv_auditor:
-                if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-                    progressDialog.show();
 
-                    UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                        @Override
-                        public void successCallback() {
-                            progressDialog.dismiss();
-                            showMemberList(R.id.tv_auditor, "auditor");
-                        }
+                progressDialog.show();
 
-                        @Override
-                        public void failedCallback() {
-                            progressDialog.dismiss();
-                        }
-                    });
-                } else {
-                    showMemberList(R.id.tv_auditor, "auditor");
-                }
+                MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+                    @Override
+                    public void successCallback() {
+                        progressDialog.dismiss();
+                        showMemberList(R.id.tv_auditor, "auditor");
+                    }
+
+                    @Override
+                    public void failedCallback() {
+                        progressDialog.dismiss();
+                    }
+                });
+
                 break;
 
             case R.id.btn_grade_s:
@@ -573,7 +567,7 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
     @Override
     public void onPublishTaskResult(String result, String info) {
-        switch (result){
+        switch (result) {
             case Constants.SUCCESS:
                 // 为了能马上显示出来
                 setResultAndFinish(info);
@@ -592,7 +586,7 @@ public class TaskPublishActivity extends BaseActivity implements ITaskView,
 
     @Override
     public void onUpdateTaskResult(String result, String info) {
-        switch (result){
+        switch (result) {
             case Constants.SUCCESS:
                 break;
 

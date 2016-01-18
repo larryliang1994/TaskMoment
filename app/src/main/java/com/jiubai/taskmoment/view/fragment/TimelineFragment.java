@@ -272,12 +272,14 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                         public void onLoadingCancelled(String s, View view) {
                         }
                     });
+        } else {
+            tv_addBackground.setVisibility(View.VISIBLE);
         }
 
         iv_news_portrait = (ImageView) headerView.findViewById(R.id.iv_news_portrait);
         ImageLoader.getInstance().displayImage(Config.PORTRAIT + "?t=" + Config.TIME, iv_news_portrait);
 
-        MainActivity.toolbar.findViewById(R.id.iBtn_publish).setOnClickListener(this);
+        MainActivity.toolbar.findViewById(R.id.iBtn_tool).setOnClickListener(this);
 
         rl_timeline = (RelativeLayout) view.findViewById(R.id.rl_timeline);
         rl_timeline.getViewTreeObserver().
@@ -457,20 +459,17 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
             return;
         }
 
-        if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-            UtilBox.getMember(getActivity(), new UtilBox.GetMemberCallBack() {
-                @Override
-                public void successCallback() {
-                    timelinePresenter.doPullTimeline(request_time, type);
-                }
+        MemberAdapter.getMember(getActivity(), new MemberAdapter.GetMemberCallBack() {
+            @Override
+            public void successCallback() {
+                timelinePresenter.doPullTimeline(request_time, type);
+            }
 
-                @Override
-                public void failedCallback() {
-                }
-            });
-        } else {
-            timelinePresenter.doPullTimeline(request_time, type);
-        }
+            @Override
+            public void failedCallback() {
+            }
+        });
+
     }
 
     /**
@@ -694,7 +693,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                         R.anim.in_right_left, R.anim.scale_stay);
                 break;
 
-            case R.id.iBtn_publish:
+            case R.id.iBtn_tool:
                 startActivityForResult(
                         new Intent(getActivity(), TaskPublishActivity.class),
                         Constants.CODE_PUBLISH_TASK);
@@ -776,7 +775,7 @@ public class TimelineFragment extends Fragment implements ITimelineView, ICommen
                     }
 
                     int sendState = Task.SENDING;
-                    if(pictureList != null && !pictureList.isEmpty()) {
+                    if (pictureList != null && !pictureList.isEmpty()) {
                         // 开始上传图片
                         uploadImagePresenter.doUploadImages(pictureList, Constants.DIR_TASK);
                     } else {

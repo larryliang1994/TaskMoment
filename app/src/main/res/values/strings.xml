@@ -42,6 +42,8 @@
     <string name="_deadline">完成期限：</string>
     <string name="_publishTime">发布时间：</string>
     <string name="_startTime">开始时间：</string>
+    <string name="_companyName">公司名称：</string>
+    <string name="_companyCreator">创建者：</string>
     <string name="choose">点此选择</string>
     <string name="publish">发 布</string>
     <string name="nickname">昵称</string>
@@ -74,4 +76,5 @@
     <string name="about">关于</string>
     <string name="reconnect">重新连接</string>
     <string name="load_more_news">查看更早的消息...</string>
+    <string name="companyInfo">公司信息</string>
 </resources>

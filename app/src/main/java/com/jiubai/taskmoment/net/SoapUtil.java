@@ -68,6 +68,7 @@ public class SoapUtil {
             Config.MID = jsonObject.getString("id");
             Config.NICKNAME = jsonObject.getString("real_name");
             Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg";
+            Config.MOBILE = jsonObject.getString("mobile");
         } catch (JSONException e) {
             e.printStackTrace();
         }

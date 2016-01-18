@@ -25,4 +25,5 @@ public class Urls {
     public static final String GET_USER_INFO = "get_user_info";
     public static final String TASK_DELETE = "renwu_del";
     public static final String LOAD_MORE_NEWS = "";
+    public static final String UPDATE_COMPANY_INFO = "update_company";
 }

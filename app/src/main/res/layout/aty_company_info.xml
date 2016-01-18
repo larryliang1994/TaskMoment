@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:animateLayoutChanges="true"
+    android:background="#ffffff"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/toolbar" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_companyName"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_companyName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/company_name"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_companyCreator"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_companyCreator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_companyCreator"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_companyInfo_qr"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:text="进入公司列表页面\n扫码即可加入该公司"
+        android:textSize="16sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+</LinearLayout>

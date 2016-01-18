@@ -144,20 +144,16 @@ public class PersonalTimelineActivity extends BaseActivity
     @SuppressLint("InflateParams")
     private void initView() {
 
-        if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-            UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                @Override
-                public void successCallback() {
-                    getUserInfo();
-                }
+        MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+            @Override
+            public void successCallback() {
+                getUserInfo();
+            }
 
-                @Override
-                public void failedCallback() {
-                }
-            });
-        } else {
-            getUserInfo();
-        }
+            @Override
+            public void failedCallback() {
+            }
+        });
 
         lv = (ListView) findViewById(R.id.lv_personal);
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);

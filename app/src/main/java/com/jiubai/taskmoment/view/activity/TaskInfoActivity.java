@@ -170,42 +170,34 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
         gv_picture.setAdapter(new TimelinePictureAdapter(this, task.getPictures()));
         UtilBox.setGridViewHeightBasedOnChildren(gv_picture, true);
 
-        if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-            UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                @Override
-                public void successCallback() {
-                    setESA();
-                }
 
-                @Override
-                public void failedCallback() {
-                }
-            });
-        } else {
-            setESA();
-        }
+        MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+            @Override
+            public void successCallback() {
+                setESA();
+            }
+
+            @Override
+            public void failedCallback() {
+            }
+        });
 
         if ("1".equals(task.getAuditResult()) || "null".equals(task.getAuditResult())) {
             tv_audit_result.setVisibility(View.GONE);
         } else {
             tv_audit_result.setVisibility(View.VISIBLE);
 
-            if (MemberAdapter.memberList == null || MemberAdapter.memberList.isEmpty()) {
-                UtilBox.getMember(this, new UtilBox.GetMemberCallBack() {
-                    @Override
-                    public void successCallback() {
-                        tv_audit_result.setText(
-                                Constants.AUDIT_RESULT[Integer.valueOf(task.getAuditResult())]);
-                    }
+            MemberAdapter.getMember(this, new MemberAdapter.GetMemberCallBack() {
+                @Override
+                public void successCallback() {
+                    tv_audit_result.setText(
+                            Constants.AUDIT_RESULT[Integer.valueOf(task.getAuditResult())]);
+                }
 
-                    @Override
-                    public void failedCallback() {
-                    }
-                });
-            } else {
-                tv_audit_result.setText(
-                        Constants.AUDIT_RESULT[Integer.valueOf(task.getAuditResult())]);
-            }
+                @Override
+                public void failedCallback() {
+                }
+            });
         }
 
         ll_comment = (LinearLayout) findViewById(R.id.ll_comment);
@@ -680,7 +672,7 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
 
     @Override
     public void onSendCommentResult(String result, String info) {
-        if(Constants.SUCCESS.equals(result)){
+        if (Constants.SUCCESS.equals(result)) {
 
         } else if (Constants.FAILED.equals(result)) {
             Toast.makeText(this, info, Toast.LENGTH_SHORT).show();
@@ -694,7 +686,7 @@ public class TaskInfoActivity extends BaseActivity implements ICommentView, IAud
 
     @Override
     public void onDeleteTaskResult(String result, String info) {
-        if(Constants.SUCCESS.equals(result)){
+        if (Constants.SUCCESS.equals(result)) {
             finish();
             overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
         } else {

@@ -1,10 +1,11 @@
 package com.jiubai.taskmoment.config;
 
-import android.os.Environment;
+import com.jiubai.taskmoment.common.UtilBox;
 
 /**
  * 常量
  */
+@SuppressWarnings("ConstantConditions")
 public class Constants {
     public static final int CODE_ADD_COMPANY = 1;
     public static final int CODE_CHANGE_COMPANY = 2;
@@ -15,6 +16,9 @@ public class Constants {
     public static final int CODE_CHECK_TASK = 7;
     public static final int CODE_CHOOSE_PORTRAIT = 8;
     public static final int CODE_CHOOSE_COMPANY_BACKGROUND = 9;
+
+    public static final String QR_TYPE_COMPANYINFO = "companyInfo";
+    public static final String QR_TYPE_MEMBERINFO = "memberInfo";
 
     public static final String SP_FILENAME = "config";
     public static final String SP_KEY_COOKIE = "cookie";
@@ -40,8 +44,7 @@ public class Constants {
     public static final String ACTION_AUDIT = "com.jiubai.action.audit";
     public static final String ACTION_CHANGE_BACKGROUND = "com.jiubai.action.change_background";
 
-    public static final String TEMP_FILE_LOCATION = "file:///"
-            + Environment.getExternalStorageDirectory() + "/temp.jpg";
+    public static final String TEMP_FILE_LOCATION = UtilBox.getTempFilePath("temp.jpg").getPath();
     public static final int SIZE_COMPANY_BACKGROUND = 500;
     public static final int SIZE_TASK_IMAGE = 300;
     public static final int SIZE_PORTRAIT = 100;

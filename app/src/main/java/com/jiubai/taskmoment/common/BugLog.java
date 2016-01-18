@@ -74,6 +74,13 @@ package com.jiubai.taskmoment.common;
  * 解决方案：无
  */
 
+/**
+ * 发现日期：2016-1-18
+ * 问题描述：toolbar里面如果加的按钮太多,占用内存会直线上涨
+ * 解决情况：未解决
+ * 解决方案：无
+ */
+
 @SuppressWarnings("unused")
 public class BugLog {
 }

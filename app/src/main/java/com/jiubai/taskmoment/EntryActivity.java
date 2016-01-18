@@ -195,6 +195,7 @@ public class EntryActivity extends Activity {
                                 Config.MID = data.getString("id");
                                 Config.NICKNAME = data.getString("real_name");
                                 Config.PORTRAIT = Urls.MEDIA_CENTER_PORTRAIT + Config.MID + ".jpg";
+                                Config.MOBILE = data.getString("mobile");
 
                                 SharedPreferences.Editor editor = App.sp.edit();
                                 editor.putString(Constants.SP_KEY_MID, Config.MID);
@@ -202,11 +203,7 @@ public class EntryActivity extends Activity {
                                 editor.putString(Constants.SP_KEY_PORTRAIT, Config.PORTRAIT);
                                 editor.apply();
 
-                                if (Config.CID == null) {
-                                    startActivity(new Intent(EntryActivity.this, CompanyActivity.class));
-                                } else {
-                                    startActivity(new Intent(EntryActivity.this, MainActivity.class));
-                                }
+                                startActivity(new Intent(EntryActivity.this, MainActivity.class));
 
                                 finish();
                                 overridePendingTransition(R.anim.zoom_in_scale,

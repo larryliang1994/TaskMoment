@@ -43,7 +43,7 @@ public class CheckPictureActivity extends BaseActivity implements View.OnClickLi
     @Bind(R.id.vp_checkPicture)
     ViewPager vp;
 
-    @Bind(R.id.iBtn_delete)
+    @Bind(R.id.iBtn_tool)
     ImageButton iBtn_delete;
 
     @Bind(R.id.toolBar)
@@ -79,6 +79,7 @@ public class CheckPictureActivity extends BaseActivity implements View.OnClickLi
         if ("local".equals(fromWhere)) {
             tv_title.setText(R.string.checkPicture);
             iBtn_delete.setVisibility(View.VISIBLE);
+            iBtn_delete.setImageResource(R.drawable.delete);
         } else if ("net".equals(fromWhere)) {
             toolBar.setVisibility(View.GONE);
         }
@@ -89,10 +90,10 @@ public class CheckPictureActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
-    @OnClick({R.id.iBtn_delete, R.id.iBtn_back})
+    @OnClick({R.id.iBtn_tool, R.id.iBtn_back})
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.iBtn_delete:
+            case R.id.iBtn_tool:
                 final MaterialDialog dialog = new MaterialDialog(this);
                 dialog.setTitle("提示")
                         .setMessage("要删除这张照片吗?")

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.KeyEvent;
@@ -21,13 +22,14 @@ import android.widget.Toast;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.JoinedCompanyAdapter;
 import com.jiubai.taskmoment.adapter.MyCompanyAdapter;
+import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.widget.SlidingLayout;
-import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.presenter.CompanyPresenterImpl;
 import com.jiubai.taskmoment.presenter.ICompanyPresenter;
 import com.jiubai.taskmoment.view.iview.ICompanyView;
+import com.jiubai.taskmoment.widget.SlidingLayout;
+import com.jiubai.taskmoment.zxing.activity.CaptureActivity;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -53,7 +55,7 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
     @Bind(R.id.iBtn_back)
     ImageButton iBtn_back;
 
-    @Bind(R.id.iBtn_more)
+    @Bind(R.id.iBtn_tool)
     ImageButton iBtn_more;
 
     private ICompanyPresenter companyPresenter;
@@ -76,6 +78,7 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
         tv_title.setText(R.string.myCompany);
 
         iBtn_more.setVisibility(View.VISIBLE);
+        iBtn_more.setImageResource(R.drawable.more);
 
         // 若不来自切换公司，则不需要返回键
         if (!getIntent().getBooleanExtra("hide", false)) {
@@ -137,7 +140,7 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
         }, 100);
     }
 
-    @OnClick({R.id.iBtn_back, R.id.iBtn_more})
+    @OnClick({R.id.iBtn_back, R.id.iBtn_tool, R.id.fab_qr})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iBtn_back:
@@ -146,7 +149,7 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
                 overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
                 break;
 
-            case R.id.iBtn_more:
+            case R.id.iBtn_tool:
                 @SuppressLint("InflateParams")
                 View contentView = LayoutInflater.from(this).inflate(
                         R.layout.popup_logout, null);
@@ -191,6 +194,12 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
                         ContextCompat.getDrawable(this, R.drawable.white));
 
                 popupWindow.showAsDropDown(view);
+                break;
+
+            case R.id.fab_qr:
+                startActivity(new Intent(this, CaptureActivity.class));
+//                startActivity(new Intent(this, QRScanActivity.class));
+                overridePendingTransition(R.anim.in_right_left, R.anim.scale_stay);
                 break;
         }
     }

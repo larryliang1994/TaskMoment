@@ -32,8 +32,6 @@ import com.jiubai.taskmoment.view.fragment.TimelineFragment;
 import com.jiubai.taskmoment.view.fragment.UserInfoFragment;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.sql.Time;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -53,7 +51,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Bind(R.id.tv_title)
     TextView tv_title;
 
-    @Bind(R.id.iBtn_publish)
+    @Bind(R.id.iBtn_tool)
     ImageButton iBtn_publish;
 
     @Bind(R.id.nv_main)
@@ -98,6 +96,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         iBtn_back.setImageResource(R.drawable.navigation);
 
         iBtn_publish.setVisibility(View.VISIBLE);
+        iBtn_publish.setImageResource(R.drawable.publish);
 
         // 默认显示任务圈
         fragmentManager = getSupportFragmentManager();

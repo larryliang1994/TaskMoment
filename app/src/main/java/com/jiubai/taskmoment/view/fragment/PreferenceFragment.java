@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.view.activity.AboutActivity;
+import com.jiubai.taskmoment.view.activity.CompanyInfoActivity;
 import com.jiubai.taskmoment.widget.RippleView;
 import com.umeng.socialize.controller.UMServiceFactory;
 import com.umeng.socialize.controller.UMSocialService;
@@ -53,6 +54,9 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
     public void onComplete(RippleView rippleView) {
         switch (rippleView.getId()){
             case R.id.rv_companyInfo:
+                startActivity(new Intent(getActivity(), CompanyInfoActivity.class));
+//                getActivity().overridePendingTransition(
+//                        R.anim.in_right_left, R.anim.scale_stay);
                 break;
 
             case R.id.rv_share:

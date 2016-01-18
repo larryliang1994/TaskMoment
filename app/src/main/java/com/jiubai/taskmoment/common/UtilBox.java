@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -18,22 +19,16 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.jiubai.taskmoment.R;
-import com.jiubai.taskmoment.adapter.MemberAdapter;
-import com.jiubai.taskmoment.bean.Member;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
 import com.jiubai.taskmoment.config.Config;
 import com.jiubai.taskmoment.config.Constants;
-import com.jiubai.taskmoment.config.Urls;
-import com.jiubai.taskmoment.net.VolleyUtil;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -42,8 +37,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -503,81 +498,6 @@ public class UtilBox {
                 (int) height, matrix, true);
     }
 
-    public interface GetMemberCallBack {
-        void successCallback();
-
-        void failedCallback();
-    }
-
-    /**
-     * 获取成员列表
-     */
-    public static void getMember(final Context context, final GetMemberCallBack callBack) {
-        if (!Config.IS_CONNECTED) {
-            callBack.failedCallback();
-            Toast.makeText(context, R.string.cant_access_network,
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        VolleyUtil.requestWithCookie(Urls.GET_MEMBER + Config.CID, null, null,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        try {
-                            JSONObject responseJson = new JSONObject(response);
-
-                            String responseStatus = responseJson.getString("status");
-
-                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-                                MemberAdapter.memberList = new ArrayList<>();
-                                MemberAdapter.memberList.add(new Member("", "", "", ""));
-
-                                JSONObject memberJson = new JSONObject(response);
-
-                                if (!"null".equals(memberJson.getString("info"))) {
-                                    JSONArray memberArray = memberJson.getJSONArray("info");
-
-                                    for (int i = 0; i < memberArray.length(); i++) {
-                                        JSONObject obj
-                                                = new JSONObject(memberArray.getString(i));
-                                        Member member = new Member(
-                                                obj.getString("real_name"),
-                                                obj.getString("mobile"),
-                                                obj.getString("id"),
-                                                obj.getString("mid"));
-
-                                        MemberAdapter.memberList.add(member);
-
-                                    }
-
-                                    MemberAdapter.memberList.add(new Member("", "", "", ""));
-                                }
-
-                                callBack.successCallback();
-                            } else {
-                                callBack.failedCallback();
-                                Toast.makeText(context,
-                                        "获取成员列表失败",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        callBack.failedCallback();
-                        Toast.makeText(context,
-                                "获取成员列表失败",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
     /**
      * 设置状态栏颜色
      *
@@ -602,6 +522,85 @@ public class UtilBox {
             window.setStatusBarColor(ContextCompat.getColor(activity, color));
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             tintManager.setTintColor(ContextCompat.getColor(activity, color));
+        }
+    }
+
+    /**
+     * 生成QR图
+     *
+     * @param content 需要生成的内容
+     * @param width   图片宽度
+     * @param height  图片高度
+     * @return QR图Bitmap
+     */
+    public static Bitmap getQRImage(String content, int width, int height) {
+        try {
+            // 需要引入core包
+            QRCodeWriter writer = new QRCodeWriter();
+
+            if (content == null || "".equals(content) || content.length() < 1) {
+                return null;
+            }
+
+            // 把输入的文本转为二维码
+            BitMatrix matrix = writer.encode(content, BarcodeFormat.QR_CODE,
+                    width, height);
+
+            //System.out.println("w:" + matrix.getWidth() + "h:" + matrix.getHeight());
+
+            Hashtable<EncodeHintType, String> hints = new Hashtable<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+            BitMatrix bitMatrix = new QRCodeWriter().encode(content,
+                    BarcodeFormat.QR_CODE, width, height, hints);
+            int[] pixels = new int[width * height];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (bitMatrix.get(x, y)) {
+                        pixels[y * width + x] = 0xff000000;
+                    } else {
+                        pixels[y * width + x] = 0xffffffff;
+                    }
+                }
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(width, height,
+                    Bitmap.Config.ARGB_8888);
+
+            bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+
+            return bitmap;
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * 创建一个可访问的临时文件
+     *
+     * @param fileName 文件名
+     * @return 文件路径
+     */
+    public static File getTempFilePath(String fileName) {
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) { // 文件可用使用外部存储
+            File f = new File(Environment.getExternalStorageDirectory(),
+                    fileName);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            return f;
+        } else if ((new File("/mnt/sdcard2")).exists()) {  //特殊的手机，如中兴V955,存储卡为sdcard2
+            String file = "/mnt/sdcard2/" + fileName;
+            File f = new File(file);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+            return f;
+        } else {
+            return null;
         }
     }
 }

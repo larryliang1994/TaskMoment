@@ -31,27 +31,7 @@
         android:textSize="18sp" />
 
     <ImageButton
-        android:id="@+id/iBtn_more"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/clicked_bg"
-        android:padding="12dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/more"
-        android:visibility="gone" />
-
-    <ImageButton
-        android:id="@+id/iBtn_publish"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@drawable/clicked_bg"
-        android:padding="11dp"
-        android:scaleType="centerInside"
-        android:src="@drawable/add"
-        android:visibility="gone" />
-
-    <ImageButton
-        android:id="@+id/iBtn_delete"
+        android:id="@+id/iBtn_tool"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="@drawable/clicked_bg"
@@ -59,4 +39,5 @@
         android:scaleType="centerInside"
         android:src="@drawable/delete"
         android:visibility="gone" />
+
 </LinearLayout>
