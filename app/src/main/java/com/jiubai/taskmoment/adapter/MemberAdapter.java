@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +20,14 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.bean.Member;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.widget.RippleView;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.common.UtilBox;
 import com.jiubai.taskmoment.view.activity.PersonalTimelineActivity;
 import com.jiubai.taskmoment.view.fragment.MemberFragment;
+import com.jiubai.taskmoment.zxing.activity.CaptureActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +35,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -42,10 +46,13 @@ public class MemberAdapter extends BaseAdapter {
     public static List<Member> memberList;
     private Context context;
     public static boolean isEmpty = false;
+    private Fragment fragment;
 
-    public MemberAdapter(Context context, String memberInfo) {
+    public MemberAdapter(Context context, String memberInfo, Fragment fragment) {
         try {
             this.context = context;
+
+            this.fragment = fragment;
 
             memberList = new ArrayList<>();
             memberList.add(new Member("", "", "", ""));
@@ -105,7 +112,7 @@ public class MemberAdapter extends BaseAdapter {
 
                             String responseStatus = responseJson.getString("status");
 
-                            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
+                            if (Constants.SUCCESS.equals(responseStatus)) {
                                 MemberAdapter.memberList = new ArrayList<>();
                                 MemberAdapter.memberList.add(new Member("", "", "", ""));
 
@@ -243,10 +250,13 @@ public class MemberAdapter extends BaseAdapter {
                             });
                         }
                     });
-                    dialog.setNegativeButton("取消", new View.OnClickListener() {
+                    dialog.setNegativeButton("扫码", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             dialog.dismiss();
+
+                            fragment.startActivityForResult(new Intent(context, CaptureActivity.class),
+                                    Constants.CODE_QR_ADD_MEMBER);
                         }
                     });
 
@@ -269,63 +279,67 @@ public class MemberAdapter extends BaseAdapter {
 
             final Member member = (Member) getItem(position);
 
-            holder.btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!Config.COMPANY_CREATOR.equals(Config.MID)) {
-                        Toast.makeText(context, "只有创建者可以移除成员",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    } else if (Config.COMPANY_CREATOR.equals(member.getMid())) {
-                        Toast.makeText(context, "不能移除公司创建者",
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+            if (!Config.MID.equals(Config.COMPANY_CREATOR)) {
+                holder.btn.setVisibility(View.GONE);
+            } else {
+                holder.btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!Config.COMPANY_CREATOR.equals(Config.MID)) {
+                            Toast.makeText(context, "只有创建者可以移除成员",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        } else if (Config.COMPANY_CREATOR.equals(member.getMid())) {
+                            Toast.makeText(context, "不能移除公司创建者",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                    final MaterialDialog dialog = new MaterialDialog(context);
-                    dialog.setMessage("真的要移除该成员吗？")
-                            .setPositiveButton("真的", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    if (!Config.IS_CONNECTED) {
-                                        Toast.makeText(context,
-                                                R.string.cant_access_network,
-                                                Toast.LENGTH_SHORT).show();
-                                        return;
+                        final MaterialDialog dialog = new MaterialDialog(context);
+                        dialog.setMessage("真的要移除该成员吗？")
+                                .setPositiveButton("真的", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        if (!Config.IS_CONNECTED) {
+                                            Toast.makeText(context,
+                                                    R.string.cant_access_network,
+                                                    Toast.LENGTH_SHORT).show();
+                                            return;
+                                        }
+
+                                        dialog.dismiss();
+
+                                        String[] key = {"id", "mid"};
+                                        String[] value = {member.getId(), member.getMid()};
+
+                                        VolleyUtil.requestWithCookie(Urls.DELETE_MEMBER, key, value,
+                                                new Response.Listener<String>() {
+                                                    @Override
+                                                    public void onResponse(String response) {
+                                                        deleteCheck(position, response);
+                                                    }
+                                                },
+                                                new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError volleyError) {
+                                                        Toast.makeText(context,
+                                                                "删除失败，请重试",
+                                                                Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
                                     }
-
-                                    dialog.dismiss();
-
-                                    String[] key = {"id", "mid"};
-                                    String[] value = {member.getId(), member.getMid()};
-
-                                    VolleyUtil.requestWithCookie(Urls.DELETE_MEMBER, key, value,
-                                            new Response.Listener<String>() {
-                                                @Override
-                                                public void onResponse(String response) {
-                                                    deleteCheck(position, response);
-                                                }
-                                            },
-                                            new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError volleyError) {
-                                                    Toast.makeText(context,
-                                                            "删除失败，请重试",
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                }
-                            })
-                            .setNegativeButton("假的", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setCanceledOnTouchOutside(true)
-                            .show();
-                }
-            });
+                                })
+                                .setNegativeButton("假的", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .setCanceledOnTouchOutside(true)
+                                .show();
+                    }
+                });
+            }
 
             holder.rv.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
@@ -363,7 +377,7 @@ public class MemberAdapter extends BaseAdapter {
             JSONObject json = new JSONObject(result);
             String status = json.getString("status");
 
-            if ("1".equals(status) || "900001".equals(status)) {
+            if (Constants.SUCCESS.equals(status)) {
                 Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT).show();
 
                 // 插到倒数第二个位置

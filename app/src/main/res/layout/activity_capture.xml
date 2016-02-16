@@ -45,7 +45,7 @@
             android:layout_below="@id/capture_crop_view"
             android:layout_marginTop="50dp"
             android:gravity="center"
-            android:text="扫码即可加入公司"
+            android:text="扫码即可加入公司\n\n公司二维码:设置——公司信息\n我的二维码:公司列表——菜单"
             android:textColor="#ffffff"
             android:textSize="17sp" />
 

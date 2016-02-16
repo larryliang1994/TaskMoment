@@ -1,6 +1,8 @@
 package com.jiubai.taskmoment.view.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -18,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.jiubai.taskmoment.R;
 import com.jiubai.taskmoment.adapter.MemberAdapter;
 import com.jiubai.taskmoment.config.Config;
+import com.jiubai.taskmoment.config.Constants;
 import com.jiubai.taskmoment.config.Urls;
 import com.jiubai.taskmoment.net.VolleyUtil;
 import com.jiubai.taskmoment.common.UtilBox;
@@ -117,6 +120,19 @@ public class MemberFragment extends Fragment {
                 });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case Constants.CODE_QR_ADD_MEMBER:
+                if(resultCode == Activity.RESULT_OK){
+                    refreshListView();
+                }
+                break;
+        }
+    }
+
     /**
      * 显示成员
      *
@@ -128,8 +144,8 @@ public class MemberFragment extends Fragment {
 
             String responseStatus = responseJson.getString("status");
 
-            if ("1".equals(responseStatus) || "900001".equals(responseStatus)) {
-                MemberAdapter adpt_member = new MemberAdapter(getActivity(), response);
+            if (Constants.SUCCESS.equals(responseStatus)) {
+                MemberAdapter adpt_member = (new MemberAdapter(getActivity(), response, this));
                 lv_member.setAdapter(adpt_member);
             } else {
                 Toast.makeText(getActivity(),

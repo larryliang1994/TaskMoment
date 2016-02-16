@@ -22,7 +22,7 @@ import android.util.Log;
 public class OpenCameraInterface {
 
 	private static final String TAG = OpenCameraInterface.class.getName();
-
+	public static Camera camera = null;
 	/**
 	 * Opens the requested camera with {@link Camera#open(int)}, if one exists.
 	 * 
@@ -56,7 +56,6 @@ public class OpenCameraInterface {
 			cameraId = index;
 		}
 
-		Camera camera;
 		if (cameraId < numCameras) {
 			Log.i(TAG, "Opening camera #" + cameraId);
 			camera = Camera.open(cameraId);

@@ -72,90 +72,90 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Bind(R.id.capture_scan_line)
     ImageView scanLine;
 
-	private static final String TAG = CaptureActivity.class.getSimpleName();
+    private static final String TAG = CaptureActivity.class.getSimpleName();
 
-	private CameraManager cameraManager;
-	private CaptureActivityHandler handler;
-	private InactivityTimer inactivityTimer;
-	private BeepManager beepManager;
+    private CameraManager cameraManager;
+    private CaptureActivityHandler handler;
+    private InactivityTimer inactivityTimer;
+    private BeepManager beepManager;
 
-	private Rect mCropRect = null;
-	private boolean isHasSurface = false;
+    private Rect mCropRect = null;
+    private boolean isHasSurface = false;
 
-	@Override
-	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
+    @Override
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
 
-		Window window = getWindow();
-		window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		setContentView(R.layout.activity_capture);
+        setContentView(R.layout.activity_capture);
 
         ButterKnife.bind(this);
 
-		inactivityTimer = new InactivityTimer(this);
-		beepManager = new BeepManager(this);
+        inactivityTimer = new InactivityTimer(this);
+        beepManager = new BeepManager(this);
 
-		TranslateAnimation animation = new TranslateAnimation(
+        TranslateAnimation animation = new TranslateAnimation(
                 Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.0f,
                 Animation.RELATIVE_TO_PARENT, 0.9f);
-		animation.setDuration(4500);
-		animation.setRepeatCount(-1);
-		animation.setRepeatMode(Animation.RESTART);
-		scanLine.startAnimation(animation);
-	}
+        animation.setDuration(4500);
+        animation.setRepeatCount(-1);
+        animation.setRepeatMode(Animation.RESTART);
+        scanLine.startAnimation(animation);
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-		// CameraManager must be initialized here, not in onCreate().
-		cameraManager = new CameraManager(getApplication());
+        // CameraManager must be initialized here, not in onCreate().
+        cameraManager = new CameraManager(getApplication());
 
-		handler = null;
+        handler = null;
 
-		if (isHasSurface) {
-			// The activity was paused but not stopped, so the surface still
-			// exists. Therefore
-			// surfaceCreated() won't be called, so init the camera here.
-			initCamera(scanPreview.getHolder());
-		} else {
-			// Install the callback and wait for surfaceCreated() to init the
-			// camera.
-			scanPreview.getHolder().addCallback(this);
-		}
+        if (isHasSurface) {
+            // The activity was paused but not stopped, so the surface still
+            // exists. Therefore
+            // surfaceCreated() won't be called, so init the camera here.
+            initCamera(scanPreview.getHolder());
+        } else {
+            // Install the callback and wait for surfaceCreated() to init the
+            // camera.
+            scanPreview.getHolder().addCallback(this);
+        }
 
-		inactivityTimer.onResume();
-	}
+        inactivityTimer.onResume();
+    }
 
-	@Override
-	protected void onPause() {
-		if (handler != null) {
-			handler.quitSynchronously();
-			handler = null;
-		}
-		inactivityTimer.onPause();
-		beepManager.close();
-		cameraManager.closeDriver();
-		if (!isHasSurface) {
-			scanPreview.getHolder().removeCallback(this);
-		}
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        if (handler != null) {
+            handler.quitSynchronously();
+            handler = null;
+        }
+        inactivityTimer.onPause();
+        beepManager.close();
+        cameraManager.closeDriver();
+        if (!isHasSurface) {
+            scanPreview.getHolder().removeCallback(this);
+        }
+        super.onPause();
+    }
 
-	@Override
-	protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
 
         scanPreview.getHolder().removeCallback(this);
         scanPreview.getHolder().getSurface().release();
-		inactivityTimer.shutdown();
+        inactivityTimer.shutdown();
         cameraManager.closeDriver();
         cameraManager.stopPreview();
 
-		super.onDestroy();
-	}
+        super.onDestroy();
+    }
 
     public Handler getHandler() {
         return handler;
@@ -165,39 +165,37 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         return cameraManager;
     }
 
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		if (!isHasSurface) {
-			isHasSurface = true;
-			initCamera(holder);
-		}
-	}
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        if (!isHasSurface) {
+            isHasSurface = true;
+            initCamera(holder);
+        }
+    }
 
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		isHasSurface = false;
-	}
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        isHasSurface = false;
+    }
 
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    }
 
-	/**
-	 * A valid barcode has been found, so give an indication of success and show
-	 * the results.
-	 * 
-	 * @param rawResult
-	 *            The contents of the barcode.
-	 * 
-	 * @param bundle
-	 *            The extras
-	 */
-	public void handleDecode(Result rawResult, Bundle bundle) {
-		inactivityTimer.onActivity();
-		beepManager.playBeepSoundAndVibrate();
+    /**
+     * A valid barcode has been found, so give an indication of success and show
+     * the results.
+     *
+     * @param rawResult The contents of the barcode.
+     * @param bundle    The extras
+     */
+    public void handleDecode(Result rawResult, Bundle bundle) {
+        inactivityTimer.onActivity();
+        beepManager.playBeepSoundAndVibrate();
 
-		bundle.putInt("width", mCropRect.width());
-		bundle.putInt("height", mCropRect.height());
-		bundle.putString("result", rawResult.getText());
+        bundle.putInt("width", mCropRect.width());
+        bundle.putInt("height", mCropRect.height());
+        bundle.putString("result", rawResult.getText());
 
         try {
             final JSONObject jsonObject = new JSONObject(rawResult.getText());
@@ -208,6 +206,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     break;
 
                 case Constants.QR_TYPE_MEMBERINFO:
+                    addMember(jsonObject);
                     break;
             }
         } catch (JSONException e) {
@@ -215,180 +214,254 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
     }
 
+    private void addMember(final JSONObject jsonObject) throws JSONException {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("解析中");
+        final MaterialDialog dialog = new MaterialDialog(this);
+        dialog.setMessage("真的要添加" + jsonObject.getString("name") + "吗");
+        dialog.setPositiveButton("真的", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                progressDialog.show();
+
+                try {
+                    String[] key = {"mobile", "cid"};
+                    String[] value = {jsonObject.getString("mobile"), Config.CID};
+
+                    VolleyUtil.requestWithCookie(Urls.ADD_MEMBER, key, value,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    progressDialog.dismiss();
+
+                                    try {
+                                        JSONObject obj = new JSONObject(response);
+
+                                        if (Constants.SUCCESS.equals(obj.getString("status"))) {
+                                            CaptureActivity.this.setResult(RESULT_OK);
+                                        } else {
+                                            CaptureActivity.this.setResult(RESULT_CANCELED);
+                                            Toast.makeText(CaptureActivity.this,
+                                                    obj.getString("info"),
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        CaptureActivity.this.finish();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                            , new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    Toast.makeText(CaptureActivity.this,
+                                            "添加失败，请重试",
+                                            Toast.LENGTH_SHORT).show();
+                                    CaptureActivity.this.finish();
+                                    progressDialog.dismiss();
+                                }
+                            });
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    progressDialog.dismiss();
+
+                    Toast.makeText(CaptureActivity.this,
+                            "添加失败，请重试",
+                            Toast.LENGTH_SHORT).show();
+
+                    CaptureActivity.this.setResult(RESULT_CANCELED);
+                    CaptureActivity.this.finish();
+                }
+            }
+        });
+        dialog.setNegativeButton("假的", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+
     private void joinCompany(final JSONObject jsonObject) throws JSONException {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("解析中");
         final MaterialDialog dialog = new MaterialDialog(this);
         dialog.setMessage("真的要加入" + jsonObject.getString("name") + "吗");
         dialog.setPositiveButton("真的", new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-				progressDialog.show();
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                progressDialog.show();
 
-				try {
-					String[] key = {"mobile", "cid"};
-					String[] value = {Config.MOBILE, jsonObject.getString("cid")};
+                try {
+                    String[] key = {"mobile", "cid"};
+                    String[] value = {Config.MOBILE, jsonObject.getString("cid")};
 
-					VolleyUtil.requestWithCookie(Urls.ADD_MEMBER, key, value,
-							new Response.Listener<String>() {
-								@Override
-								public void onResponse(String response) {
-									progressDialog.dismiss();
+                    VolleyUtil.requestWithCookie(Urls.ADD_MEMBER, key, value,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    progressDialog.dismiss();
 
-									try {
-										JSONObject obj = new JSONObject(response);
+                                    try {
+                                        JSONObject obj = new JSONObject(response);
 
-										if (Constants.SUCCESS.equals(obj.getString("status"))) {
-											CaptureActivity.this.setResult(RESULT_OK);
-										} else {
-											CaptureActivity.this.setResult(RESULT_CANCELED);
-											Toast.makeText(CaptureActivity.this, obj.getString("info"), Toast.LENGTH_SHORT).show();
-										}
+                                        if (Constants.SUCCESS.equals(obj.getString("status"))) {
+                                            CaptureActivity.this.setResult(RESULT_OK);
+                                        } else {
+                                            CaptureActivity.this.setResult(RESULT_CANCELED);
+                                            Toast.makeText(CaptureActivity.this, obj.getString("info"), Toast.LENGTH_SHORT).show();
+                                        }
 
-										CaptureActivity.this.finish();
-										overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-									} catch (JSONException e) {
-										e.printStackTrace();
-									}
-								}
-							},
-							new Response.ErrorListener() {
-								@Override
-								public void onErrorResponse(VolleyError volleyError) {
-									Toast.makeText(CaptureActivity.this,
-											"加入失败，请重试",
-											Toast.LENGTH_SHORT).show();
-									progressDialog.dismiss();
-								}
-							});
+                                        CaptureActivity.this.finish();
+                                        overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    Toast.makeText(CaptureActivity.this,
+                                            "加入失败，请重试",
+                                            Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                    CaptureActivity.this.finish();
+                                }
+                            });
 
-				} catch (JSONException e) {
-					e.printStackTrace();
-					progressDialog.dismiss();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    progressDialog.dismiss();
 
-					Toast.makeText(CaptureActivity.this, "加入失败，请重试", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CaptureActivity.this, "加入失败，请重试", Toast.LENGTH_SHORT).show();
 
-					CaptureActivity.this.setResult(RESULT_CANCELED);
-					CaptureActivity.this.finish();
-					overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
-				}
-			}
-		});
-		dialog.setNegativeButton("假的", new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				dialog.dismiss();
-			}
-		});
-		dialog.show();
+                    CaptureActivity.this.setResult(RESULT_CANCELED);
+                    CaptureActivity.this.finish();
+                    overridePendingTransition(R.anim.scale_stay, R.anim.out_left_right);
+                }
+            }
+        });
+        dialog.setNegativeButton("假的", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
-	private void initCamera(SurfaceHolder surfaceHolder) {
-		if (surfaceHolder == null) {
-			throw new IllegalStateException("No SurfaceHolder provided");
-		}
-		if (cameraManager.isOpen()) {
-			Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
-			return;
-		}
-		try {
-			cameraManager.openDriver(surfaceHolder);
-			// Creating the handler starts the preview, which can also throw a
-			// RuntimeException.
-			if (handler == null) {
-				handler = new CaptureActivityHandler(this, cameraManager, DecodeThread.ALL_MODE);
-			}
+    private void initCamera(SurfaceHolder surfaceHolder) {
+        if (surfaceHolder == null) {
+            throw new IllegalStateException("No SurfaceHolder provided");
+        }
+        if (cameraManager.isOpen()) {
+            Log.w(TAG, "initCamera() while already open -- late SurfaceView callback?");
+            return;
+        }
+        try {
+            cameraManager.openDriver(surfaceHolder);
+            // Creating the handler starts the preview, which can also throw a
+            // RuntimeException.
+            if (handler == null) {
+                handler = new CaptureActivityHandler(this, cameraManager, DecodeThread.ALL_MODE);
+            }
 
-			initCrop();
-		} catch (IOException | RuntimeException e) {
-			displayFrameworkBugMessageAndExit();
+            initCrop();
+        } catch (IOException | RuntimeException e) {
+            displayFrameworkBugMessageAndExit();
             e.printStackTrace();
-		}
+        }
     }
 
-	private void displayFrameworkBugMessageAndExit() {
-		// camera error
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getString(R.string.app_name));
-		builder.setMessage("相机打开出错，请稍后重试");
-		builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+    private void displayFrameworkBugMessageAndExit() {
+        // camera error
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.app_name));
+        builder.setMessage("相机打开出错，请稍后重试");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
 
-		});
-		builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
 
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				finish();
-			}
-		});
-		builder.show();
-	}
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                finish();
+            }
+        });
+        builder.show();
+    }
 
-	@SuppressWarnings("unused")
-	public void restartPreviewAfterDelay(long delayMS) {
-		if (handler != null) {
-			handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
-		}
-	}
+    @SuppressWarnings("unused")
+    public void restartPreviewAfterDelay(long delayMS) {
+        if (handler != null) {
+            handler.sendEmptyMessageDelayed(R.id.restart_preview, delayMS);
+        }
+    }
 
-	public Rect getCropRect() {
-		return mCropRect;
-	}
+    public Rect getCropRect() {
+        return mCropRect;
+    }
 
-	/**
-	 * 初始化截取的矩形区域
-	 */
-	@SuppressWarnings("SuspiciousNameCombination")
-	private void initCrop() {
-		int cameraWidth = cameraManager.getCameraResolution().y;
-		int cameraHeight = cameraManager.getCameraResolution().x;
+    /**
+     * 初始化截取的矩形区域
+     */
+    @SuppressWarnings("SuspiciousNameCombination")
+    private void initCrop() {
+        int cameraWidth = cameraManager.getCameraResolution().y;
+        int cameraHeight = cameraManager.getCameraResolution().x;
 
-		/** 获取布局中扫描框的位置信息 */
-		int[] location = new int[2];
-		scanCropView.getLocationInWindow(location);
+        /** 获取布局中扫描框的位置信息 */
+        int[] location = new int[2];
+        scanCropView.getLocationInWindow(location);
 
-		int cropLeft = location[0];
-		int cropTop = location[1] - getStatusBarHeight();
+        int cropLeft = location[0];
+        int cropTop = location[1] - getStatusBarHeight();
 
-		int cropWidth = scanCropView.getWidth();
-		int cropHeight = scanCropView.getHeight();
+        int cropWidth = scanCropView.getWidth();
+        int cropHeight = scanCropView.getHeight();
 
-		/** 获取布局容器的宽高 */
-		int containerWidth = scanContainer.getWidth();
-		int containerHeight = scanContainer.getHeight();
+        /** 获取布局容器的宽高 */
+        int containerWidth = scanContainer.getWidth();
+        int containerHeight = scanContainer.getHeight();
 
-		/** 计算最终截取的矩形的左上角顶点x坐标 */
-		int x = cropLeft * cameraWidth / containerWidth;
-		/** 计算最终截取的矩形的左上角顶点y坐标 */
-		int y = cropTop * cameraHeight / containerHeight;
+        /** 计算最终截取的矩形的左上角顶点x坐标 */
+        int x = cropLeft * cameraWidth / containerWidth;
+        /** 计算最终截取的矩形的左上角顶点y坐标 */
+        int y = cropTop * cameraHeight / containerHeight;
 
-		/** 计算最终截取的矩形的宽度 */
-		int width = cropWidth * cameraWidth / containerWidth;
-		/** 计算最终截取的矩形的高度 */
-		int height = cropHeight * cameraHeight / containerHeight;
+        /** 计算最终截取的矩形的宽度 */
+        int width = cropWidth * cameraWidth / containerWidth;
+        /** 计算最终截取的矩形的高度 */
+        int height = cropHeight * cameraHeight / containerHeight;
 
-		/** 生成最终的截取的矩形 */
-		mCropRect = new Rect(x, y, width + x, height + y);
-	}
+        /** 生成最终的截取的矩形 */
+        mCropRect = new Rect(x, y, width + x, height + y);
+    }
 
-	private int getStatusBarHeight() {
-		try {
-			Class<?> c = Class.forName("com.android.internal.R$dimen");
-			Object obj = c.newInstance();
-			Field field = c.getField("status_bar_height");
-			int x = Integer.parseInt(field.get(obj).toString());
-			return getResources().getDimensionPixelSize(x);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return 0;
-	}
+    private int getStatusBarHeight() {
+        try {
+            Class<?> c = Class.forName("com.android.internal.R$dimen");
+            Object obj = c.newInstance();
+            Field field = c.getField("status_bar_height");
+            int x = Integer.parseInt(field.get(obj).toString());
+            return getResources().getDimensionPixelSize(x);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     @OnClick({R.id.iBtn_back})
     public void onClick(View view) {

@@ -50,6 +50,36 @@
 
         </com.jiubai.taskmoment.widget.RippleView>
 
+        <com.jiubai.taskmoment.widget.RippleView
+            android:id="@+id/rv_getPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            app:rv_color="@color/gray"
+            app:rv_rippleDuration="200"
+            app:rv_type="rectangle">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="预览版"
+                    android:textColor="#212121"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取任务圈2.0预览版"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+        </com.jiubai.taskmoment.widget.RippleView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

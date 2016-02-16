@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -30,6 +31,9 @@ import com.jiubai.taskmoment.presenter.ICompanyPresenter;
 import com.jiubai.taskmoment.view.iview.ICompanyView;
 import com.jiubai.taskmoment.widget.SlidingLayout;
 import com.jiubai.taskmoment.zxing.activity.CaptureActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -158,7 +162,7 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT, true);
 
-                contentView.findViewById(R.id.tv_popupWindow).setOnClickListener(new View.OnClickListener() {
+                contentView.findViewById(R.id.tv_logout).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         popupWindow.dismiss();
@@ -187,6 +191,32 @@ public class CompanyActivity extends BaseActivity implements ICompanyView{
                                 })
                                 .setCanceledOnTouchOutside(true)
                                 .show();
+                    }
+                });
+
+                contentView.findViewById(R.id.tv_qr_code).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        popupWindow.dismiss();
+
+                        JSONObject object = new JSONObject();
+                        try {
+                            object.put("type", Constants.QR_TYPE_MEMBERINFO);
+                            object.put("name", Config.NICKNAME);
+                            object.put("mobile", Config.MOBILE);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        View contentView = LayoutInflater.from(CompanyActivity.this).inflate(R.layout.dialog_image_desc, null);
+                        ((ImageView)(contentView.findViewById(R.id.iv)))
+                                .setImageBitmap(UtilBox.getQRImage(object.toString(),
+                                        UtilBox.dip2px(CompanyActivity.this, 150),
+                                        UtilBox.dip2px(CompanyActivity.this, 150)));
+                        ((TextView)(contentView.findViewById(R.id.tv)))
+                                .setText("管理员进入成员列表\n扫码即可添加成员");
+                        new MaterialDialog(CompanyActivity.this)
+                                .setContentView(contentView).setCanceledOnTouchOutside(true).show();
                     }
                 });
 

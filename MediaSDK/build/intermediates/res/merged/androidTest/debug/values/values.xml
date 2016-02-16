@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/Users/Leunghowell/Desktop/AndroidProject/TaskMoment/MediaSDK/build/intermediates/bundles/debug/res/values/values.xml -->
+    <!-- From: file:/D:/Others/EngineeringPractice/TaskMoment/TaskMoment/MediaSDK/build/intermediates/bundles/debug/res/values/values.xml -->
     <eat-comment/>
     <string name="alisdk_message_10000_action">请检查对应名称模块的库文件是否包含在当前开发应用的依赖库里面</string>
     <string name="alisdk_message_10000_message">JS Bridge 载入器未找到名称为 {0} 的模块</string>
