@@ -64,7 +64,7 @@ public class PreferenceFragment extends Fragment implements RippleView.OnRippleC
                                 downloadDialog.dismiss();
 
                                 startActivity(new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("http://adm.jiubaiwang.cn/WebSite/20055/uploadfile/webeditor2/android/Taskmoment_Material.apk")));
+                                        Uri.parse("http://adm.jiubaiwang.cn/WebSite/20055/uploadfile/webeditor2/android/TaskMoment_Material.apk")));
                             }
                         })
                         .setNegativeButton("假的", new View.OnClickListener() {
